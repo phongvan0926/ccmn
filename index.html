@@ -1,0 +1,2482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCMN Pro - Quản lý chung cư mini</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+<style>
+  body { margin: 0; background: #0f172a; }
+  /* Tailwind v2 doesn't have slate, add custom */
+  .bg-slate-900 { background: #0f172a } .bg-slate-800 { background: #1e293b } .bg-slate-700 { background: #334155 }
+  .bg-slate-800\/50 { background: rgba(30,41,59,0.5) } .bg-slate-800\/30 { background: rgba(30,41,59,0.3) }
+  .bg-slate-900\/50 { background: rgba(15,23,42,0.5) } .bg-slate-900\/30 { background: rgba(15,23,42,0.3) }
+  .bg-slate-700\/30 { background: rgba(51,65,85,0.3) }
+  .text-slate-400 { color: #94a3b8 } .text-slate-300 { color: #cbd5e1 } .text-slate-500 { color: #64748b }
+  .text-slate-200 { color: #e2e8f0 }
+  .border-slate-700 { border-color: #334155 } .border-slate-800 { border-color: #1e293b }
+  .border-slate-700\/30 { border-color: rgba(51,65,85,0.3) }
+  .border-slate-800\/50 { border-color: rgba(30,41,59,0.5) }
+  .hover\:bg-slate-800:hover { background: #1e293b } .hover\:text-white:hover { color: #fff }
+  .text-emerald-400 { color: #34d399 } .text-emerald-300 { color: #6ee7b7 }
+  .bg-emerald-500 { background: #10b981 } .bg-emerald-600 { background: #059669 }
+  .bg-emerald-500\/10 { background: rgba(16,185,129,0.1) } .bg-emerald-500\/15 { background: rgba(16,185,129,0.15) }
+  .bg-emerald-500\/20 { background: rgba(16,185,129,0.2) } .bg-emerald-500\/5 { background: rgba(16,185,129,0.05) }
+  .border-emerald-500\/20 { border-color: rgba(16,185,129,0.2) } .border-emerald-500\/30 { border-color: rgba(16,185,129,0.3) }
+  .border-emerald-500\/40 { border-color: rgba(16,185,129,0.4) }
+  .hover\:bg-emerald-600:hover { background: #059669 } .hover\:bg-emerald-500\/30:hover { background: rgba(16,185,129,0.3) }
+  .text-red-400 { color: #f87171 } .text-red-300 { color: #fca5a5 }
+  .bg-red-500\/10 { background: rgba(239,68,68,0.1) } .bg-red-500\/15 { background: rgba(239,68,68,0.15) }
+  .bg-red-500\/20 { background: rgba(239,68,68,0.2) } .bg-red-500\/5 { background: rgba(239,68,68,0.05) }
+  .border-red-500\/30 { border-color: rgba(239,68,68,0.3) } .border-red-500\/40 { border-color: rgba(239,68,68,0.4) }
+  .hover\:bg-red-500\/30:hover { background: rgba(239,68,68,0.3) }
+  .text-blue-400 { color: #60a5fa } .text-blue-300 { color: #93c5fd }
+  .bg-blue-500\/10 { background: rgba(59,130,246,0.1) } .bg-blue-500\/20 { background: rgba(59,130,246,0.2) }
+  .border-blue-500\/30 { border-color: rgba(59,130,246,0.3) }
+  .hover\:bg-blue-500\/30:hover { background: rgba(59,130,246,0.3) }
+  .text-yellow-400 { color: #facc15 } .text-yellow-300 { color: #fde047 }
+  .bg-yellow-500\/10 { background: rgba(234,179,8,0.1) } .bg-yellow-500\/15 { background: rgba(234,179,8,0.15) }
+  .bg-yellow-500\/20 { background: rgba(234,179,8,0.2) }
+  .border-yellow-500\/20 { border-color: rgba(234,179,8,0.2) } .border-yellow-500\/30 { border-color: rgba(234,179,8,0.3) }
+  .hover\:bg-yellow-500\/30:hover { background: rgba(234,179,8,0.3) }
+  .text-amber-400 { color: #fbbf24 } .text-amber-300 { color: #fcd34d }
+  .bg-amber-500\/5 { background: rgba(245,158,11,0.05) } .bg-amber-500\/10 { background: rgba(245,158,11,0.1) }
+  .bg-amber-500\/15 { background: rgba(245,158,11,0.15) } .bg-amber-500\/20 { background: rgba(245,158,11,0.2) }
+  .border-amber-500\/20 { border-color: rgba(245,158,11,0.2) } .border-amber-500\/30 { border-color: rgba(245,158,11,0.3) }
+  .border-amber-500\/40 { border-color: rgba(245,158,11,0.4) }
+  .hover\:bg-amber-500\/30:hover { background: rgba(245,158,11,0.3) }
+  .text-cyan-400 { color: #22d3ee } .bg-cyan-400 { background: #22d3ee }
+  .text-teal-400 { color: #2dd4bf } .text-teal-300 { color: #5eead4 }
+  .text-purple-400 { color: #a78bfa } .text-purple-300 { color: #c4b5fd }
+  .bg-purple-500\/10 { background: rgba(139,92,246,0.1) } .bg-purple-500\/20 { background: rgba(139,92,246,0.2) }
+  .border-purple-500\/30 { border-color: rgba(139,92,246,0.3) }
+  .hover\:bg-purple-500\/30:hover { background: rgba(139,92,246,0.3) }
+  .text-pink-400 { color: #f472b6 }
+  .text-orange-400 { color: #fb923c }
+  .text-indigo-400 { color: #818cf8 }
+  .font-mono { font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace }
+  .rounded-2xl { border-radius: 1rem } .rounded-xl { border-radius: 0.75rem }
+  .space-y-1 > * + * { margin-top: 0.25rem } .space-y-2 > * + * { margin-top: 0.5rem }
+  .space-y-3 > * + * { margin-top: 0.75rem } .space-y-4 > * + * { margin-top: 1rem }
+  .space-y-6 > * + * { margin-top: 1.5rem }
+  .resize-none { resize: none }
+  .max-h-\[90vh\] { max-height: 90vh }
+  .flex-shrink-0 { flex-shrink: 0 }
+  @media (min-width: 768px) { .md\:grid-cols-2 { grid-template-columns: repeat(2,1fr) } .md\:grid-cols-4 { grid-template-columns: repeat(4,1fr) } .md\:col-span-2 { grid-column: span 2 } .md\:grid-cols-5 { grid-template-columns: repeat(5,1fr) } }
+  @media (min-width: 1024px) { .lg\:grid-cols-3 { grid-template-columns: repeat(3,1fr) } .lg\:grid-cols-4 { grid-template-columns: repeat(4,1fr) } }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px } ::-webkit-scrollbar-track { background: #1e293b } ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+
+// ===== ICON SVG COMPONENTS =====
+var ICON_SVG = {
+  Home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  Users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  Zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  Droplets: '<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/>',
+  CreditCard: '<rect width="22" height="16" x="1" y="4" rx="2"/><line x1="1" x2="23" y1="10" y2="10"/>',
+  TrendingUp: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+  Plus: '<line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/>',
+  FileText: '<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/>',
+  Settings: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+  ChevronRight: '<path d="m9 18 6-6-6-6"/>',
+  Check: '<polyline points="20 6 9 17 4 12"/>',
+  AlertCircle: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+  Building2: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+  Wallet: '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>',
+  PieChart: '<path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',
+  Calendar: '<rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>',
+  ArrowUpRight: '<line x1="7" x2="17" y1="17" y2="7"/><polyline points="7 7 17 7 17 17"/>',
+  ArrowDownRight: '<line x1="7" x2="17" y1="7" y2="17"/><polyline points="11 17 17 17 17 11"/>',
+  X: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  Edit2: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
+  Save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+  Trash2: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+  Search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  Filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+  Download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  Bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  Clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  Phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  Shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>',
+  ChevronDown: '<path d="m6 9 6 6 6-6"/>',
+  Eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+};
+
+// Create icon components from SVG data
+function makeIcon(name) {
+  return function(props) {
+    var cn = props.className || "";
+    var s = props.size || 24;
+    return React.createElement("svg", {
+      xmlns: "http://www.w3.org/2000/svg", width: s, height: s,
+      viewBox: "0 0 24 24", fill: "none", stroke: "currentColor",
+      strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round",
+      className: cn, dangerouslySetInnerHTML: {__html: ICON_SVG[name]}
+    });
+  };
+}
+
+var Home = makeIcon("Home");
+var Users = makeIcon("Users");
+var Zap = makeIcon("Zap");
+var Droplets = makeIcon("Droplets");
+var CreditCard = makeIcon("CreditCard");
+var TrendingUp = makeIcon("TrendingUp");
+var Plus = makeIcon("Plus");
+var FileText = makeIcon("FileText");
+var Settings = makeIcon("Settings");
+var ChevronRight = makeIcon("ChevronRight");
+var Check = makeIcon("Check");
+var AlertCircle = makeIcon("AlertCircle");
+var Building2 = makeIcon("Building2");
+var Wallet = makeIcon("Wallet");
+var PieChart = makeIcon("PieChart");
+var Calendar = makeIcon("Calendar");
+var ArrowUpRight = makeIcon("ArrowUpRight");
+var ArrowDownRight = makeIcon("ArrowDownRight");
+var X = makeIcon("X");
+var Edit2 = makeIcon("Edit2");
+var Save = makeIcon("Save");
+var Trash2 = makeIcon("Trash2");
+var Search = makeIcon("Search");
+var Filter = makeIcon("Filter");
+var Download = makeIcon("Download");
+var Bell = makeIcon("Bell");
+var Clock = makeIcon("Clock");
+var Phone = makeIcon("Phone");
+var Shield = makeIcon("Shield");
+var ChevronDown = makeIcon("ChevronDown");
+var Eye = makeIcon("Eye");
+
+// ===== STORAGE: Google Sheets Auto-Sync =====
+var STORAGE_KEY = 'ccmn_pro_data';
+var QUEUE_KEY = 'ccmn_sync_queue';
+
+// URL Apps Script nhúng sẵn — không cần setup
+var API_URL = 'https://script.google.com/macros/s/AKfycbwbfVJDtlHdvQ6WZVqs6E3fuq8u2H69NqyE5W7L028TKfTTzv18iAIEkOpS6PhPCjTQ/exec';
+
+// --- localStorage ---
+function loadData() {
+  try { var raw = localStorage.getItem(STORAGE_KEY); if (raw) return JSON.parse(raw); }
+  catch(e) { console.warn('[CCMN] Load error:', e); }
+  return null;
+}
+function saveData(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  catch(e) { console.warn('[CCMN] Save error:', e); }
+}
+
+// --- Offline Queue ---
+function getQueue() {
+  try { var q = localStorage.getItem(QUEUE_KEY); return q ? JSON.parse(q) : []; }
+  catch(e) { return []; }
+}
+function saveQueue(queue) {
+  try { localStorage.setItem(QUEUE_KEY, JSON.stringify(queue)); } catch(e) {}
+}
+function clearQueue() { localStorage.removeItem(QUEUE_KEY); }
+
+// --- Sync TO Google Sheets ---
+// Dùng POST no-cors: resolve = request gửi thành công, reject = mất mạng
+function syncToCloud(data, callback) {
+  var payload = {
+    rooms: data.rooms, transactions: data.transactions,
+    bills: data.bills, settings: data.settings,
+    savedAt: new Date().toISOString()
+  };
+  fetch(API_URL, {
+    method: 'POST', headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify(payload), mode: 'no-cors'
+  }).then(function() {
+    clearQueue();
+    if (callback) callback(true, 'Đã sync Sheets');
+  }).catch(function(err) {
+    // Mất mạng → lưu vào queue
+    saveQueue([{ data: payload, timestamp: new Date().toISOString() }]);
+    if (callback) callback(false, 'Mất mạng — đã lưu hàng đợi');
+  });
+}
+
+// --- Sync FROM Google Sheets ---
+function syncFromCloud(callback) {
+  fetch(API_URL)
+    .then(function(r) { return r.json(); })
+    .then(function(json) {
+      if (json.success && json.data) {
+        callback(true, json.data, null);
+      } else {
+        callback(false, null, json.error || 'Sheet trống');
+      }
+    })
+    .catch(function(err) { callback(false, null, 'Mất mạng'); });
+}
+
+// --- Flush Queue (khi có mạng lại) ---
+function flushQueue(callback) {
+  var queue = getQueue();
+  if (queue.length === 0) { if (callback) callback(0); return; }
+  fetch(API_URL, {
+    method: 'POST', headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify(queue[0].data), mode: 'no-cors'
+  }).then(function() {
+    clearQueue();
+    if (callback) callback(queue.length);
+  }).catch(function() {
+    if (callback) callback(-1);
+  });
+}
+
+// --- Auto-retry khi có mạng lại ---
+var _flushListenerAdded = false;
+function setupAutoRetry(onFlushed) {
+  if (_flushListenerAdded) return;
+  _flushListenerAdded = true;
+  window.addEventListener('online', function() {
+    console.log('[CCMN] Online — flushing queue...');
+    flushQueue(function(r) {
+      if (r > 0 && onFlushed) onFlushed(r);
+    });
+  });
+}
+
+</script>
+
+<script type="text/babel">
+
+// ===== HẰNG SỐ PHÂN LOẠI THU CHI (13 loại chi + 7 loại thu) =====
+var CATEGORIES = {
+  THU_VON_GOP:{label:'Góp vốn',group:'capital',color:'text-blue-400'},
+  THU_COC_KHACH:{label:'Thu cọc khách',group:'capital',color:'text-cyan-400'},
+  THU_TIEN_NHA:{label:'Thu tiền thuê nhà',group:'revenue',color:'text-emerald-400'},
+  THU_LAI_NH:{label:'Lãi ngân hàng',group:'financial',color:'text-indigo-400'},
+  THU_HOAN_VAY:{label:'Thu hồi cho vay',group:'financial',color:'text-purple-400'},
+  THU_TRUNG_GIAN:{label:'Trung gian (ATM hộ)',group:'passthrough',color:'text-slate-400'},
+  THU_KHAC:{label:'Thu khác',group:'other',color:'text-slate-300'},
+  CHI_COC_CHU:{label:'Cọc chủ nhà (ký quỹ)',group:'capital',color:'text-blue-400'},
+  CHI_THUE_NHA:{label:'Tiền thuê nhà (trả chủ)',group:'cogs',color:'text-red-400'},
+  CHI_DIEN:{label:'Tiền điện (EVN)',group:'utility',color:'text-yellow-400'},
+  CHI_NUOC:{label:'Tiền nước',group:'utility',color:'text-blue-300'},
+  CHI_MANG:{label:'Tiền mạng/Internet',group:'utility',color:'text-teal-400'},
+  CHI_VE_SINH:{label:'Vệ sinh + Rác',group:'opex',color:'text-green-400'},
+  CHI_SUA_CHUA:{label:'Sửa chữa, bảo trì',group:'opex',color:'text-orange-400'},
+  CHI_MOI_GIOI:{label:'Quảng cáo/Môi giới',group:'opex',color:'text-pink-400'},
+  CHI_SETUP:{label:'Setup ban đầu (CAPEX)',group:'capex',color:'text-amber-400'},
+  CHI_PHI_NH:{label:'Phí ngân hàng',group:'opex',color:'text-slate-400'},
+  CHI_CHO_VAY:{label:'Cho vay',group:'financial',color:'text-purple-400'},
+  CHI_TRUNG_GIAN:{label:'Trung gian (ATM hộ)',group:'passthrough',color:'text-slate-400'},
+  CHI_KHAC:{label:'Chi phí khác',group:'opex',color:'text-slate-300'},
+};
+
+var INCOME_CATS = ['THU_VON_GOP','THU_COC_KHACH','THU_TIEN_NHA','THU_LAI_NH','THU_HOAN_VAY','THU_TRUNG_GIAN','THU_KHAC'];
+var EXPENSE_CATS = ['CHI_COC_CHU','CHI_THUE_NHA','CHI_DIEN','CHI_NUOC','CHI_MANG','CHI_VE_SINH','CHI_SUA_CHUA','CHI_MOI_GIOI','CHI_SETUP','CHI_PHI_NH','CHI_CHO_VAY','CHI_TRUNG_GIAN','CHI_KHAC'];
+
+// P&L categories (only operating items)
+var PNL_REVENUE = ['THU_TIEN_NHA'];
+var PNL_COGS = ['CHI_THUE_NHA'];
+var PNL_UTILITY = ['CHI_DIEN','CHI_NUOC','CHI_MANG'];
+var PNL_OPEX = ['CHI_VE_SINH','CHI_SUA_CHUA','CHI_MOI_GIOI','CHI_SETUP','CHI_PHI_NH','CHI_KHAC'];
+var PNL_FINANCIAL_IN = ['THU_LAI_NH'];
+// Non-P&L: THU_VON_GOP, THU_COC_KHACH, THU_HOAN_VAY, THU_TRUNG_GIAN, CHI_COC_CHU, CHI_CHO_VAY, CHI_TRUNG_GIAN
+
+// ===== DỮ LIỆU PHÒNG (nâng cấp: hợp đồng + giá riêng + thông tin khách) =====
+var initialRooms = [
+  {id:'201',tenant:'',phone:'',cccd:'',people:0,members:[],rent:0,deposit:0,status:'Trống',waterType:'person',note:'Phòng demo/trống',
+   contractStart:'',contractEnd:'',contractMonths:0,moveInDate:'',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+  {id:'202',tenant:'Huyền Kim',phone:'',cccd:'',people:1,members:[],rent:5000000,deposit:5000000,status:'Đang thuê',waterType:'meter',note:'',
+   contractStart:'2025-08-01',contractEnd:'2026-08-01',contractMonths:12,moveInDate:'2025-08-01',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+  {id:'301',tenant:'Trần Hân',phone:'',cccd:'',people:2,members:[],rent:5500000,deposit:0,status:'Đang thuê',waterType:'person',note:'Không thu cọc',
+   contractStart:'2025-08-01',contractEnd:'2026-02-01',contractMonths:6,moveInDate:'2025-08-01',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:100000}},
+  {id:'302',tenant:'Trần Trung Hoàng',phone:'',cccd:'',people:2,members:[],rent:4800000,deposit:4800000,status:'Đang thuê',waterType:'meter',note:'',
+   contractStart:'2025-10-01',contractEnd:'2026-10-01',contractMonths:12,moveInDate:'2025-10-01',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+  {id:'401',tenant:'Khánh Linh',phone:'',cccd:'',people:1,members:[],rent:5500000,deposit:0,status:'Đang thuê',waterType:'person',note:'Không thu cọc',
+   contractStart:'2025-07-15',contractEnd:'2026-01-15',contractMonths:6,moveInDate:'2025-07-15',
+   pricing:{elecPrice:3800,waterPrice:null,waterPerPerson:100000,internet:null,service:100000}},
+  {id:'402',tenant:'Lan Nguyễn',phone:'',cccd:'',people:2,members:[],rent:4700000,deposit:4700000,status:'Đang thuê',waterType:'person',note:'',
+   contractStart:'2025-11-01',contractEnd:'2026-11-01',contractMonths:12,moveInDate:'2025-11-01',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+  {id:'501',tenant:'Hỷ Nhi',phone:'',cccd:'',people:1,members:[],rent:5500000,deposit:5500000,status:'Đang thuê',waterType:'meter',note:'',
+   contractStart:'2025-08-01',contractEnd:'2026-08-01',contractMonths:12,moveInDate:'2025-08-01',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+  {id:'502',tenant:'Kiều Hạnh',phone:'',cccd:'',people:2,members:[],rent:4800000,deposit:4800000,status:'Đang thuê',waterType:'meter',note:'',
+   contractStart:'2025-09-01',contractEnd:'2026-09-01',contractMonths:12,moveInDate:'2025-09-01',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+  {id:'601',tenant:'Nguyễn Hương Giang',phone:'',cccd:'',people:1,members:[],rent:5500000,deposit:5500000,status:'Đang thuê',waterType:'person',note:'',
+   contractStart:'2025-10-15',contractEnd:'2026-10-15',contractMonths:12,moveInDate:'2025-10-15',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+  {id:'602',tenant:'Kiều Kiều',phone:'',cccd:'',people:1,members:[],rent:5000000,deposit:5000000,status:'Đang thuê',waterType:'meter',note:'',
+   contractStart:'2025-08-01',contractEnd:'2026-08-01',contractMonths:12,moveInDate:'2025-08-01',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+  {id:'701',tenant:'',phone:'',cccd:'',people:0,members:[],rent:0,deposit:0,status:'Trống',waterType:'person',note:'Phòng chủ',
+   contractStart:'',contractEnd:'',contractMonths:0,moveInDate:'',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+  {id:'702',tenant:'Nguyễn Hướng',phone:'',cccd:'',people:1,members:[],rent:4800000,deposit:4800000,status:'Đang thuê',waterType:'meter',note:'',
+   contractStart:'2025-11-01',contractEnd:'2026-11-01',contractMonths:12,moveInDate:'2025-11-01',
+   pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
+];
+
+// Helper: get effective price for a room (room override > default settings)
+function getRoomPrice(room, settings) {
+  var p = room.pricing || {};
+  return {
+    elecPrice: p.elecPrice != null ? p.elecPrice : settings.elecPrice,
+    waterPrice: p.waterPrice != null ? p.waterPrice : settings.waterPrice,
+    waterPerPerson: p.waterPerPerson != null ? p.waterPerPerson : settings.waterPerPerson,
+    internet: p.internet != null ? p.internet : settings.internet,
+    service: p.service != null ? p.service : settings.service,
+  };
+}
+
+// Helper: contract status
+function getContractStatus(room) {
+  if (!room.contractEnd || room.status !== 'Đang thuê') return { status: 'none', label: '', color: '', daysLeft: 0 };
+  var today = new Date();
+  var end = new Date(room.contractEnd);
+  var diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+  if (diff < 0) return { status: 'expired', label: 'Hết hạn', color: 'red', daysLeft: diff };
+  if (diff <= 30) return { status: 'expiring', label: 'Sắp hết (' + diff + ' ngày)', color: 'amber', daysLeft: diff };
+  if (diff <= 90) return { status: 'warning', label: 'Còn ' + diff + ' ngày', color: 'yellow', daysLeft: diff };
+  return { status: 'active', label: 'Còn ' + diff + ' ngày', color: 'emerald', daysLeft: diff };
+}
+
+var defaultSettings = {
+  elecPrice: 4000,
+  waterPrice: 35000,
+  waterPerPerson: 120000,
+  internet: 100000,
+  service: 150000,
+  monthlyRent: 42000000,
+};
+
+var initialBills = [
+  {id:1,month:'2025-10',room:'201',elecOld:0,elecNew:0,elecUsed:0,elecCost:0,waterOld:0,waterNew:0,waterUsed:0,waterCost:0,internet:0,service:0,rent:0,total:0,paid:0,debt:0,status:'Paid'},
+  {id:2,month:'2025-10',room:'202',elecOld:354,elecNew:529,elecUsed:175,elecCost:700000,waterOld:8,waterNew:12,waterUsed:4,waterCost:140000,internet:100000,service:150000,rent:5000000,total:6090000,paid:6090000,debt:0,status:'Paid'},
+  {id:3,month:'2025-10',room:'301',elecOld:539,elecNew:850,elecUsed:311,elecCost:1244000,waterOld:0,waterNew:0,waterUsed:2,waterCost:240000,internet:100000,service:300000,rent:5500000,total:7384000,paid:7384000,debt:0,status:'Paid'},
+  {id:4,month:'2025-10',room:'302',elecOld:203,elecNew:312,elecUsed:109,elecCost:436000,waterOld:8,waterNew:13,waterUsed:5,waterCost:175000,internet:100000,service:300000,rent:4800000,total:5811000,paid:5811000,debt:0,status:'Paid'},
+  {id:5,month:'2025-10',room:'401',elecOld:381,elecNew:510,elecUsed:129,elecCost:516000,waterOld:0,waterNew:0,waterUsed:1,waterCost:120000,internet:100000,service:150000,rent:5000000,total:5886000,paid:5886000,debt:0,status:'Paid'},
+  {id:6,month:'2025-10',room:'402',elecOld:845,elecNew:1222,elecUsed:377,elecCost:1508000,waterOld:10,waterNew:12,waterUsed:2,waterCost:70000,internet:100000,service:150000,rent:4800000,total:6628000,paid:6628000,debt:0,status:'Paid'},
+  {id:7,month:'2025-10',room:'501',elecOld:463,elecNew:736,elecUsed:273,elecCost:1092000,waterOld:0,waterNew:0,waterUsed:2,waterCost:240000,internet:100000,service:300000,rent:5500000,total:7232000,paid:7232000,debt:0,status:'Paid'},
+  {id:8,month:'2025-10',room:'502',elecOld:316,elecNew:509,elecUsed:193,elecCost:772000,waterOld:9,waterNew:14,waterUsed:5,waterCost:175000,internet:100000,service:300000,rent:4800000,total:6147000,paid:6147000,debt:0,status:'Paid'},
+  {id:9,month:'2025-10',room:'601',elecOld:270,elecNew:484,elecUsed:214,elecCost:856000,waterOld:0,waterNew:0,waterUsed:2,waterCost:240000,internet:100000,service:300000,rent:5500000,total:6996000,paid:6996000,debt:0,status:'Paid'},
+  {id:10,month:'2025-10',room:'602',elecOld:1109,elecNew:1562,elecUsed:453,elecCost:1812000,waterOld:15,waterNew:24,waterUsed:9,waterCost:315000,internet:100000,service:300000,rent:5000000,total:7527000,paid:7527000,debt:0,status:'Paid'},
+  {id:11,month:'2025-10',room:'701',elecOld:0,elecNew:0,elecUsed:0,elecCost:0,waterOld:0,waterNew:0,waterUsed:0,waterCost:0,internet:0,service:0,rent:0,total:0,paid:0,debt:0,status:'Paid'},
+  {id:12,month:'2025-10',room:'702',elecOld:511,elecNew:859,elecUsed:348,elecCost:1392000,waterOld:15,waterNew:25,waterUsed:10,waterCost:350000,internet:100000,service:300000,rent:4800000,total:6942000,paid:6942000,debt:0,status:'Paid'},
+  {id:13,month:'2025-11',room:'202',elecOld:529,elecNew:650,elecUsed:121,elecCost:484000,waterOld:12,waterNew:17,waterUsed:5,waterCost:175000,internet:100000,service:150000,rent:5000000,total:5909000,paid:5909000,debt:0,status:'Paid'},
+  {id:14,month:'2025-11',room:'301',elecOld:850,elecNew:1093,elecUsed:243,elecCost:972000,waterOld:0,waterNew:0,waterUsed:0,waterCost:240000,internet:100000,service:200000,rent:5500000,total:7012000,paid:7012000,debt:0,status:'Paid'},
+  {id:15,month:'2025-11',room:'302',elecOld:312,elecNew:408,elecUsed:96,elecCost:384000,waterOld:13,waterNew:19,waterUsed:6,waterCost:210000,internet:100000,service:300000,rent:4800000,total:5794000,paid:5794000,debt:0,status:'Paid'},
+  {id:16,month:'2025-11',room:'401',elecOld:510,elecNew:621,elecUsed:111,elecCost:421800,waterOld:0,waterNew:0,waterUsed:0,waterCost:100000,internet:100000,service:100000,rent:5000000,total:5721800,paid:5721800,debt:0,status:'Paid'},
+  {id:17,month:'2025-11',room:'402',elecOld:1222,elecNew:1565,elecUsed:343,elecCost:1372000,waterOld:12,waterNew:15,waterUsed:3,waterCost:105000,internet:100000,service:150000,rent:4800000,total:6527000,paid:6527000,debt:0,status:'Paid'},
+  {id:18,month:'2025-11',room:'501',elecOld:736,elecNew:911,elecUsed:175,elecCost:700000,waterOld:0,waterNew:0,waterUsed:0,waterCost:240000,internet:100000,service:300000,rent:5500000,total:6840000,paid:6840000,debt:0,status:'Paid'},
+  {id:19,month:'2025-11',room:'502',elecOld:509,elecNew:645,elecUsed:136,elecCost:544000,waterOld:14,waterNew:19,waterUsed:5,waterCost:175000,internet:100000,service:300000,rent:0,total:5919000,paid:1119000,debt:0,status:'Paid'},
+  {id:20,month:'2025-11',room:'601',elecOld:484,elecNew:597,elecUsed:113,elecCost:452000,waterOld:0,waterNew:0,waterUsed:0,waterCost:120000,internet:100000,service:150000,rent:5500000,total:6322000,paid:6322000,debt:0,status:'Paid'},
+  {id:21,month:'2025-11',room:'602',elecOld:1562,elecNew:1725,elecUsed:163,elecCost:652000,waterOld:24,waterNew:29,waterUsed:5,waterCost:175000,internet:100000,service:300000,rent:5000000,total:6227000,paid:6227000,debt:0,status:'Paid'},
+  {id:22,month:'2025-11',room:'702',elecOld:859,elecNew:1056,elecUsed:197,elecCost:788000,waterOld:25,waterNew:33,waterUsed:8,waterCost:280000,internet:100000,service:300000,rent:4800000,total:6268000,paid:6268000,debt:0,status:'Paid'},
+  {id:23,month:'2025-12',room:'702',elecOld:1056,elecNew:1215,elecUsed:159,elecCost:636000,waterOld:33,waterNew:43,waterUsed:10,waterCost:350000,internet:100000,service:300000,rent:4800000,total:6186000,paid:6186000,debt:0,status:'Paid'},
+  {id:24,month:'2025-12',room:'602',elecOld:1725,elecNew:1854,elecUsed:129,elecCost:516000,waterOld:29,waterNew:37,waterUsed:8,waterCost:280000,internet:100000,service:300000,rent:5000000,total:6196000,paid:6196000,debt:0,status:'Paid'},
+  {id:25,month:'2025-12',room:'601',elecOld:597,elecNew:689,elecUsed:92,elecCost:368000,waterOld:0,waterNew:0,waterUsed:0,waterCost:120000,internet:100000,service:150000,rent:5500000,total:6238000,paid:6238000,debt:0,status:'Paid'},
+  {id:26,month:'2025-12',room:'502',elecOld:645,elecNew:767,elecUsed:122,elecCost:488000,waterOld:19,waterNew:23,waterUsed:4,waterCost:140000,internet:100000,service:300000,rent:9600000,total:10628000,paid:10628000,debt:0,status:'Paid'},
+  {id:27,month:'2025-12',room:'501',elecOld:911,elecNew:1009,elecUsed:98,elecCost:392000,waterOld:0,waterNew:0,waterUsed:0,waterCost:240000,internet:100000,service:300000,rent:5500000,total:12032000,paid:6532000,debt:0,status:'Paid'},
+  {id:28,month:'2025-12',room:'402',elecOld:1565,elecNew:1788,elecUsed:220,elecCost:880000,waterOld:15,waterNew:19,waterUsed:4,waterCost:140000,internet:100000,service:150000,rent:0,total:2350000,paid:2425000,debt:0,status:'Paid'},
+  {id:29,month:'2025-12',room:'401',elecOld:621,elecNew:720,elecUsed:99,elecCost:376200,waterOld:0,waterNew:0,waterUsed:0,waterCost:100000,internet:100000,service:100000,rent:5000000,total:5676200,paid:5676200,debt:0,status:'Paid'},
+  {id:30,month:'2025-12',room:'302',elecOld:408,elecNew:506,elecUsed:98,elecCost:392000,waterOld:19,waterNew:24,waterUsed:5,waterCost:175000,internet:100000,service:300000,rent:4800000,total:5767000,paid:5767000,debt:0,status:'Paid'},
+  {id:31,month:'2025-12',room:'301',elecOld:1093,elecNew:1216,elecUsed:123,elecCost:492000,waterOld:0,waterNew:0,waterUsed:0,waterCost:240000,internet:100000,service:200000,rent:5500000,total:6532000,paid:6532000,debt:0,status:'Paid'},
+  {id:32,month:'2025-12',room:'202',elecOld:650,elecNew:747,elecUsed:97,elecCost:388000,waterOld:17,waterNew:24,waterUsed:7,waterCost:245000,internet:100000,service:450000,rent:5000000,total:6183000,paid:6183000,debt:0,status:'Paid'},
+  {id:33,month:'2026-01',room:'702',elecOld:1215,elecNew:1386,elecUsed:171,elecCost:684000,waterOld:43,waterNew:53,waterUsed:10,waterCost:350000,internet:100000,service:300000,rent:4800000,total:6234000,paid:6234000,debt:0,status:'Paid'},
+  {id:34,month:'2026-01',room:'602',elecOld:1854,elecNew:1990,elecUsed:136,elecCost:544000,waterOld:37,waterNew:47,waterUsed:10,waterCost:350000,internet:100000,service:300000,rent:5000000,total:6294000,paid:6294000,debt:0,status:'Paid'},
+  {id:35,month:'2026-01',room:'601',elecOld:689,elecNew:796,elecUsed:107,elecCost:428000,waterOld:0,waterNew:0,waterUsed:0,waterCost:120000,internet:100000,service:300000,rent:5500000,total:6568000,paid:6448000,debt:0,status:'Paid'},
+  {id:36,month:'2026-01',room:'502',elecOld:767,elecNew:883,elecUsed:116,elecCost:464000,waterOld:23,waterNew:28,waterUsed:5,waterCost:175000,internet:100000,service:300000,rent:0,total:1039000,paid:1039000,debt:0,status:'Paid'},
+  {id:37,month:'2026-01',room:'501',elecOld:1009,elecNew:1084,elecUsed:75,elecCost:300000,waterOld:0,waterNew:0,waterUsed:0,waterCost:240000,internet:100000,service:300000,rent:5500000,total:6440000,paid:6440000,debt:0,status:'Paid'},
+  {id:38,month:'2026-01',room:'402',elecOld:1788,elecNew:1831,elecUsed:43,elecCost:172000,waterOld:19,waterNew:22,waterUsed:3,waterCost:105000,internet:100000,service:150000,rent:4700000,total:5227000,paid:5227000,debt:0,status:'Paid'},
+  {id:39,month:'2026-01',room:'401',elecOld:720,elecNew:788,elecUsed:68,elecCost:258400,waterOld:0,waterNew:0,waterUsed:0,waterCost:100000,internet:100000,service:100000,rent:5000000,total:5558400,paid:5558400,debt:0,status:'Paid'},
+  {id:40,month:'2026-01',room:'302',elecOld:506,elecNew:608,elecUsed:102,elecCost:408000,waterOld:24,waterNew:29,waterUsed:5,waterCost:175000,internet:100000,service:300000,rent:4800000,total:5783000,paid:5783000,debt:0,status:'Paid'},
+  {id:41,month:'2026-01',room:'301',elecOld:1216,elecNew:1342,elecUsed:126,elecCost:504000,waterOld:0,waterNew:0,waterUsed:0,waterCost:240000,internet:100000,service:200000,rent:5500000,total:6544000,paid:6544000,debt:0,status:'Paid'},
+  {id:42,month:'2026-01',room:'202',elecOld:747,elecNew:818,elecUsed:71,elecCost:284000,waterOld:24,waterNew:30,waterUsed:6,waterCost:210000,internet:100000,service:150000,rent:5000000,total:5744000,paid:5744000,debt:0,status:'Paid'},
+  {id:43,month:'2026-02',room:'702',elecOld:1386,elecNew:1536,elecUsed:150,elecCost:600000,waterOld:53,waterNew:60,waterUsed:7,waterCost:245000,internet:100000,service:300000,rent:4800000,total:6045000,paid:6045000,debt:0,status:'Paid'},
+  {id:44,month:'2026-02',room:'602',elecOld:1990,elecNew:2144,elecUsed:154,elecCost:616000,waterOld:47,waterNew:54,waterUsed:7,waterCost:245000,internet:100000,service:300000,rent:5000000,total:6261000,paid:6261000,debt:0,status:'Paid'},
+  {id:45,month:'2026-02',room:'601',elecOld:796,elecNew:915,elecUsed:119,elecCost:476000,waterOld:0,waterNew:0,waterUsed:0,waterCost:80000,internet:100000,service:100000,rent:5500000,total:6616000,paid:6256000,debt:0,status:'Paid'},
+  {id:46,month:'2026-02',room:'502',elecOld:883,elecNew:1003,elecUsed:120,elecCost:480000,waterOld:28,waterNew:33,waterUsed:5,waterCost:175000,internet:100000,service:300000,rent:9600000,total:10655000,paid:10655000,debt:0,status:'Paid'},
+  {id:47,month:'2026-02',room:'501',elecOld:1084,elecNew:1180,elecUsed:96,elecCost:384000,waterOld:0,waterNew:0,waterUsed:0,waterCost:240000,internet:100000,service:300000,rent:5500000,total:6524000,paid:6524000,debt:0,status:'Paid'},
+  {id:48,month:'2026-02',room:'402',elecOld:1831,elecNew:1920,elecUsed:89,elecCost:356000,waterOld:22,waterNew:27,waterUsed:5,waterCost:175000,internet:100000,service:150000,rent:4700000,total:5481000,paid:5481000,debt:0,status:'Paid'},
+  {id:49,month:'2026-02',room:'401',elecOld:788,elecNew:898,elecUsed:110,elecCost:418000,waterOld:0,waterNew:0,waterUsed:0,waterCost:100000,internet:100000,service:100000,rent:5000000,total:5718000,paid:5718000,debt:0,status:'Paid'},
+  {id:50,month:'2026-02',room:'302',elecOld:608,elecNew:715,elecUsed:107,elecCost:428000,waterOld:29,waterNew:34,waterUsed:5,waterCost:175000,internet:100000,service:300000,rent:4800000,total:5803000,paid:5803000,debt:0,status:'Paid'},
+  {id:51,month:'2026-02',room:'301',elecOld:1342,elecNew:1450,elecUsed:108,elecCost:432000,waterOld:0,waterNew:0,waterUsed:0,waterCost:240000,internet:100000,service:200000,rent:5500000,total:6472000,paid:6472000,debt:0,status:'Paid'},
+  {id:52,month:'2026-02',room:'202',elecOld:818,elecNew:864,elecUsed:46,elecCost:184000,waterOld:30,waterNew:33,waterUsed:3,waterCost:105000,internet:100000,service:150000,rent:5000000,total:5644000,paid:5539000,debt:0,status:'Paid'},
+];
+
+var initialTransactions = [
+  {id:1,date:'2025-07-01',desc:'Thu góp vốn Phong',room:'Chung',income:10000000,expense:0,category:'THU_VON_GOP',note:'Phong góp vốn'},
+  {id:2,date:'2025-07-01',desc:'Thu góp vốn Hưng',room:'Chung',income:42000000,expense:0,category:'THU_VON_GOP',note:'Hưng góp vốn'},
+  {id:3,date:'2025-07-01',desc:'Đặt cọc nhà cho chủ nhà',room:'Chung',income:0,expense:42000000,category:'CHI_COC_CHU',note:'Đặt cọc nhà'},
+  {id:4,date:'2025-07-01',desc:'Lắp bàn ghế, lắp tranh',room:'Chung',income:0,expense:400000,category:'CHI_SETUP',note:'Lắp bàn ghế, tranh'},
+  {id:5,date:'2025-07-01',desc:'Mua ga giường 4 cái',room:'Chung',income:0,expense:200000,category:'CHI_SETUP',note:'Mua ga giường'},
+  {id:6,date:'2025-07-01',desc:'In hợp đồng + biên bản bàn giao',room:'Chung',income:0,expense:50000,category:'CHI_SETUP',note:'In hợp đồng, biên bản'},
+  {id:7,date:'2025-07-01',desc:'Treo tranh, lắp máy giặt, bắn keo bếp',room:'Chung',income:0,expense:800000,category:'CHI_SETUP',note:'Treo tranh, lắp máy giặt'},
+  {id:8,date:'2025-07-01',desc:'Phí thường niên VietinBank',room:'Chung',income:0,expense:66000,category:'CHI_PHI_NH',note:'Phí ngân hàng'},
+  {id:9,date:'2025-07-01',desc:'Giang cọc 501',room:'501',income:5500000,expense:0,category:'THU_COC_KHACH',note:'Cọc phòng 501'},
+  {id:10,date:'2025-07-01',desc:'HyNhi cọc 601',room:'601',income:5500000,expense:0,category:'THU_COC_KHACH',note:'Cọc phòng 601'},
+  {id:11,date:'2025-07-01',desc:'Kiều Hạnh cọc 502',room:'502',income:4800000,expense:0,category:'THU_COC_KHACH',note:'Cọc Kiều Hạnh 502'},
+  {id:12,date:'2025-07-01',desc:'Trần Thị Huyền Trinh cọc 302',room:'302',income:4800000,expense:0,category:'THU_COC_KHACH',note:'Cọc phòng 302'},
+  {id:13,date:'2025-07-01',desc:'Phòng 601 thanh toán tháng đầu (sau trừ cọc)',room:'601',income:9370000,expense:0,category:'THU_TIEN_NHA',note:'Bao gồm phòng + DV + điện nước'},
+  {id:14,date:'2025-07-01',desc:'402 thanh toán thêm',room:'402',income:2000000,expense:0,category:'THU_TIEN_NHA',note:'402 trả thêm'},
+  {id:15,date:'2025-07-01',desc:'Vệ sinh phòng 601',room:'601',income:0,expense:200000,category:'CHI_VE_SINH',note:'Vệ sinh phòng 601'},
+  {id:16,date:'2025-07-01',desc:'Vệ sinh phòng 202',room:'202',income:0,expense:80000,category:'CHI_VE_SINH',note:'Vệ sinh phòng 202'},
+  {id:17,date:'2025-07-01',desc:'Tạm ứng mua đồ sửa các phòng cho thợ điện nước',room:'Chung',income:0,expense:600000,category:'CHI_SUA_CHUA',note:'Tạm ứng thợ điện nước'},
+  {id:18,date:'2025-07-01',desc:'402 thanh toán tiếp',room:'402',income:2000000,expense:0,category:'THU_TIEN_NHA',note:'402 trả tiếp'},
+  {id:19,date:'2025-07-01',desc:'Đánh chìa khóa',room:'Chung',income:0,expense:250000,category:'CHI_SUA_CHUA',note:'Làm chìa khóa'},
+  {id:20,date:'2025-07-01',desc:'Thanh toán công thợ (dây phơi, áp điện, đấu điện…)',room:'Chung',income:0,expense:1800000,category:'CHI_SUA_CHUA',note:'Công thợ điện nước'},
+  {id:21,date:'2025-07-01',desc:'602 thanh toán tiền tháng 7',room:'602',income:5700000,expense:0,category:'THU_TIEN_NHA',note:'602 trả tháng 7'},
+  {id:22,date:'2025-07-01',desc:'402 thanh toán nốt tháng 7',room:'402',income:2671000,expense:0,category:'THU_TIEN_NHA',note:'402 trả nốt tháng 7'},
+  {id:23,date:'2025-07-01',desc:'501 thanh toán nốt tháng 7',room:'501',income:3834000,expense:0,category:'THU_TIEN_NHA',note:'501 trả nốt tháng 7'},
+  {id:24,date:'2025-07-01',desc:'601 thanh toán nốt tháng 7',room:'601',income:2750000,expense:0,category:'THU_TIEN_NHA',note:'601 trả nốt tháng 7'},
+  {id:25,date:'2025-07-01',desc:'Vệ sinh phòng 501 + 702 + tầng 1',room:'Chung',income:0,expense:200000,category:'CHI_VE_SINH',note:'Vệ sinh nhiều phòng'},
+  {id:26,date:'2025-07-01',desc:'Tạm ứng Nhất: đệm, dán phào, tranh',room:'Chung',income:0,expense:6000000,category:'CHI_SETUP',note:'Tạm ứng Nhất'},
+  {id:27,date:'2025-07-01',desc:'Tạm ứng thợ sửa anh Khánh',room:'Chung',income:0,expense:1500000,category:'CHI_SUA_CHUA',note:'Tạm ứng anh Khánh'},
+  {id:28,date:'2025-07-01',desc:'Sửa điều hòa 702',room:'702',income:0,expense:100000,category:'CHI_SUA_CHUA',note:'Sửa điều hòa 702'},
+  {id:29,date:'2025-07-01',desc:'Tạm ứng thợ sửa anh Khánh',room:'Chung',income:0,expense:1000000,category:'CHI_SUA_CHUA',note:'Tạm ứng anh Khánh'},
+  {id:30,date:'2025-07-01',desc:'Lãi TK VietinBank',room:'Chung',income:2342,expense:0,category:'THU_LAI_NH',note:'Lãi ngân hàng'},
+  {id:31,date:'2025-07-01',desc:'Mua chân máy giặt 302 + pin điều khiển',room:'302',income:0,expense:50000,category:'CHI_SUA_CHUA',note:'Mua phụ kiện 302'},
+  {id:32,date:'2025-07-01',desc:'Sửa điều hòa 302',room:'302',income:0,expense:100000,category:'CHI_SUA_CHUA',note:'Sửa điều hòa 302'},
+  {id:33,date:'2025-07-01',desc:'502 đóng tiền tháng 8 + 9',room:'502',income:9600000,expense:0,category:'THU_TIEN_NHA',note:'502 trả tháng 8+9'},
+  {id:34,date:'2025-07-01',desc:'702 đóng tiền tháng 7',room:'702',income:4100000,expense:0,category:'THU_TIEN_NHA',note:'702 trả tháng 7'},
+  {id:35,date:'2025-07-01',desc:'302 đóng tiền tháng 7',room:'302',income:1300000,expense:0,category:'THU_TIEN_NHA',note:'302 trả tháng 7'},
+  {id:36,date:'2025-07-01',desc:'Lãi tk Vietin Bank',room:'Chung',income:936,expense:0,category:'THU_LAI_NH',note:'Lãi tk Vietin Bank'},
+  {id:37,date:'2025-07-01',desc:'mua khóa cổng',room:'Chung',income:0,expense:60000,category:'CHI_KHAC',note:'mua khóa cổng'},
+  {id:38,date:'2025-07-01',desc:'thanh toán công thợ cho anh Khánh',room:'Chung',income:0,expense:420000,category:'CHI_SUA_CHUA',note:'thanh toán công thợ cho anh Khánh'},
+  {id:39,date:'2025-07-01',desc:'Sửa bồn cầu 501',room:'Chung',income:0,expense:350000,category:'CHI_SUA_CHUA',note:'Sửa bồn cầu 501'},
+  {id:40,date:'2025-08-01',desc:'A Chiến góp vốn',room:'Chung',income:25000000,expense:0,category:'THU_VON_GOP',note:'A Chiến góp vốn'},
+  {id:41,date:'2025-08-01',desc:'Phong góp vốn',room:'Chung',income:50000000,expense:0,category:'THU_VON_GOP',note:'Phong góp vốn'},
+  {id:42,date:'2025-08-01',desc:'Thanh toán tiền chủ nhà',room:'Chung',income:0,expense:118000000,category:'CHI_THUE_NHA',note:'Thanh toán tiền chủ nhà'},
+  {id:43,date:'2025-08-01',desc:'202 thanh toán tiền tháng 8',room:'202',income:3791500,expense:0,category:'THU_TIEN_NHA',note:'202 trả tháng 8'},
+  {id:44,date:'2025-08-01',desc:'601 thanh toán tiền tháng 8',room:'601',income:6665000,expense:0,category:'THU_TIEN_NHA',note:'601 trả tháng 8'},
+  {id:45,date:'2025-08-01',desc:'602 thanh toán tiền tháng 8',room:'602',income:8000000,expense:0,category:'THU_TIEN_NHA',note:'602 trả tháng 8'},
+  {id:46,date:'2025-08-01',desc:'602 thanh toán thêm',room:'602',income:31000,expense:0,category:'THU_TIEN_NHA',note:'602 trả thêm'},
+  {id:47,date:'2025-08-01',desc:'501 thanh toán tiền tháng 8',room:'501',income:6422000,expense:0,category:'THU_TIEN_NHA',note:'501 trả tháng 8'},
+  {id:48,date:'2025-08-01',desc:'Hoa hồng môi giới Thư Ruby (7 phòng)',room:'Chung',income:0,expense:17350000,category:'CHI_MOI_GIOI',note:'Hoa hồng Ruby'},
+  {id:49,date:'2025-08-01',desc:'702 thanh toán tiền tháng 8',room:'702',income:6105000,expense:0,category:'THU_TIEN_NHA',note:'702 trả tháng 8'},
+  {id:50,date:'2025-08-01',desc:'302 thanh toán tiền tháng 8',room:'302',income:5510000,expense:0,category:'THU_TIEN_NHA',note:'302 trả tháng 8'},
+  {id:51,date:'2025-08-01',desc:'402 thanh toán tiền tháng 8 lần 1',room:'402',income:2500000,expense:0,category:'THU_TIEN_NHA',note:'402 trả lần 1'},
+  {id:52,date:'2025-08-01',desc:'402 thanh toán tiền tháng 8 lần 2',room:'402',income:3000000,expense:0,category:'THU_TIEN_NHA',note:'402 trả lần 2'},
+  {id:53,date:'2025-08-01',desc:'Vệ sinh tháng 7',room:'Chung',income:0,expense:300000,category:'CHI_VE_SINH',note:'Vệ sinh tháng 7'},
+  {id:54,date:'2025-08-01',desc:'301 thanh toán tiền tháng 8',room:'301',income:6008000,expense:0,category:'THU_TIEN_NHA',note:'301 trả tháng 8'},
+  {id:55,date:'2025-08-01',desc:'401 thanh toán tiền tháng 8',room:'401',income:5486200,expense:0,category:'THU_TIEN_NHA',note:'401 trả tháng 8'},
+  {id:56,date:'2025-08-01',desc:'Tạm ứng anh Khánh',room:'Chung',income:0,expense:1000000,category:'CHI_SUA_CHUA',note:'Tạm ứng thợ'},
+  {id:57,date:'2025-08-01',desc:'402 thanh toán tiền tháng 8 lần 3',room:'402',income:1000000,expense:0,category:'THU_TIEN_NHA',note:'402 trả lần 3'},
+  {id:58,date:'2025-08-01',desc:'402 thanh toán tiền tháng 8 lần 4',room:'402',income:500000,expense:0,category:'THU_TIEN_NHA',note:'402 trả lần 4'},
+  {id:59,date:'2025-08-01',desc:'Thanh toán tiền nước tháng 8',room:'Chung',income:0,expense:987550,category:'CHI_NUOC',note:'TT nước tháng 8'},
+  {id:60,date:'2025-08-01',desc:'Hoa hồng môi giới phòng 601',room:'601',income:0,expense:2750000,category:'CHI_MOI_GIOI',note:'Hoa hồng 601'},
+  {id:61,date:'2025-08-01',desc:'Thanh toán tiền điện tháng 7',room:'Chung',income:0,expense:2975000,category:'CHI_DIEN',note:'Điện tháng 7'},
+  {id:62,date:'2025-08-01',desc:'Cho Nhất Vay',room:'Chung',income:0,expense:30000000,category:'CHI_CHO_VAY',note:''},
+  {id:63,date:'2025-08-01',desc:'Thanh toán internet tháng 7',room:'Chung',income:0,expense:359000,category:'CHI_MANG',note:'Internet tháng 7'},
+  {id:64,date:'2025-08-01',desc:'Sửa điều hòa 501',room:'501',income:0,expense:200000,category:'CHI_SUA_CHUA',note:'Sửa điều hòa 501'},
+  {id:65,date:'2025-08-01',desc:'Tạm ứng anh Khánh lần 2',room:'Chung',income:0,expense:500000,category:'CHI_SUA_CHUA',note:'Tạm ứng thợ'},
+  {id:66,date:'2025-08-01',desc:'Lãi TK VietinBank',room:'Chung',income:3503,expense:0,category:'THU_LAI_NH',note:'Lãi ngân hàng'},
+  {id:67,date:'2025-08-01',desc:'Tiền rác tháng 8',room:'Chung',income:0,expense:300000,category:'CHI_VE_SINH',note:'Rác tháng 8'},
+  {id:68,date:'2025-09-01',desc:'602 thanh toán tiền tháng 9',room:'602',income:7356000,expense:0,category:'THU_TIEN_NHA',note:'602 trả tháng 9'},
+  {id:69,date:'2025-09-01',desc:'Đánh 5 thẻ từ, đưa 1 thẻ cho chị lấy rác',room:'Chung',income:0,expense:150000,category:'CHI_VE_SINH',note:'Làm thẻ từ'},
+  {id:70,date:'2025-09-01',desc:'202 thanh toán tiền tháng 9',room:'202',income:6145000,expense:0,category:'THU_TIEN_NHA',note:'202 trả tháng 9'},
+  {id:71,date:'2025-09-01',desc:'501 thanh toán tiền tháng 9',room:'501',income:7136000,expense:0,category:'THU_TIEN_NHA',note:'501 trả tháng 9'},
+  {id:72,date:'2025-09-01',desc:'702 thanh toán tiền tháng 9',room:'702',income:6519000,expense:0,category:'THU_TIEN_NHA',note:'702 trả tháng 9'},
+  {id:73,date:'2025-09-01',desc:'Trả tiền vệ sinh phòng 302 còn nợ',room:'302',income:0,expense:80000,category:'CHI_VE_SINH',note:'Vệ sinh phòng 302'},
+  {id:74,date:'2025-09-01',desc:'Tiền công thợ sửa điện phòng 501 và 302',room:'Chung',income:0,expense:500000,category:'CHI_SUA_CHUA',note:'Công thợ điện'},
+  {id:75,date:'2025-09-01',desc:'Dây mạng phòng 302',room:'302',income:0,expense:100000,category:'CHI_SUA_CHUA',note:'Dây mạng 302'},
+  {id:76,date:'2025-09-01',desc:'601 thanh toán tiền tháng 9',room:'601',income:6844000,expense:0,category:'THU_TIEN_NHA',note:'601 trả tháng 9'},
+  {id:77,date:'2025-09-01',desc:'402 thanh toán lần 1 tháng 9',room:'402',income:2000000,expense:0,category:'THU_TIEN_NHA',note:'402 trả lần 1'},
+  {id:78,date:'2025-09-01',desc:'502 thanh toán tiền tháng 9',room:'502',income:1596000,expense:0,category:'THU_TIEN_NHA',note:'502 trả tháng 9'},
+  {id:79,date:'2025-09-01',desc:'Nhất trả tiền + lãi vay 9tr',room:'Chung',income:40608000,expense:0,category:'THU_HOAN_VAY',note:'Nhất trả nợ + lãi'},
+  {id:80,date:'2025-09-01',desc:'401 thanh toán tiền tháng 9',room:'401',income:5596400,expense:0,category:'THU_TIEN_NHA',note:'401 trả tháng 9'},
+  {id:81,date:'2025-09-01',desc:'301 thanh toán tiền tháng 9',room:'301',income:6438000,expense:0,category:'THU_TIEN_NHA',note:'301 trả tháng 9'},
+  {id:82,date:'2025-09-01',desc:'302 thanh toán tiền tháng 9',room:'302',income:5696000,expense:0,category:'THU_TIEN_NHA',note:'302 trả tháng 9'},
+  {id:83,date:'2025-09-01',desc:'402 thanh toán lần 2 tháng 9',room:'402',income:1300000,expense:0,category:'THU_TIEN_NHA',note:'402 trả lần 2'},
+  {id:84,date:'2025-09-01',desc:'Thanh toán tiền điện tháng 8',room:'Chung',income:0,expense:9966879,category:'CHI_DIEN',note:'Điện tháng 8'},
+  {id:85,date:'2025-09-01',desc:'Thanh toán tiền nước tháng 8',room:'Chung',income:0,expense:1391200,category:'CHI_NUOC',note:'Nước tháng 8'},
+  {id:86,date:'2025-09-01',desc:'Thanh toán tiền mạng tháng 8',room:'Chung',income:0,expense:359000,category:'CHI_MANG',note:'Mạng tháng 8'},
+  {id:87,date:'2025-09-01',desc:'402 thanh toán lần 3 tháng 9',room:'402',income:2400000,expense:0,category:'THU_TIEN_NHA',note:'402 trả lần 3'},
+  {id:88,date:'2025-09-01',desc:'402 thanh toán lần 4 tháng 9',room:'402',income:1063000,expense:0,category:'THU_TIEN_NHA',note:'402 trả lần 4'},
+  {id:89,date:'2025-09-01',desc:'Vệ sinh tháng 9',room:'Chung',income:0,expense:320000,category:'CHI_VE_SINH',note:'Vệ sinh tháng 9'},
+  {id:90,date:'2025-09-01',desc:'Lãi TK',room:'Chung',income:7285,expense:0,category:'THU_LAI_NH',note:'Lãi ngân hàng'},
+  {id:91,date:'2025-09-01',desc:'Tạm ứng anh Khánh sửa nước',room:'Chung',income:0,expense:1000000,category:'CHI_SUA_CHUA',note:'Tạm ứng sửa nước'},
+  {id:92,date:'2025-10-01',desc:'501 thanh toán tiền tháng 10',room:'501',income:7232000,expense:0,category:'THU_TIEN_NHA',note:'501 trả tháng 10'},
+  {id:93,date:'2025-10-01',desc:'602 thanh toán tiền tháng 10',room:'602',income:7527000,expense:0,category:'THU_TIEN_NHA',note:'602 trả tháng 10'},
+  {id:94,date:'2025-10-01',desc:'202 thanh toán tiền tháng 10',room:'202',income:6090000,expense:0,category:'THU_TIEN_NHA',note:'202 trả tháng 10'},
+  {id:95,date:'2025-10-01',desc:'601 thanh toán tiền tháng 10',room:'601',income:6996000,expense:0,category:'THU_TIEN_NHA',note:'501 trả tháng 10'},
+  {id:96,date:'2025-10-01',desc:'702 thanh toán tiền tháng 10',room:'702',income:6942000,expense:0,category:'THU_TIEN_NHA',note:'702 trả tháng 10'},
+  {id:97,date:'2025-10-01',desc:'301 thanh toán tiền tháng 10',room:'301',income:7114000,expense:0,category:'THU_TIEN_NHA',note:'301 trả tháng 10'},
+  {id:98,date:'2025-10-01',desc:'401 thanh toán tiền tháng 10',room:'401',income:5790200,expense:0,category:'THU_TIEN_NHA',note:'401 trả tháng 10'},
+  {id:99,date:'2025-10-01',desc:'Tiền rác tháng 9',room:'Chung',income:0,expense:300000,category:'CHI_VE_SINH',note:'Rác tháng 9'},
+  {id:100,date:'2025-10-01',desc:'502 thanh toán tiền tháng 10',room:'502',income:10947000,expense:0,category:'THU_TIEN_NHA',note:'502 trả tháng 10 + 11'},
+  {id:101,date:'2025-10-01',desc:'302 thanh toán tiền tháng 10',room:'302',income:5811000,expense:0,category:'THU_TIEN_NHA',note:'302 trả tháng 10'},
+  {id:102,date:'2025-10-01',desc:'Thanh toán tiền điện tháng 10',room:'Chung',income:0,expense:10745352,category:'CHI_DIEN',note:'Điện tháng 10'},
+  {id:103,date:'2025-10-01',desc:'Thanh toán internet tháng 10',room:'Chung',income:0,expense:359000,category:'CHI_MANG',note:'Internet tháng 10'},
+  {id:104,date:'2025-10-01',desc:'402 thanh toán tháng 10 lần 1',room:'402',income:4800000,expense:0,category:'THU_TIEN_NHA',note:'402 thanh toán tháng 10 lần 1'},
+  {id:105,date:'2025-10-01',desc:'402 thanh toán tháng 10 lần 2',room:'402',income:1000000,expense:0,category:'THU_TIEN_NHA',note:'402 thanh toán tháng 10 lần 2'},
+  {id:106,date:'2025-10-01',desc:'Tạm ứng anh Khánh',room:'Chung',income:0,expense:500000,category:'CHI_SUA_CHUA',note:'Tạm ứng thợ'},
+  {id:107,date:'2025-10-01',desc:'Mua mỡ bôi cổng',room:'Chung',income:0,expense:30000,category:'CHI_KHAC',note:'Mua mỡ bôi cổng'},
+  {id:108,date:'2025-10-01',desc:'Tiền sửa cổng',room:'Chung',income:0,expense:700000,category:'CHI_SUA_CHUA',note:'Sửa cổng'},
+  {id:109,date:'2025-10-01',desc:'Thanh toán tiền nước tháng 10',room:'Chung',income:0,expense:3409450,category:'CHI_NUOC',note:'Nước tháng 10'},
+  {id:110,date:'2025-10-01',desc:'402 thanh toán tháng 10 lần 3',room:'402',income:820000,expense:0,category:'THU_TIEN_NHA',note:'402 thanh toán tháng 10 lần 3'},
+  {id:111,date:'2025-10-01',desc:'Vệ sinh tháng 10',room:'Chung',income:0,expense:320000,category:'CHI_VE_SINH',note:'Vệ sinh tháng 10'},
+  {id:112,date:'2025-11-01',desc:'Chi cho Phong vay',room:'Chung',income:0,expense:30000000,category:'CHI_CHO_VAY',note:'Cho Vay'},
+  {id:113,date:'2025-11-02',desc:'',room:'Chung',income:12621,expense:0,category:'THU_LAI_NH',note:''},
+  {id:114,date:'2025-11-02',desc:'Chi phí tiền nhà 3 tháng: tháng 11, tháng 12 và tháng 1',room:'Chung',income:0,expense:126000000,category:'CHI_THUE_NHA',note:''},
+  {id:115,date:'2025-11-03',desc:'602 thanh toán tháng 11',room:'602',income:6227000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:116,date:'2025-11-03',desc:'501 thanh toán tháng 11',room:'501',income:6840000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:117,date:'2025-11-03',desc:'401 thanh toán tháng 11',room:'401',income:5721800,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:118,date:'2025-11-03',desc:'601 thanh toán tháng 11',room:'601',income:6322000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:119,date:'2025-11-03',desc:'301 thanh toán tháng 11',room:'301',income:7012000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:120,date:'2025-11-06',desc:'702 thanh toán tháng 11',room:'702',income:6268000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:121,date:'2025-11-05',desc:'202 thanh toán tháng 11',room:'202',income:5909000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:122,date:'2025-11-06',desc:'502 thanh toán tháng 11',room:'502',income:1119000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:123,date:'2025-11-06',desc:'302 thanh toán tháng 11',room:'302',income:5794000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:124,date:'2025-11-10',desc:'Phí vệ sinh môi trường tháng 10 11 12',room:'Chung',income:0,expense:144000,category:'CHI_VE_SINH',note:''},
+  {id:125,date:'2025-11-10',desc:'Tiền rác tháng 10',room:'Chung',income:0,expense:300000,category:'CHI_VE_SINH',note:''},
+  {id:126,date:'2025-11-19',desc:'thanh toán tiền nước tháng 10',room:'Chung',income:0,expense:1298050,category:'CHI_NUOC',note:''},
+  {id:127,date:'2025-11-19',desc:'thanh toán tiền điện tháng 10',room:'Chung',income:0,expense:7546651,category:'CHI_DIEN',note:''},
+  {id:128,date:'2025-11-19',desc:'thanh toán tiền internet tháng 10',room:'Chung',income:0,expense:359000,category:'CHI_MANG',note:''},
+  {id:129,date:'2025-11-19',desc:'Sửa ống nước 602, thay bóng đèn 501',room:'602',income:0,expense:910000,category:'CHI_SUA_CHUA',note:''},
+  {id:130,date:'2025-11-19',desc:'402 thanh toán tháng 10',room:'402',income:6527000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:131,date:'2025-11-30',desc:'Tiền dọn vệ sinh tháng 11',room:'Chung',income:0,expense:320000,category:'CHI_VE_SINH',note:''},
+  {id:132,date:'2025-11-30',desc:'Lãi tk ngân hàng',room:'Chung',income:4656,expense:0,category:'THU_LAI_NH',note:''},
+  {id:133,date:'2025-12-05',desc:'501 thanh toán tháng 12',room:'501',income:6532000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:134,date:'2025-12-05',desc:'602 thanh toán tháng 12',room:'602',income:6196000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:135,date:'2025-12-05',desc:'702 thanh toán tháng 12',room:'702',income:6186000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:136,date:'2025-12-05',desc:'601 thanh toán tháng 12',room:'601',income:6238000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:137,date:'2025-12-05',desc:'202 thanh toán tháng 12',room:'202',income:6183000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:138,date:'2025-12-05',desc:'Dọn vệ sinh 402',room:'402',income:0,expense:160000,category:'CHI_VE_SINH',note:''},
+  {id:139,date:'2025-12-05',desc:'Cho Nhất vay tạm',room:'Chung',income:0,expense:10000000,category:'CHI_CHO_VAY',note:'Cho vay ngắn'},
+  {id:140,date:'2025-12-31',desc:'302 thanh toán tháng 12',room:'302',income:5767000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:141,date:'2025-11-30',desc:'tiền rác tháng 11',room:'Chung',income:0,expense:300000,category:'CHI_VE_SINH',note:''},
+  {id:142,date:'2025-12-05',desc:'301 thanh toán tháng 12',room:'301',income:6532000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:143,date:'2025-12-05',desc:'401 thanh toán tháng 12',room:'401',income:5676200,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:144,date:'2025-12-05',desc:'502 thanh toán tháng 12 + 1',room:'502',income:10628000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:145,date:'2025-12-31',desc:'Nhất trả tiền ',room:'Chung',income:10000000,expense:0,category:'THU_HOAN_VAY',note:''},
+  {id:146,date:'2025-12-31',desc:'402 thanh toán tháng 12',room:'402',income:7125000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:147,date:'2025-12-31',desc:'thanh toán hoa hồng 402 chu Thư Ruby',room:'402',income:0,expense:2350000,category:'CHI_MOI_GIOI',note:''},
+  {id:148,date:'2025-12-31',desc:'tiền nước tháng 11',room:'Chung',income:0,expense:1453300,category:'CHI_NUOC',note:''},
+  {id:149,date:'2025-12-31',desc:'tiền điện tháng 11',room:'Chung',income:0,expense:5211151,category:'CHI_DIEN',note:''},
+  {id:150,date:'2025-12-31',desc:'tiền mạng tháng 11',room:'Chung',income:0,expense:359000,category:'CHI_MANG',note:''},
+  {id:151,date:'2025-12-31',desc:'tiền ăn sáng với Nhất',room:'Chung',income:0,expense:90000,category:'CHI_KHAC',note:''},
+  {id:152,date:'2025-12-31',desc:'lãi TK',room:'Chung',income:7891,expense:0,category:'THU_LAI_NH',note:''},
+  {id:153,date:'2026-01-07',desc:'Thu tiền thuê nhà 602 tháng 1',room:'602',income:6294000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:154,date:'2026-01-07',desc:'Thu tiền thuê nhà 402 tháng 1',room:'402',income:5227000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:155,date:'2026-01-07',desc:'Thu tiền thuê nhà 501 tháng 1',room:'501',income:6440000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:156,date:'2026-01-07',desc:'Thu tiền thuê nhà 202 tháng 1',room:'202',income:5744000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:157,date:'2026-01-07',desc:'Thu tiền thuê nhà 302 tháng 1',room:'302',income:5783000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:158,date:'2026-01-07',desc:'Thu tiền thuê nhà 401 tháng 1',room:'401',income:5558400,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:159,date:'2026-01-07',desc:'Thu tiền thuê nhà 601 tháng 1',room:'601',income:6448000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:160,date:'2026-01-07',desc:'Thu tiền thuê nhà 702 tháng 1',room:'702',income:6234000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:161,date:'2026-01-07',desc:'Thu tiền thuê nhà 301 tháng 1',room:'301',income:6544000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:162,date:'2026-01-07',desc:'sửa ống bồn cầu 702',room:'702',income:0,expense:340000,category:'CHI_SUA_CHUA',note:''},
+  {id:163,date:'2026-01-07',desc:'tiền rác tháng 11',room:'Chung',income:0,expense:320000,category:'CHI_VE_SINH',note:''},
+  {id:164,date:'2026-01-07',desc:'tiền dọn vệ sinh tháng 11',room:'Chung',income:0,expense:320000,category:'CHI_VE_SINH',note:''},
+  {id:165,date:'2026-01-08',desc:'Thu tiền thuê nhà 502 tháng 1',room:'502',income:1039000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:166,date:'2026-01-10',desc:'Chi tiền nước sinh hoạt tháng 1',room:'Chung',income:0,expense:1324100,category:'CHI_NUOC',note:''},
+  {id:167,date:'2026-01-10',desc:'Chi tiền điện (thanh toán điện lực) tháng 1',room:'Chung',income:0,expense:4407239,category:'CHI_DIEN',note:''},
+  {id:168,date:'2026-01-10',desc:'Chi tiền mạng / internet tháng 1',room:'Chung',income:0,expense:359000,category:'CHI_MANG',note:''},
+  {id:169,date:'2026-01-10',desc:'thay bóng đèn 602',room:'602',income:0,expense:280000,category:'CHI_SUA_CHUA',note:''},
+  {id:170,date:'2026-01-10',desc:'cho Nhất vay',room:'Chung',income:0,expense:50000000,category:'CHI_CHO_VAY',note:''},
+  {id:171,date:'2026-01-10',desc:'sửa báo cháy',room:'Chung',income:0,expense:200000,category:'CHI_SUA_CHUA',note:''},
+  {id:172,date:'2026-01-10',desc:'cho anh Khánh vay',room:'Chung',income:0,expense:1000000,category:'CHI_CHO_VAY',note:''},
+  {id:173,date:'2026-01-10',desc:'lãi tk',room:'Chung',income:10856,expense:0,category:'THU_LAI_NH',note:''},
+  {id:174,date:'2026-01-10',desc:'nhận trước tiền để rút ATM hộ Nhất',room:'Chung',income:1500000,expense:0,category:'THU_TRUNG_GIAN',note:''},
+  {id:175,date:'2026-01-10',desc:'trả tiền sau khi đã rút hộ ATM',room:'Chung',income:0,expense:1500000,category:'CHI_TRUNG_GIAN',note:''},
+  {id:176,date:'2026-02-01',desc:'Thu tiền thuê nhà 602 tháng 2',room:'602',income:6261000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:177,date:'2026-02-01',desc:'Thu tiền thuê nhà 501 tháng 2',room:'501',income:6524000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:178,date:'2026-02-01',desc:'Thu tiền thuê nhà 301 tháng 2',room:'301',income:6472000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:179,date:'2026-02-01',desc:'Thu tiền thuê nhà 601 tháng 2',room:'601',income:6256000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:180,date:'2026-02-01',desc:'Nhất trả tiền đã vay',room:'Chung',income:50000000,expense:0,category:'THU_HOAN_VAY',note:''},
+  {id:181,date:'2026-02-01',desc:'đóng tiền nhà tháng 2 3 4',room:'Chung',income:0,expense:126000000,category:'CHI_THUE_NHA',note:''},
+  {id:182,date:'2026-02-01',desc:'Thu tiền thuê nhà 402 tháng 2',room:'402',income:5481000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:183,date:'2026-02-01',desc:'Thu tiền thuê nhà 702 tháng 2',room:'702',income:6045000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:184,date:'2026-02-01',desc:'Thu tiền thuê nhà 202 tháng 2',room:'202',income:5539000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:185,date:'2026-02-01',desc:'Thu tiền thuê nhà 401 tháng 2',room:'401',income:5718000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:186,date:'2026-02-01',desc:'Thu tiền thuê nhà 402 tháng 2',room:'502',income:10655000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:187,date:'2026-02-01',desc:'Thu tiền thuê nhà 302 tháng 2',room:'302',income:5803000,expense:0,category:'THU_TIEN_NHA',note:''},
+  {id:188,date:'2026-02-01',desc:'tt điện ',room:'Chung',income:0,expense:4870302,category:'CHI_DIEN',note:''},
+  {id:189,date:'2026-02-01',desc:'tt nước',room:'Chung',income:0,expense:1453300,category:'CHI_NUOC',note:''},
+  {id:190,date:'2026-02-01',desc:'tt mạng',room:'Chung',income:0,expense:359000,category:'CHI_MANG',note:''},
+  {id:191,date:'2026-02-01',desc:'tt dọn vệ sinh',room:'Chung',income:0,expense:320000,category:'CHI_VE_SINH',note:''},
+  {id:192,date:'2026-02-01',desc:'tt đổ rác',room:'Chung',income:0,expense:280000,category:'CHI_VE_SINH',note:''},
+  {id:193,date:'2026-02-01',desc:'đi tiền CA',room:'Chung',income:0,expense:1000000,category:'CHI_KHAC',note:''},
+  {id:194,date:'2026-02-01',desc:'dọn dẹp Tết',room:'Chung',income:0,expense:260000,category:'CHI_VE_SINH',note:''},
+];
+
+// ===== HELPER =====
+function formatVND(n) {
+  if (n === undefined || n === null || isNaN(n)) return '0';
+  return Math.round(Math.abs(n)).toLocaleString('vi-VN');
+}
+
+// ===== DYNAMIC CALCULATION ENGINE =====
+function calcFinancials(transactions) {
+  var byCat = {};
+  var byMonth = {};
+  var allMonths = [];
+
+  transactions.forEach(function(t) {
+    var cat = t.category || 'CHI_KHAC';
+    if (!byCat[cat]) byCat[cat] = { income: 0, expense: 0, count: 0 };
+    byCat[cat].income += t.income || 0;
+    byCat[cat].expense += t.expense || 0;
+    byCat[cat].count += 1;
+
+    var m = (t.date || '').slice(0, 7);
+    if (m && m.length === 7) {
+      if (!byMonth[m]) {
+        byMonth[m] = { month: m, byCat: {} };
+        allMonths.push(m);
+      }
+      if (!byMonth[m].byCat[cat]) byMonth[m].byCat[cat] = { income: 0, expense: 0 };
+      byMonth[m].byCat[cat].income += t.income || 0;
+      byMonth[m].byCat[cat].expense += t.expense || 0;
+    }
+  });
+
+  allMonths = Array.from(new Set(allMonths)).sort();
+
+  function sumCats(catList, field) {
+    var total = 0;
+    catList.forEach(function(c) { if (byCat[c]) total += byCat[c][field]; });
+    return total;
+  }
+  function sumCatsMonth(m, catList, field) {
+    var total = 0;
+    if (!byMonth[m]) return 0;
+    catList.forEach(function(c) { if (byMonth[m].byCat[c]) total += byMonth[m].byCat[c][field]; });
+    return total;
+  }
+
+  var revenue = sumCats(['THU_TIEN_NHA'], 'income');
+  var cogs = sumCats(['CHI_THUE_NHA'], 'expense');
+  var gross = revenue - cogs;
+  var utilityExp = sumCats(['CHI_DIEN','CHI_NUOC','CHI_MANG'], 'expense');
+  var opex = sumCats(['CHI_VE_SINH','CHI_SUA_CHUA','CHI_MOI_GIOI','CHI_SETUP','CHI_PHI_NH','CHI_KHAC'], 'expense');
+  var financialInc = sumCats(['THU_LAI_NH'], 'income');
+  var ebit = gross - utilityExp - opex;
+  var netProfit = ebit + financialInc;
+  var totalIncome = sumCats(INCOME_CATS, 'income');
+  var totalExpense = sumCats(EXPENSE_CATS, 'expense');
+  var accountBalance = totalIncome - totalExpense;
+
+  // Monthly P&L
+  var cumulative = 0;
+  var monthlyPnL = allMonths.map(function(m) {
+    var mRev = sumCatsMonth(m, ['THU_TIEN_NHA'], 'income');
+    var mCogs = sumCatsMonth(m, ['CHI_THUE_NHA'], 'expense');
+    var mUtil = sumCatsMonth(m, ['CHI_DIEN','CHI_NUOC','CHI_MANG'], 'expense');
+    var mOpex = sumCatsMonth(m, ['CHI_VE_SINH','CHI_SUA_CHUA','CHI_MOI_GIOI','CHI_SETUP','CHI_PHI_NH','CHI_KHAC'], 'expense');
+    var mFin = sumCatsMonth(m, ['THU_LAI_NH'], 'income');
+    var mGross = mRev - mCogs;
+    var mEbit = mGross - mUtil - mOpex;
+    var mNet = mEbit + mFin;
+    cumulative += mNet;
+    return {
+      month: m, revenue: mRev, cogs: mCogs, utility: mUtil, opex: mOpex,
+      financial: mFin, gross: mGross, ebit: mEbit, net: mNet, cumulative: cumulative,
+      thueNha: mCogs, dien: sumCatsMonth(m, ['CHI_DIEN'], 'expense'),
+      nuoc: sumCatsMonth(m, ['CHI_NUOC'], 'expense'), mang: sumCatsMonth(m, ['CHI_MANG'], 'expense'),
+    };
+  });
+
+  // Cycle analysis (by rent payment periods)
+  var cycles = [];
+  var currentCycle = null;
+  monthlyPnL.forEach(function(m) {
+    if (m.cogs > 0 || currentCycle === null) {
+      if (currentCycle) cycles.push(currentCycle);
+      currentCycle = { startMonth: m.month, months: [m], rentPaid: m.cogs };
+    } else {
+      currentCycle.months.push(m);
+    }
+  });
+  if (currentCycle) cycles.push(currentCycle);
+
+  cycles.forEach(function(c) {
+    c.endMonth = c.months[c.months.length - 1].month;
+    c.totalRev = c.months.reduce(function(s, x) { return s + x.revenue; }, 0);
+    c.totalUtil = c.months.reduce(function(s, x) { return s + x.utility; }, 0);
+    c.totalOpex = c.months.reduce(function(s, x) { return s + x.opex; }, 0);
+    c.totalFin = c.months.reduce(function(s, x) { return s + x.financial; }, 0);
+    c.gross = c.totalRev - c.rentPaid - c.totalUtil;
+    c.net = c.gross - c.totalOpex + c.totalFin;
+    c.margin = c.totalRev > 0 ? (c.net / c.totalRev * 100) : 0;
+    c.isComplete = c.months.length >= 3;
+    c.label = c.months.length === 1
+      ? c.startMonth.replace('20', '').replace('-', '/')
+      : c.startMonth.replace('20', '').replace('-', '/') + ' - ' + c.endMonth.replace('20', '').replace('-', '/');
+  });
+
+  // Loan tracking
+  var loans = { nhat: { out: 0, in: 0, interest: 0 }, phong: { out: 0 }, khanh: { out: 0 } };
+  transactions.forEach(function(t) {
+    var d = (t.desc || '').toLowerCase();
+    if (t.category === 'CHI_CHO_VAY') {
+      if (d.indexOf('nhất') >= 0) loans.nhat.out += t.expense;
+      else if (d.indexOf('phong') >= 0) loans.phong.out += t.expense;
+      else if (d.indexOf('khánh') >= 0) loans.khanh.out += t.expense;
+    }
+    if (t.category === 'THU_HOAN_VAY' && d.indexOf('nhất') >= 0) {
+      if (t.income === 40608000) { loans.nhat.in += 30000000; loans.nhat.interest += 10608000; }
+      else { loans.nhat.in += t.income; }
+    }
+  });
+
+  // Capital
+  var vonGop = sumCats(['THU_VON_GOP'], 'income');
+  var cocChu = sumCats(['CHI_COC_CHU'], 'expense');
+  var cocKhach = sumCats(['THU_COC_KHACH'], 'income');
+  var capex = sumCats(['CHI_SETUP'], 'expense');
+  var totalInvested = vonGop + capex + cocChu;
+
+  return {
+    byCat: byCat, byMonth: byMonth, allMonths: allMonths,
+    revenue: revenue, cogs: cogs, gross: gross, utilityExp: utilityExp, opex: opex,
+    financialInc: financialInc, ebit: ebit, netProfit: netProfit,
+    totalIncome: totalIncome, totalExpense: totalExpense, accountBalance: accountBalance,
+    monthlyPnL: monthlyPnL, cycles: cycles, loans: loans,
+    vonGop: vonGop, cocChu: cocChu, cocKhach: cocKhach, capex: capex, totalInvested: totalInvested,
+  };
+}
+
+// ===== MAIN APP =====
+function CCMNApp() {
+  // Load saved data from localStorage (instant cache)
+  var _saved = loadData();
+  var _at = React.useState('dashboard'); var activeTab = _at[0]; var setActiveTab = _at[1];
+  var _rooms = React.useState(_saved && _saved.rooms ? _saved.rooms : initialRooms); var rooms = _rooms[0]; var setRooms = _rooms[1];
+  var _txns = React.useState(_saved && _saved.transactions ? _saved.transactions : initialTransactions); var transactions = _txns[0]; var setTransactions = _txns[1];
+  var _modal = React.useState(null); var showModal = _modal[0]; var setShowModal = _modal[1];
+  var _selRoom = React.useState(null); var selectedRoom = _selRoom[0]; var setSelectedRoom = _selRoom[1];
+  var _selBill = React.useState(null); var selBill = _selBill[0]; var setSelBill = _selBill[1];
+  var _selTxn = React.useState(null); var selTxn = _selTxn[0]; var setSelTxn = _selTxn[1];
+  var _prevBill = React.useState(null); var previewBill = _prevBill[0]; var setPreviewBill = _prevBill[1];
+  var _bills = React.useState(_saved && _saved.bills ? _saved.bills : initialBills); var bills = _bills[0]; var setBills = _bills[1];
+  var _settings = React.useState(_saved && _saved.settings ? _saved.settings : defaultSettings); var settings = _settings[0]; var setSettings = _settings[1];
+  var _search = React.useState(''); var searchTerm = _search[0]; var setSearchTerm = _search[1];
+  var _filter = React.useState('all'); var filterMonth = _filter[0]; var setFilterMonth = _filter[1];
+
+  // Sync status
+  var _sync = React.useState({status:'idle',msg:''}); var syncState = _sync[0]; var setSyncState = _sync[1];
+
+  // Setup auto-retry khi có mạng lại
+  React.useEffect(function() {
+    setupAutoRetry(function(count) {
+      setSyncState({status:'ok',msg:'Đã sync ' + count + ' thao tác từ hàng đợi'});
+      setTimeout(function(){setSyncState({status:'idle',msg:''})}, 3000);
+    });
+  }, []);
+
+  // Load from Google Sheets + flush offline queue on mount
+  React.useEffect(function() {
+    // Flush queue trước
+    flushQueue(function(r) {
+      if (r > 0) {
+        setSyncState({status:'ok',msg:'Đã sync ' + r + ' thao tác chờ'});
+        setTimeout(function(){setSyncState({status:'idle',msg:''})}, 3000);
+      }
+    });
+    // Tải dữ liệu từ Sheets
+    setSyncState({status:'loading',msg:'Đang tải từ Sheets...'});
+    syncFromCloud(function(ok, data, err) {
+      if (ok && data) {
+        if (data.rooms) setRooms(data.rooms);
+        if (data.transactions) setTransactions(data.transactions);
+        if (data.bills) setBills(data.bills);
+        if (data.settings) setSettings(data.settings);
+        saveData({rooms:data.rooms||rooms, transactions:data.transactions||transactions, bills:data.bills||bills, settings:data.settings||settings, savedAt:data.savedAt});
+        setSyncState({status:'ok',msg:'✅ Đã đồng bộ Sheets'});
+      } else {
+        setSyncState({status:'warn',msg:'⚠ Offline — dùng cache'});
+      }
+      setTimeout(function(){setSyncState({status:'idle',msg:''})}, 3000);
+    });
+  }, []);
+
+  // Auto-save: localStorage ngay + Sheets sau 2s
+  var saveTimer = React.useRef(null);
+  var _firstRender = React.useRef(true);
+  React.useEffect(function() {
+    // Skip first render (đã load từ Sheets rồi)
+    if (_firstRender.current) { _firstRender.current = false; return; }
+    var data = { rooms: rooms, transactions: transactions, bills: bills, settings: settings, savedAt: new Date().toISOString() };
+    saveData(data);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(function() {
+      setSyncState({status:'saving',msg:'↑ Đang sync...'});
+      syncToCloud(data, function(ok, msg) {
+        setSyncState({status: ok ? 'ok' : 'warn', msg: ok ? '✅ Đã sync Sheets' : '⚠ ' + msg});
+        setTimeout(function(){setSyncState({status:'idle',msg:''})}, 2000);
+      });
+    }, 2000);
+  }, [rooms, transactions, bills, settings]);
+
+
+  // Dynamic calculations from transactions
+  var fin = React.useMemo(function() { return calcFinancials(transactions); }, [transactions]);
+
+  var stats = React.useMemo(function() {
+    var occupied = rooms.filter(function(r) { return r.status === 'Đang thuê'; });
+    return {
+      totalRooms: rooms.length,
+      occupiedRooms: occupied.length,
+      emptyRooms: rooms.length - occupied.length,
+      totalPeople: rooms.reduce(function(s, r) { return s + r.people; }, 0),
+      totalRent: occupied.reduce(function(s, r) { return s + r.rent; }, 0),
+      totalDeposit: rooms.reduce(function(s, r) { return s + (r.deposit || 0); }, 0),
+    };
+  }, [rooms]);
+
+  var navItems = [
+    { id: 'dashboard', label: 'Tổng quan', icon: Home },
+    { id: 'rooms', label: 'Phòng', icon: Building2 },
+    { id: 'bills', label: 'Tính tiền', icon: Zap },
+    { id: 'transactions', label: 'Thu Chi', icon: Wallet },
+    { id: 'reports', label: 'Báo cáo', icon: PieChart },
+    { id: 'settings', label: 'Cài đặt', icon: Settings },
+  ];
+
+  function addTransaction(t) {
+    var newId = transactions.length > 0 ? Math.max.apply(null, transactions.map(function(x){return x.id})) + 1 : 1;
+    t.id = newId;
+    setTransactions(function(prev) { return [t].concat(prev); });
+    setShowModal(null);
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100" style={{fontFamily:'system-ui,-apple-system,sans-serif'}}>
+      <div className="flex">
+        <div className="w-56 min-h-screen bg-slate-900/80 border-r border-slate-800 p-4 flex flex-col">
+          <div className="mb-6 px-2">
+            <h1 className="text-xl font-bold text-emerald-400">CCMN Pro</h1>
+            <div className="flex items-center gap-2 mt-1">
+              {syncState.status === 'idle' ? (
+                <span className="text-xs text-slate-500 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Sheets
+                </span>
+              ) : (
+                <span className={"text-xs px-2 py-0.5 rounded-full " + 
+                  (syncState.status === 'ok' ? 'bg-emerald-500/20 text-emerald-400' :
+                   syncState.status === 'saving' || syncState.status === 'loading' ? 'bg-blue-500/20 text-blue-400' :
+                   'bg-amber-500/20 text-amber-400')}>
+                  {syncState.msg}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500">Quản lý CCMN</p>
+          </div>
+          {navItems.map(function(item) {
+            return (
+              <button key={item.id} onClick={function(){setActiveTab(item.id)}}
+                className={"w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-all " + (activeTab === item.id ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200')}>
+                <item.icon className="w-5 h-5" />
+                <span className="text-sm font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+          <div className="mt-auto pt-4 border-t border-slate-800">
+            <div className="px-2 text-xs text-slate-600">Số dư TK</div>
+            <div className={"px-2 text-lg font-bold font-mono " + (fin.accountBalance >= 0 ? 'text-emerald-400' : 'text-red-400')}>{formatVND(fin.accountBalance)}đ</div>
+          </div>
+        </div>
+
+        <div className="flex-1 p-6 overflow-auto" style={{maxHeight:'100vh'}}>
+          {activeTab === 'dashboard' && <DashboardView stats={stats} fin={fin} rooms={rooms} bills={bills} setActiveTab={setActiveTab} setShowModal={setShowModal} />}
+          {activeTab === 'rooms' && <RoomsView rooms={rooms} setRooms={setRooms} settings={settings} setSelectedRoom={setSelectedRoom} setShowModal={setShowModal} />}
+          {activeTab === 'bills' && <BillsView bills={bills} setBills={setBills} rooms={rooms} settings={settings} setSelBill={setSelBill} setShowModal={setShowModal} setPreviewBill={setPreviewBill} />}
+          {activeTab === 'transactions' && <TransactionsView transactions={transactions} setTransactions={setTransactions} fin={fin} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterMonth={filterMonth} setFilterMonth={setFilterMonth} setShowModal={setShowModal} setSelTxn={setSelTxn} />}
+          {activeTab === 'reports' && <ReportsView fin={fin} transactions={transactions} rooms={rooms} stats={stats} />}
+          {activeTab === 'settings' && <SettingsView settings={settings} setSettings={setSettings} rooms={rooms} transactions={transactions} syncState={syncState} setSyncState={setSyncState} setRooms={setRooms} setTransactions={setTransactions} setBills={setBills} />}
+        </div>
+      </div>
+
+      {showModal === 'addTransaction' && <AddTransactionModal onSave={addTransaction} onClose={function(){setShowModal(null)}} />}
+      {showModal === 'editTxn' && selTxn && <EditTransactionModal txn={selTxn} onSave={function(updated){
+        setTransactions(transactions.map(function(t){return t.id === updated.id ? updated : t}));
+        setShowModal(null); setSelTxn(null);
+      }} onClose={function(){setShowModal(null);setSelTxn(null)}} />}
+      {showModal === 'newBill' && <NewBillModal rooms={rooms} bills={bills} setBills={setBills} settings={settings} onClose={function(){setShowModal(null)}} onPreview={function(b){setPreviewBill(b)}} />}
+      {showModal === 'editBill' && selBill && <EditBillModal bill={selBill} rooms={rooms} bills={bills} setBills={setBills} settings={settings} onClose={function(){setShowModal(null);setSelBill(null)}} />}
+      {showModal === 'payBill' && selBill && <PayBillModal bill={selBill} rooms={rooms} bills={bills} setBills={setBills} onPay={function(t){addTransaction(t);setShowModal(null);setSelBill(null);setActiveTab('transactions')}} onClose={function(){setShowModal(null);setSelBill(null)}} />}
+      {previewBill && <BillInvoice bill={previewBill} rooms={rooms} bills={bills} settings={settings} onClose={function(){setPreviewBill(null)}} />}
+      {showModal === 'editRoom' && selectedRoom && <EditRoomModal room={selectedRoom} onSave={function(updated){setRooms(function(prev){return prev.map(function(r){return r.id===updated.id?updated:r})});setShowModal(null)}} onClose={function(){setShowModal(null)}} />}
+    </div>
+  );
+}
+
+// ===== DASHBOARD =====
+function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal }) {
+  var unpaidBills = bills.filter(function(b){return b.status === 'Unpaid'});
+  var totalDebt = unpaidBills.reduce(function(s,b){return s+(b.debt||0)},0);
+  var kpis = [
+    { label: 'Số dư tài khoản', value: formatVND(fin.accountBalance) + 'đ', sub: 'Thực sở hữu: ' + formatVND(fin.accountBalance - stats.totalDeposit) + 'đ', color: 'from-cyan-500/20 to-cyan-600/5', border: 'border-cyan-500/30', text: 'text-cyan-400' },
+    { label: 'LN ròng lũy kế', value: (fin.netProfit >= 0 ? '+' : '') + formatVND(fin.netProfit) + 'đ', sub: fin.allMonths.length + ' tháng hoạt động', color: fin.netProfit >= 0 ? 'from-emerald-500/20 to-emerald-600/5' : 'from-red-500/20 to-red-600/5', border: fin.netProfit >= 0 ? 'border-emerald-500/30' : 'border-red-500/30', text: fin.netProfit >= 0 ? 'text-emerald-400' : 'text-red-400' },
+    { label: 'Doanh thu cho thuê', value: formatVND(fin.revenue) + 'đ', sub: 'LN gộp: ' + formatVND(fin.gross) + 'đ', color: 'from-blue-500/20 to-blue-600/5', border: 'border-blue-500/30', text: 'text-blue-400' },
+    { label: 'Phòng cho thuê', value: stats.occupiedRooms + '/' + stats.totalRooms, sub: stats.totalPeople + ' người | ' + stats.emptyRooms + ' phòng trống', color: 'from-purple-500/20 to-purple-600/5', border: 'border-purple-500/30', text: 'text-purple-400' },
+  ];
+
+  var recentMonths = fin.monthlyPnL.slice(-6).reverse();
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {kpis.map(function(k, i) {
+          return (
+            <div key={i} className={"bg-gradient-to-br " + k.color + " border " + k.border + " rounded-2xl p-5"}>
+              <div className="text-xs text-slate-400 mb-1">{k.label}</div>
+              <div className={"text-xl font-bold font-mono " + k.text}>{k.value}</div>
+              <div className="text-xs text-slate-500 mt-1">{k.sub}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <button onClick={function(){setShowModal('newBill')}} className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-left hover:bg-yellow-500/20 transition-all">
+          <Zap className="w-6 h-6 text-yellow-400 mb-2" />
+          <div className="text-sm font-medium text-white">Nhập chỉ số điện nước</div>
+          <div className="text-xs text-slate-400">Tạo phiếu tính tiền</div>
+        </button>
+        <button onClick={function(){setActiveTab('bills')}} className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-left hover:bg-emerald-500/20 transition-all">
+          <CreditCard className="w-6 h-6 text-emerald-400 mb-2" />
+          <div className="text-sm font-medium text-white">Ghi nhận thu tiền</div>
+          <div className="text-xs text-slate-400">{unpaidBills.length > 0 ? unpaidBills.length + ' phòng chưa thu' : 'Đã thu hết'}</div>
+        </button>
+        <button onClick={function(){setShowModal('addTransaction')}} className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-left hover:bg-blue-500/20 transition-all">
+          <Plus className="w-6 h-6 text-blue-400 mb-2" />
+          <div className="text-sm font-medium text-white">Thêm giao dịch</div>
+          <div className="text-xs text-slate-400">Thu chi khác</div>
+        </button>
+        <button onClick={function(){setActiveTab('reports')}} className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 text-left hover:bg-purple-500/20 transition-all">
+          <Download className="w-6 h-6 text-purple-400 mb-2" />
+          <div className="text-sm font-medium text-white">Xem báo cáo</div>
+          <div className="text-xs text-slate-400">P&L, phân loại, chu kỳ</div>
+        </button>
+      </div>
+
+      {totalDebt > 0 && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-4">
+          <AlertCircle className="w-8 h-8 text-red-400 flex-shrink-0" />
+          <div className="flex-1">
+            <div className="text-sm font-semibold text-red-400">Có {unpaidBills.length} phòng chưa thanh toán</div>
+            <div className="text-xs text-slate-400">Tổng nợ: <span className="text-red-400 font-mono font-semibold">{formatVND(totalDebt)}đ</span></div>
+          </div>
+          <button onClick={function(){setActiveTab('bills')}} className="bg-red-500/20 border border-red-500/40 text-red-300 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-500/30">Thu tiền →</button>
+        </div>
+      )}
+
+      {(function() {
+        var expiring = rooms.filter(function(r) { var cs = getContractStatus(r); return cs.status === 'expired' || cs.status === 'expiring'; });
+        if (expiring.length === 0) return null;
+        return (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-center gap-4">
+            <Clock className="w-8 h-8 text-amber-400 flex-shrink-0" />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-amber-400">{expiring.length} phòng hợp đồng sắp/đã hết hạn</div>
+              <div className="text-xs text-slate-400">{expiring.map(function(r){return r.id + ' (' + r.tenant + ')'}).join(', ')}</div>
+            </div>
+            <button onClick={function(){setActiveTab('rooms')}} className="bg-amber-500/20 border border-amber-500/40 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-amber-500/30">Xem →</button>
+          </div>
+        );
+      })()}
+
+      <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Sơ lược phòng</h3>
+        <div className="grid grid-cols-4 gap-3">
+          {rooms.map(function(room) {
+            var isOccupied = room.status === 'Đang thuê';
+            return (
+              <div key={room.id} className={"rounded-xl p-3 border transition-all " + (isOccupied ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-slate-800/50 border-slate-700/50')}>
+                <div className="text-lg font-bold mb-1">{room.id}</div>
+                <div className={"text-xs " + (isOccupied ? 'text-emerald-400' : 'text-slate-500')}>{isOccupied ? room.tenant : 'Trống'}</div>
+                {isOccupied && <div className="text-xs text-slate-500 mt-1">{formatVND(room.rent)}đ</div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {recentMonths.length > 0 && (
+        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">P&L 6 tháng gần nhất</h3>
+          <div className="space-y-2">
+            {recentMonths.map(function(m) {
+              var maxRev = Math.max.apply(null, recentMonths.map(function(x){return x.revenue}));
+              var barW = maxRev > 0 ? (m.revenue / maxRev * 100) : 0;
+              return (
+                <div key={m.month} className="flex items-center gap-3">
+                  <span className="text-xs text-slate-400 w-16">{m.month.replace('20','').replace('-','/')}</span>
+                  <div className="flex-1 h-6 bg-slate-800 rounded relative overflow-hidden">
+                    <div className="h-full bg-emerald-500/30 rounded" style={{width: barW + '%'}}></div>
+                    <span className="absolute inset-0 flex items-center px-2 text-xs font-mono text-emerald-300">+{formatVND(m.revenue)}</span>
+                  </div>
+                  <span className={"text-xs font-mono w-24 text-right " + (m.net >= 0 ? 'text-emerald-400' : 'text-red-400')}>LN: {m.net >= 0 ? '+' : ''}{formatVND(m.net)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== ROOMS VIEW =====
+function RoomsView({ rooms, setRooms, settings, setSelectedRoom, setShowModal }) {
+  var _detail = React.useState(null); var detailRoom = _detail[0]; var setDetailRoom = _detail[1];
+  var _filter = React.useState('all'); var roomFilter = _filter[0]; var setRoomFilter = _filter[1];
+
+  var occupied = rooms.filter(function(r){return r.status==='Đang thuê'}).length;
+  var expiringCount = rooms.filter(function(r){var cs=getContractStatus(r);return cs.status==='expired'||cs.status==='expiring'}).length;
+
+  var filtered = rooms.filter(function(r) {
+    if (roomFilter === 'occupied') return r.status === 'Đang thuê';
+    if (roomFilter === 'empty') return r.status !== 'Đang thuê';
+    if (roomFilter === 'expiring') { var cs = getContractStatus(r); return cs.status === 'expired' || cs.status === 'expiring'; }
+    return true;
+  });
+
+  // Detail panel for selected room
+  if (detailRoom) {
+    var dr = detailRoom;
+    var cs = getContractStatus(dr);
+    var ep = getRoomPrice(dr, settings);
+    var hasCustom = dr.pricing && Object.keys(dr.pricing).some(function(k){return dr.pricing[k] != null});
+    return (
+      <div className="space-y-4">
+        <button onClick={function(){setDetailRoom(null)}} className="text-sm text-slate-400 hover:text-white flex items-center gap-1">← Quay lại danh sách</button>
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="text-3xl font-black text-white">Phòng {dr.id}</div>
+            <div className={"text-sm " + (dr.status === 'Đang thuê' ? 'text-emerald-400' : 'text-slate-500')}>{dr.status}</div>
+          </div>
+          <button onClick={function(){setSelectedRoom(dr);setShowModal('editRoom')}} className="bg-blue-500/20 text-blue-300 px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-blue-500/30"><Edit2 className="w-4 h-4" /> Chỉnh sửa</button>
+        </div>
+
+        {dr.status === 'Đang thuê' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 space-y-3">
+              <h4 className="text-sm font-semibold text-white flex items-center gap-2"><Users className="w-4 h-4 text-cyan-400" /> Thông tin khách thuê</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-slate-400">Tên:</span><span className="text-white font-medium">{dr.tenant}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">SĐT:</span><span className="text-white font-mono">{dr.phone || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">CCCD:</span><span className="text-white font-mono">{dr.cccd || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Số người:</span><span className="text-white">{dr.people} người</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Ngày vào:</span><span className="text-white">{dr.moveInDate || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Tính nước:</span><span className="text-cyan-400">{dr.waterType === 'meter' ? 'Đồng hồ' : 'Khoán/người'}</span></div>
+              </div>
+              {dr.members && dr.members.length > 0 && (
+                <div className="border-t border-slate-700 pt-2">
+                  <div className="text-xs text-slate-500 mb-1">Thành viên:</div>
+                  {dr.members.map(function(m,i){return <div key={i} className="text-xs text-slate-300">{m.name} {m.phone ? '- ' + m.phone : ''}</div>})}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 space-y-3">
+              <h4 className="text-sm font-semibold text-white flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" /> Hợp đồng thuê</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-slate-400">Tiền phòng:</span><span className="text-emerald-400 font-bold font-mono">{formatVND(dr.rent)}đ</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Đặt cọc:</span><span className={dr.deposit > 0 ? 'text-cyan-400 font-mono' : 'text-amber-400'}>{dr.deposit > 0 ? formatVND(dr.deposit) + 'đ' : 'Không cọc'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Thời hạn:</span><span className="text-white">{dr.contractMonths ? dr.contractMonths + ' tháng' : '—'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Bắt đầu:</span><span className="text-white">{dr.contractStart || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Kết thúc:</span><span className="text-white">{dr.contractEnd || '—'}</span></div>
+                {cs.status !== 'none' && (
+                  <div className={"mt-2 rounded-lg p-2 text-xs font-medium text-center " +
+                    (cs.color === 'red' ? 'bg-red-500/15 text-red-400 border border-red-500/30' :
+                     cs.color === 'amber' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                     cs.color === 'yellow' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+                     'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20')}>
+                    {cs.status === 'expired' ? '⚠ Hợp đồng ĐÃ HẾT HẠN' : cs.label}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={"bg-slate-800/50 border rounded-2xl p-5 space-y-3 md:col-span-2 " + (hasCustom ? 'border-amber-500/30' : 'border-slate-700')}>
+              <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Zap className="w-4 h-4 text-yellow-400" /> Cách tính tiền phòng {dr.id}
+                {hasCustom && <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">Giá riêng</span>}
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                {[
+                  {label:'Điện', value: ep.elecPrice, unit:'đ/kWh', custom: dr.pricing && dr.pricing.elecPrice != null, def: settings.elecPrice},
+                  {label:'Nước (đồng hồ)', value: ep.waterPrice, unit:'đ/m³', custom: dr.pricing && dr.pricing.waterPrice != null, def: settings.waterPrice},
+                  {label:'Nước (khoán)', value: ep.waterPerPerson, unit:'đ/người', custom: dr.pricing && dr.pricing.waterPerPerson != null, def: settings.waterPerPerson},
+                  {label:'Internet', value: ep.internet, unit:'đ/tháng', custom: dr.pricing && dr.pricing.internet != null, def: settings.internet},
+                  {label:'Dịch vụ', value: ep.service, unit:'đ/người', custom: dr.pricing && dr.pricing.service != null, def: settings.service},
+                ].map(function(item) {
+                  return (
+                    <div key={item.label} className={"rounded-lg p-3 " + (item.custom ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-slate-700/30')}>
+                      <div className="text-xs text-slate-400">{item.label}</div>
+                      <div className={"font-mono font-bold " + (item.custom ? 'text-amber-400' : 'text-white')}>{formatVND(item.value)}</div>
+                      <div className="text-xs text-slate-500">{item.unit}{item.custom ? ' ✎' : ''}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              {!hasCustom && <div className="text-xs text-slate-500">Áp dụng giá mặc định từ Cài đặt. Bấm "Chỉnh sửa" để thiết lập giá riêng.</div>}
+            </div>
+          </div>
+        )}
+        {dr.note && <div className="text-xs text-slate-400 bg-slate-800/30 rounded-lg p-3">Ghi chú: {dr.note}</div>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center flex-wrap gap-2">
+        <h2 className="text-xl font-bold text-white">Quản lý phòng</h2>
+        <div className="flex gap-2 text-xs">
+          {[
+            {val:'all',label:'Tất cả (' + rooms.length + ')'},
+            {val:'occupied',label:'Đang thuê (' + occupied + ')'},
+            {val:'empty',label:'Trống (' + (rooms.length - occupied) + ')'},
+            {val:'expiring',label:'Sắp hết HĐ (' + expiringCount + ')'},
+          ].map(function(f) {
+            return <button key={f.val} onClick={function(){setRoomFilter(f.val)}} className={"px-3 py-1.5 rounded-lg transition-all " + (roomFilter === f.val ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:text-white')}>{f.label}</button>;
+          })}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map(function(room) {
+          var isOccupied = room.status === 'Đang thuê';
+          var cs = getContractStatus(room);
+          var hasCustom = room.pricing && Object.keys(room.pricing).some(function(k){return room.pricing[k] != null});
+          return (
+            <div key={room.id} className={"rounded-2xl border transition-all cursor-pointer hover:border-emerald-500/40 " + (isOccupied ? 'bg-slate-800/50 border-emerald-500/20' : 'bg-slate-900/30 border-slate-700/30')} onClick={function(){setDetailRoom(room)}}>
+              <div className="p-5">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <div className="text-2xl font-bold text-white">{room.id}</div>
+                    <div className={"text-xs " + (isOccupied ? 'text-emerald-400' : 'text-slate-500')}>{room.status}</div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {hasCustom && <span className="text-xs bg-amber-500/15 text-amber-400 px-1.5 py-0.5 rounded" title="Giá riêng">✎</span>}
+                    <button onClick={function(e){e.stopPropagation();setSelectedRoom(room);setShowModal('editRoom')}} className="text-slate-400 hover:text-white p-1"><Edit2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+                {isOccupied && (
+                  <div className="space-y-1 text-sm">
+                    <div className="text-white font-medium">{room.tenant}</div>
+                    <div className="text-slate-400 text-xs">{room.people} người | {room.waterType === 'meter' ? 'Đồng hồ' : 'Khoán'}{room.phone ? ' | ' + room.phone : ''}</div>
+                    <div className="flex justify-between mt-2">
+                      <span className="text-slate-400">Tiền phòng:</span>
+                      <span className="text-emerald-400 font-mono">{formatVND(room.rent)}đ</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Cọc:</span>
+                      <span className={"font-mono " + (room.deposit > 0 ? 'text-cyan-400' : 'text-amber-400')}>{room.deposit > 0 ? formatVND(room.deposit) + 'đ' : 'Không cọc'}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {isOccupied && cs.status !== 'none' && (
+                <div className={"border-t px-5 py-2 text-xs flex items-center gap-2 " +
+                  (cs.color === 'red' ? 'border-red-500/30 bg-red-500/5 text-red-400' :
+                   cs.color === 'amber' ? 'border-amber-500/30 bg-amber-500/5 text-amber-400' :
+                   cs.color === 'yellow' ? 'border-yellow-500/20 bg-yellow-500/5 text-yellow-400' :
+                   'border-emerald-500/20 bg-emerald-500/5 text-emerald-400')}>
+                  <Clock className="w-3 h-3" />
+                  <span>HĐ: {cs.label}</span>
+                  {room.contractEnd && <span className="ml-auto text-slate-500">→ {room.contractEnd}</span>}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ===== TRANSACTIONS VIEW =====
+function TransactionsView({ transactions, setTransactions, fin, searchTerm, setSearchTerm, filterMonth, setFilterMonth, setShowModal, setSelTxn }) {
+  var _catFilter = React.useState('all'); var catFilter = _catFilter[0]; var setCatFilter = _catFilter[1];
+
+  var months = fin.allMonths || [];
+  var filtered = transactions.filter(function(t) {
+    if (filterMonth !== 'all' && (t.date || '').slice(0, 7) !== filterMonth) return false;
+    if (catFilter !== 'all' && t.category !== catFilter) return false;
+    if (searchTerm) {
+      var s = searchTerm.toLowerCase();
+      return (t.desc || '').toLowerCase().indexOf(s) >= 0 || (t.room || '').toLowerCase().indexOf(s) >= 0 || (t.note || '').toLowerCase().indexOf(s) >= 0;
+    }
+    return true;
+  });
+
+  // Summary by category for filtered
+  var catSummary = {};
+  filtered.forEach(function(t) {
+    var c = t.category;
+    if (!catSummary[c]) catSummary[c] = { income: 0, expense: 0, count: 0 };
+    catSummary[c].income += t.income || 0;
+    catSummary[c].expense += t.expense || 0;
+    catSummary[c].count += 1;
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold text-white">Nhật ký Thu Chi</h2>
+        <button onClick={function(){setShowModal('addTransaction')}} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all">
+          <Plus className="w-4 h-4" /> Thêm giao dịch
+        </button>
+      </div>
+
+      <div className="flex gap-2 flex-wrap">
+        <select value={filterMonth} onChange={function(e){setFilterMonth(e.target.value)}} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+          <option value="all">Tất cả tháng</option>
+          {months.map(function(m){return <option key={m} value={m}>{m}</option>})}
+        </select>
+        <select value={catFilter} onChange={function(e){setCatFilter(e.target.value)}} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+          <option value="all">Tất cả loại</option>
+          {Object.keys(CATEGORIES).map(function(k){return <option key={k} value={k}>{CATEGORIES[k].label}</option>})}
+        </select>
+        <div className="relative flex-1 min-w-48">
+          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+          <input type="text" placeholder="Tìm kiếm..." value={searchTerm} onChange={function(e){setSearchTerm(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-white" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-center">
+          <div className="text-xs text-slate-400">Thu</div>
+          <div className="text-lg font-bold text-emerald-400 font-mono">{formatVND(filtered.reduce(function(s,t){return s+(t.income||0)},0))}đ</div>
+        </div>
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-center">
+          <div className="text-xs text-slate-400">Chi</div>
+          <div className="text-lg font-bold text-red-400 font-mono">{formatVND(filtered.reduce(function(s,t){return s+(t.expense||0)},0))}đ</div>
+        </div>
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-3 text-center">
+          <div className="text-xs text-slate-400">Số GD</div>
+          <div className="text-lg font-bold text-white">{filtered.length}</div>
+        </div>
+      </div>
+
+      <div className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-slate-700">
+              <th className="text-left py-2 px-3 text-slate-400">Ngày</th>
+              <th className="text-left py-2 px-3 text-slate-400">Diễn giải</th>
+              <th className="text-left py-2 px-3 text-slate-400">Phòng</th>
+              <th className="text-left py-2 px-3 text-slate-400">Phân loại</th>
+              <th className="text-right py-2 px-3 text-emerald-400">Thu</th>
+              <th className="text-right py-2 px-3 text-red-400">Chi</th>
+              <th className="text-center py-2 px-3 text-slate-400">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.slice(0, 50).map(function(t) {
+              var catInfo = CATEGORIES[t.category] || { label: t.category, color: 'text-slate-400' };
+              return (
+                <tr key={t.id} className="border-b border-slate-800/50 hover:bg-slate-800/30">
+                  <td className="py-2 px-3 text-slate-400 text-xs whitespace-nowrap">{(t.date||'').slice(5)}</td>
+                  <td className="py-2 px-3 text-white text-xs max-w-xs truncate">{t.desc}</td>
+                  <td className="py-2 px-3 text-slate-400 text-xs">{t.room}</td>
+                  <td className={"py-2 px-3 text-xs " + catInfo.color}>{catInfo.label}</td>
+                  <td className="py-2 px-3 text-right font-mono text-emerald-300 text-xs">{t.income > 0 ? '+' + formatVND(t.income) : ''}</td>
+                  <td className="py-2 px-3 text-right font-mono text-red-300 text-xs">{t.expense > 0 ? '-' + formatVND(t.expense) : ''}</td>
+                  <td className="py-2 px-3 text-center">
+                    <div className="flex gap-1 justify-center">
+                      <button onClick={function(){setShowModal('editTxn');setSelTxn(t)}} className="bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded text-xs hover:bg-amber-500/30" title="Sửa">✎</button>
+                      <button onClick={function(){
+                        if(confirm('Xóa giao dịch "' + t.desc + '"?')) {
+                          setTransactions(transactions.filter(function(x){return x.id !== t.id}));
+                        }
+                      }} className="bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded text-xs hover:bg-red-500/30" title="Xóa">✕</button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {filtered.length > 50 && <div className="text-center py-2 text-xs text-slate-500">Hiển thị 50/{filtered.length} giao dịch</div>}
+      </div>
+    </div>
+  );
+}
+
+// ===== REPORTS VIEW =====
+function ReportsView({ fin, transactions, rooms, stats }) {
+  var _tab = React.useState('pnl'); var reportTab = _tab[0]; var setReportTab = _tab[1];
+  var months = fin.allMonths.length || 1;
+  var avgProfit = fin.netProfit / months;
+  var roi = fin.totalInvested > 0 ? (fin.netProfit / fin.totalInvested * 100) : 0;
+  var grossMargin = fin.revenue > 0 ? (fin.gross / fin.revenue * 100) : 0;
+  var netMargin = fin.revenue > 0 ? (fin.netProfit / fin.revenue * 100) : 0;
+  var paybackM = avgProfit > 0 ? Math.ceil(fin.totalInvested / avgProfit) : 999;
+
+  var tabs = [
+    { id: 'pnl', label: 'P&L' },
+    { id: 'category', label: 'Phân loại' },
+    { id: 'cycle', label: 'Chu kỳ 3T' },
+    { id: 'investor', label: 'Nhà đầu tư' },
+  ];
+
+  // P&L line items
+  var pnlLines = [
+    { label: 'DOANH THU CHO THUÊ', value: fin.revenue, bold: true, color: 'text-emerald-400' },
+    { label: '(-) Thuê nhà chủ', value: -fin.cogs, indent: true },
+    { label: 'LỢI NHUẬN GỘP', value: fin.gross, bold: true, color: fin.gross >= 0 ? 'text-emerald-400' : 'text-red-400', border: true },
+    { label: '(-) Tiền điện (EVN)', value: -(fin.byCat['CHI_DIEN'] || { expense: 0 }).expense, indent: true },
+    { label: '(-) Tiền nước', value: -(fin.byCat['CHI_NUOC'] || { expense: 0 }).expense, indent: true },
+    { label: '(-) Tiền mạng', value: -(fin.byCat['CHI_MANG'] || { expense: 0 }).expense, indent: true },
+    { label: '(-) Vệ sinh + Rác', value: -(fin.byCat['CHI_VE_SINH'] || { expense: 0 }).expense, indent: true },
+    { label: '(-) Sửa chữa, bảo trì', value: -(fin.byCat['CHI_SUA_CHUA'] || { expense: 0 }).expense, indent: true },
+    { label: '(-) Quảng cáo/Môi giới', value: -(fin.byCat['CHI_MOI_GIOI'] || { expense: 0 }).expense, indent: true },
+    { label: '(-) Setup ban đầu', value: -(fin.byCat['CHI_SETUP'] || { expense: 0 }).expense, indent: true },
+    { label: '(-) Phí NH + Khác', value: -((fin.byCat['CHI_PHI_NH'] || { expense: 0 }).expense + (fin.byCat['CHI_KHAC'] || { expense: 0 }).expense), indent: true },
+    { label: 'EBIT', value: fin.ebit, bold: true, color: fin.ebit >= 0 ? 'text-blue-400' : 'text-red-400', border: true },
+    { label: '(+) Lãi ngân hàng', value: fin.financialInc, indent: true },
+    { label: 'LỢI NHUẬN RÒNG', value: fin.netProfit, bold: true, color: fin.netProfit >= 0 ? 'text-emerald-400' : 'text-red-400', border: true, hl: true },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="bg-gradient-to-br from-cyan-500/20 to-cyan-600/5 border border-cyan-500/30 rounded-xl p-4">
+          <div className="text-xs text-slate-400">Số dư TK</div>
+          <div className="text-xl font-bold text-cyan-400 font-mono">{formatVND(fin.accountBalance)}đ</div>
+        </div>
+        <div className={"bg-gradient-to-br border rounded-xl p-4 " + (fin.netProfit >= 0 ? 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/30' : 'from-red-500/20 to-red-600/5 border-red-500/30')}>
+          <div className="text-xs text-slate-400">LN ròng</div>
+          <div className={"text-xl font-bold font-mono " + (fin.netProfit >= 0 ? 'text-emerald-400' : 'text-red-400')}>{fin.netProfit >= 0 ? '+' : ''}{formatVND(fin.netProfit)}đ</div>
+        </div>
+        <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/5 border border-blue-500/30 rounded-xl p-4">
+          <div className="text-xs text-slate-400">Doanh thu</div>
+          <div className="text-xl font-bold text-blue-400 font-mono">{formatVND(fin.revenue)}đ</div>
+        </div>
+        <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/5 border border-amber-500/30 rounded-xl p-4">
+          <div className="text-xs text-slate-400">ROI ({months}T)</div>
+          <div className="text-xl font-bold text-amber-400">{roi.toFixed(1)}%</div>
+        </div>
+      </div>
+
+      <div className="flex gap-2 border-b border-slate-700 pb-2">
+        {tabs.map(function(tab) {
+          return (
+            <button key={tab.id} onClick={function(){setReportTab(tab.id)}} className={"px-4 py-2 rounded-lg text-sm font-medium transition-all " + (reportTab === tab.id ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-800')}>{tab.label}</button>
+          );
+        })}
+      </div>
+
+      {reportTab === 'pnl' && (
+        <div className="space-y-4">
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5">
+            <h3 className="text-lg font-semibold text-white mb-3">Báo cáo Kết quả Kinh doanh (T7/2025 - T2/2026)</h3>
+            <div className="space-y-0.5">
+              {pnlLines.map(function(row, i) {
+                return (
+                  <div key={i} className={"flex justify-between items-center py-1.5 px-3 rounded " + (row.hl ? 'bg-slate-700/50 ' : '') + (row.border ? 'border-t border-slate-600 mt-1 pt-2 ' : '')}>
+                    <span className={(row.indent ? 'pl-6 text-slate-400 text-sm ' : '') + (row.bold ? 'font-semibold text-white ' : '')}>{row.label}</span>
+                    <span className={"font-mono text-sm " + (row.color || (row.value >= 0 ? 'text-slate-300' : 'text-red-400')) + (row.bold ? ' font-semibold' : '')}>{row.value < 0 ? '-' : ''}{formatVND(Math.abs(row.value))}đ</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-3 pt-3 border-t border-slate-600">
+              <div className="text-center"><div className="text-xs text-slate-500">Biên gộp</div><div className={"text-lg font-bold " + (grossMargin >= 0 ? 'text-emerald-400' : 'text-red-400')}>{grossMargin.toFixed(1)}%</div></div>
+              <div className="text-center"><div className="text-xs text-slate-500">Biên ròng</div><div className={"text-lg font-bold " + (netMargin >= 0 ? 'text-blue-400' : 'text-red-400')}>{netMargin.toFixed(1)}%</div></div>
+              <div className="text-center"><div className="text-xs text-slate-500">LN TB/tháng</div><div className={"text-lg font-bold font-mono " + (avgProfit >= 0 ? 'text-purple-400' : 'text-red-400')}>{formatVND(avgProfit)}đ</div></div>
+            </div>
+          </div>
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5">
+            <h3 className="text-lg font-semibold text-white mb-3">P&L theo tháng</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead><tr className="border-b border-slate-600">
+                  <th className="text-left py-1.5 px-2 text-slate-400">Tháng</th>
+                  <th className="text-right py-1.5 px-2 text-emerald-400">DT</th>
+                  <th className="text-right py-1.5 px-2 text-red-400">Nhà chủ</th>
+                  <th className="text-right py-1.5 px-2 text-orange-400">Tiện ích</th>
+                  <th className="text-right py-1.5 px-2 text-yellow-400">Vận hành</th>
+                  <th className="text-right py-1.5 px-2 text-purple-400">LN ròng</th>
+                  <th className="text-right py-1.5 px-2 text-cyan-400">Lũy kế</th>
+                </tr></thead>
+                <tbody>
+                  {fin.monthlyPnL.map(function(m, i) {
+                    return (
+                      <tr key={i} className="border-b border-slate-700/50 hover:bg-slate-700/30">
+                        <td className="py-1.5 px-2 text-white font-medium">{m.month.replace('20','').replace('-','/')}</td>
+                        <td className="py-1.5 px-2 text-right text-emerald-300 font-mono">{formatVND(m.revenue)}</td>
+                        <td className="py-1.5 px-2 text-right text-red-300 font-mono">{m.cogs > 0 ? '-' + formatVND(m.cogs) : '-'}</td>
+                        <td className="py-1.5 px-2 text-right text-orange-300 font-mono">{m.utility > 0 ? '-' + formatVND(m.utility) : '-'}</td>
+                        <td className="py-1.5 px-2 text-right text-yellow-300 font-mono">{m.opex > 0 ? '-' + formatVND(m.opex) : '-'}</td>
+                        <td className={"py-1.5 px-2 text-right font-mono font-semibold " + (m.net >= 0 ? 'text-emerald-300' : 'text-red-400')}>{m.net >= 0 ? '+' : ''}{formatVND(m.net)}</td>
+                        <td className={"py-1.5 px-2 text-right font-mono " + (m.cumulative >= 0 ? 'text-cyan-300' : 'text-red-400')}>{formatVND(m.cumulative)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {reportTab === 'category' && (
+        <div className="space-y-4">
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5">
+            <h3 className="text-lg font-semibold text-white mb-3">Phân loại thu chi (kiểm toán từ 194 giao dịch)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <div className="text-sm text-emerald-400 font-semibold mb-2">THU ({formatVND(fin.totalIncome)}đ)</div>
+                {INCOME_CATS.map(function(cat) {
+                  var d = fin.byCat[cat];
+                  if (!d || d.income === 0) return null;
+                  var pct = fin.totalIncome > 0 ? (d.income / fin.totalIncome * 100) : 0;
+                  return (
+                    <div key={cat} className="flex items-center gap-2 py-1">
+                      <div className="flex-1">
+                        <div className="flex justify-between text-xs"><span className={CATEGORIES[cat].color}>{CATEGORIES[cat].label}</span><span className="text-slate-300 font-mono">{formatVND(d.income)}đ</span></div>
+                        <div className="w-full bg-slate-700 rounded-full h-1.5 mt-0.5"><div className="bg-emerald-500/50 h-1.5 rounded-full" style={{width: pct + '%'}}></div></div>
+                      </div>
+                      <span className="text-xs text-slate-500 w-10 text-right">{pct.toFixed(1)}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div>
+                <div className="text-sm text-red-400 font-semibold mb-2">CHI ({formatVND(fin.totalExpense)}đ)</div>
+                {EXPENSE_CATS.map(function(cat) {
+                  var d = fin.byCat[cat];
+                  if (!d || d.expense === 0) return null;
+                  var pct = fin.totalExpense > 0 ? (d.expense / fin.totalExpense * 100) : 0;
+                  return (
+                    <div key={cat} className="flex items-center gap-2 py-1">
+                      <div className="flex-1">
+                        <div className="flex justify-between text-xs"><span className={CATEGORIES[cat].color}>{CATEGORIES[cat].label}</span><span className="text-slate-300 font-mono">{formatVND(d.expense)}đ</span></div>
+                        <div className="w-full bg-slate-700 rounded-full h-1.5 mt-0.5"><div className="bg-red-500/50 h-1.5 rounded-full" style={{width: pct + '%'}}></div></div>
+                      </div>
+                      <span className="text-xs text-slate-500 w-10 text-right">{pct.toFixed(1)}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-sm text-slate-300">
+            <div className="font-semibold text-amber-400 mb-1">Phát hiện từ kiểm toán</div>
+            <div className="space-y-1 text-xs">
+              <div>• Chi phí QC/Môi giới: {formatVND((fin.byCat['CHI_MOI_GIOI']||{expense:0}).expense)}đ - khoản lớn nhất ngoài tiền nhà và tiện ích</div>
+              <div>• Setup ban đầu: {formatVND((fin.byCat['CHI_SETUP']||{expense:0}).expense)}đ - chi phí 1 lần, không tái phát</div>
+              <div>• Cho vay: {formatVND((fin.byCat['CHI_CHO_VAY']||{expense:0}).expense)}đ (Nhất: {formatVND(fin.loans.nhat.out)}, Phong: {formatVND(fin.loans.phong.out)}, Khánh: {formatVND(fin.loans.khanh.out)})</div>
+              <div>• Thu hồi vay: {formatVND((fin.byCat['THU_HOAN_VAY']||{income:0}).income)}đ | Còn phải thu: {formatVND(fin.loans.nhat.out - fin.loans.nhat.in + fin.loans.khanh.out)}đ</div>
+              <div>• Nếu loại chi phí 1 lần (QC + Setup): LN ròng recurring = {formatVND(fin.netProfit + (fin.byCat['CHI_MOI_GIOI']||{expense:0}).expense + (fin.byCat['CHI_SETUP']||{expense:0}).expense)}đ</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {reportTab === 'cycle' && (
+        <div className="space-y-4">
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5">
+            <h3 className="text-lg font-semibold text-white mb-2">Lợi nhuận theo chu kỳ đóng tiền nhà</h3>
+            <p className="text-xs text-slate-400 mb-4">Mỗi chu kỳ = 3 tháng, bắt đầu khi đóng tiền nhà. Tháng đầu âm nặng, 2 tháng sau bù lại.</p>
+            {fin.cycles.map(function(c, ci) {
+              return (
+                <div key={ci} className={"border rounded-xl p-4 mb-3 " + (c.isComplete ? (c.net >= 0 ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5') : 'border-amber-500/30 bg-amber-500/5')}>
+                  <div className="flex justify-between items-center mb-2">
+                    <div>
+                      <span className="text-white font-semibold">{c.months.length === 1 && c.rentPaid === 0 ? 'Khởi động' : 'Chu kỳ ' + ci}</span>
+                      <span className="text-slate-400 text-sm ml-2">{c.label}</span>
+                      {!c.isComplete && <span className="text-amber-400 text-xs ml-2">(chưa đủ 3T)</span>}
+                    </div>
+                    <div className={"text-xl font-bold font-mono " + (c.net >= 0 ? 'text-emerald-400' : 'text-red-400')}>{c.net >= 0 ? '+' : ''}{formatVND(c.net)}đ</div>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2 text-xs mb-2">
+                    <div><span className="text-slate-500">DT</span><div className="text-emerald-300 font-mono">{formatVND(c.totalRev)}</div></div>
+                    <div><span className="text-slate-500">Nhà chủ</span><div className="text-red-300 font-mono">-{formatVND(c.rentPaid)}</div></div>
+                    <div><span className="text-slate-500">Tiện ích</span><div className="text-orange-300 font-mono">-{formatVND(c.totalUtil)}</div></div>
+                    <div><span className="text-slate-500">Vận hành</span><div className="text-yellow-300 font-mono">-{formatVND(c.totalOpex)}</div></div>
+                    <div><span className="text-slate-500">Biên LN</span><div className={"font-mono font-semibold " + (c.margin >= 0 ? 'text-emerald-400' : 'text-red-400')}>{c.margin.toFixed(1)}%</div></div>
+                  </div>
+                  <div className="space-y-1">
+                    {c.months.map(function(m, mi) {
+                      var mRent = mi === 0 ? c.rentPaid : 0;
+                      var mNet = m.revenue - mRent - m.utility - m.opex + m.financial;
+                      var cumul = 0;
+                      for (var k = 0; k <= mi; k++) {
+                        var kR = k === 0 ? c.rentPaid : 0;
+                        cumul += c.months[k].revenue - kR - c.months[k].utility - c.months[k].opex + c.months[k].financial;
+                      }
+                      return (
+                        <div key={mi} className="flex items-center gap-2 text-xs">
+                          <span className="text-slate-400 w-12">{m.month.replace('20','').replace('-','/')}</span>
+                          <div className="flex-1 h-5 bg-slate-700/50 rounded relative overflow-hidden">
+                            <div className={"h-full rounded " + (mNet >= 0 ? 'bg-emerald-500/30' : 'bg-red-500/30')} style={{width: Math.min(Math.abs(mNet) / (c.totalRev > 0 ? c.totalRev : 1) * 200, 100) + '%'}}></div>
+                            <span className={"absolute inset-0 flex items-center px-2 font-mono " + (mNet >= 0 ? 'text-emerald-300' : 'text-red-300')}>{mNet >= 0 ? '+' : ''}{formatVND(mNet)}</span>
+                          </div>
+                          <span className={"w-24 text-right font-mono " + (cumul >= 0 ? 'text-cyan-300' : 'text-red-400')}>lũy kế: {cumul >= 0 ? '+' : ''}{formatVND(cumul)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {reportTab === 'investor' && (
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-2xl p-5">
+            <h3 className="text-lg font-bold text-white mb-1">Phong - Chủ sở hữu 100%</h3>
+            <p className="text-xs text-slate-400 mb-3">Mua lại phần vốn Hưng (42tr) và A Chiến (25tr)</p>
+            <div className="grid grid-cols-4 gap-3">
+              <div className="bg-slate-800/50 rounded-xl p-3 text-center"><div className="text-xs text-slate-400">Vốn góp</div><div className="text-lg font-bold text-blue-400 font-mono">{formatVND(fin.vonGop)}đ</div></div>
+              <div className="bg-slate-800/50 rounded-xl p-3 text-center"><div className="text-xs text-slate-400">Tổng đầu tư</div><div className="text-lg font-bold text-purple-400 font-mono">{formatVND(fin.totalInvested)}đ</div></div>
+              <div className="bg-slate-800/50 rounded-xl p-3 text-center"><div className="text-xs text-slate-400">LN ròng</div><div className={"text-lg font-bold font-mono " + (fin.netProfit >= 0 ? 'text-emerald-400' : 'text-red-400')}>{formatVND(fin.netProfit)}đ</div></div>
+              <div className="bg-slate-800/50 rounded-xl p-3 text-center"><div className="text-xs text-slate-400">ROI</div><div className="text-lg font-bold text-amber-400">{roi.toFixed(1)}%</div></div>
+            </div>
+          </div>
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5">
+            <h3 className="text-lg font-semibold text-white mb-3">Theo dõi khoản vay</h3>
+            <div className="grid grid-cols-3 gap-3">
+              <div className={"rounded-xl p-4 border " + (fin.loans.nhat.out - fin.loans.nhat.in <= 0 ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5')}>
+                <div className="text-sm text-white font-medium mb-2">Nhất</div>
+                <div className="text-xs text-slate-400">Cho vay: {formatVND(fin.loans.nhat.out)}đ</div>
+                <div className="text-xs text-slate-400">Thu về: {formatVND(fin.loans.nhat.in)}đ</div>
+                <div className="text-xs text-slate-400">Lãi: {formatVND(fin.loans.nhat.interest)}đ</div>
+                <div className={"text-sm font-semibold mt-2 " + (fin.loans.nhat.out - fin.loans.nhat.in <= 0 ? 'text-emerald-400' : 'text-red-400')}>{fin.loans.nhat.out - fin.loans.nhat.in <= 0 ? 'Đã tất toán' : 'Còn nợ: ' + formatVND(fin.loans.nhat.out - fin.loans.nhat.in) + 'đ'}</div>
+              </div>
+              <div className="rounded-xl p-4 border border-orange-500/30 bg-orange-500/5">
+                <div className="text-sm text-white font-medium mb-2">Phong (CSH rút)</div>
+                <div className="text-xs text-slate-400">Đã rút: {formatVND(fin.loans.phong.out)}đ</div>
+                <div className="text-sm font-semibold mt-2 text-orange-400">Ghi nhận rút vốn chủ</div>
+              </div>
+              <div className={"rounded-xl p-4 border " + (fin.loans.khanh.out <= 0 ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5')}>
+                <div className="text-sm text-white font-medium mb-2">Anh Khánh</div>
+                <div className="text-xs text-slate-400">Cho vay: {formatVND(fin.loans.khanh.out)}đ</div>
+                <div className={"text-sm font-semibold mt-2 " + (fin.loans.khanh.out <= 0 ? 'text-emerald-400' : 'text-red-400')}>{fin.loans.khanh.out <= 0 ? 'Không có' : 'Còn nợ: ' + formatVND(fin.loans.khanh.out) + 'đ'}</div>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/30 rounded-2xl p-5">
+            <h3 className="text-lg font-semibold text-white mb-2">Khả năng rút lợi nhuận</h3>
+            <div className="space-y-1.5 text-sm">
+              <div className="flex justify-between"><span className="text-slate-400">Số dư TK:</span><span className="text-cyan-300 font-mono">{formatVND(fin.accountBalance)}đ</span></div>
+              <div className="flex justify-between"><span className="text-slate-400">(-) Cọc khách ({rooms.filter(function(r){return r.deposit>0}).length} phòng):</span><span className="text-red-300 font-mono">-{formatVND(stats.totalDeposit)}đ</span></div>
+              <div className="flex justify-between"><span className="text-slate-400">= Thực sở hữu:</span><span className="text-white font-mono font-semibold">{formatVND(fin.accountBalance - stats.totalDeposit)}đ</span></div>
+              <div className="flex justify-between pt-1 border-t border-slate-700"><span className="text-slate-400">(-) Phong đã rút:</span><span className="text-orange-300 font-mono">-{formatVND(fin.loans.phong.out)}đ</span></div>
+              <div className="flex justify-between pt-1 border-t border-slate-600 font-semibold"><span className="text-white">= Có thể rút thêm:</span><span className={"font-mono " + (fin.accountBalance - stats.totalDeposit - fin.loans.phong.out >= 0 ? 'text-emerald-400' : 'text-red-400')}>{formatVND(Math.max(0, fin.accountBalance - stats.totalDeposit - fin.loans.phong.out))}đ</span></div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== BILLS VIEW =====
+function BillsView({ bills, setBills, rooms, settings, setSelBill, setShowModal, setPreviewBill }) {
+  var _fm = React.useState(''); var filterMonth = _fm[0]; var setFilterMonth = _fm[1];
+  var months = Array.from(new Set(bills.map(function(b){return b.month}))).sort().reverse();
+  var filtered = bills.filter(function(b) {
+    if (filterMonth && b.month !== filterMonth) return false;
+    return true;
+  });
+  var totalBills = filtered.reduce(function(s,b){return s+b.total},0);
+  var totalPaid = filtered.reduce(function(s,b){return s+b.paid},0);
+  var totalDebt = filtered.reduce(function(s,b){return s+b.debt},0);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold text-white">Tính tiền phòng</h2>
+        <button onClick={function(){setShowModal('newBill')}} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all">
+          <Plus className="w-4 h-4" /> Nhập chỉ số mới
+        </button>
+      </div>
+
+      <div className="flex gap-2 items-center">
+        <select value={filterMonth} onChange={function(e){setFilterMonth(e.target.value)}} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+          <option value="">Tất cả tháng</option>
+          {months.map(function(m){return <option key={m} value={m}>{m}</option>})}
+        </select>
+        <span className="text-xs text-slate-500">{filtered.length} phiếu</span>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 text-center">
+          <div className="text-xs text-slate-400">Tổng phải thu</div>
+          <div className="text-lg font-bold text-blue-400 font-mono">{formatVND(totalBills)}đ</div>
+        </div>
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-center">
+          <div className="text-xs text-slate-400">Đã thu</div>
+          <div className="text-lg font-bold text-emerald-400 font-mono">{formatVND(totalPaid)}đ</div>
+        </div>
+        <div className={"rounded-xl p-3 text-center " + (totalDebt > 0 ? 'bg-red-500/10 border border-red-500/30' : 'bg-slate-800 border border-slate-700')}>
+          <div className="text-xs text-slate-400">Còn nợ</div>
+          <div className={"text-lg font-bold font-mono " + (totalDebt > 0 ? 'text-red-400' : 'text-slate-400')}>{formatVND(totalDebt)}đ</div>
+        </div>
+      </div>
+
+      <div className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-slate-700 bg-slate-800/50">
+                <th className="text-left py-2 px-2 text-slate-400">Tháng</th>
+                <th className="text-left py-2 px-2 text-slate-400">Phòng</th>
+                <th className="text-right py-2 px-2 text-yellow-400">Điện</th>
+                <th className="text-right py-2 px-2 text-blue-400">Nước</th>
+                <th className="text-right py-2 px-2 text-teal-400">Internet</th>
+                <th className="text-right py-2 px-2 text-purple-400">Dịch vụ</th>
+                <th className="text-right py-2 px-2 text-white">Tiền phòng</th>
+                <th className="text-right py-2 px-2 text-emerald-400 font-semibold">Tổng</th>
+                <th className="text-center py-2 px-2 text-slate-400">Trạng thái</th>
+                <th className="text-center py-2 px-2 text-slate-400">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(function(b) {
+                return (
+                  <tr key={b.id} className="border-b border-slate-800/50 hover:bg-slate-800/30">
+                    <td className="py-2 px-2 text-slate-400">{b.month}</td>
+                    <td className="py-2 px-2 text-white font-semibold">{b.room}</td>
+                    <td className="py-2 px-2 text-right font-mono text-yellow-300">{b.elecCost > 0 ? formatVND(b.elecCost) : '-'}<div className="text-slate-500">{b.elecUsed} số</div></td>
+                    <td className="py-2 px-2 text-right font-mono text-blue-300">{b.waterCost > 0 ? formatVND(b.waterCost) : '-'}<div className="text-slate-500">{b.waterUsed > 0 ? b.waterUsed + (b.waterNew > 0 ? ' m³' : ' ng') : ''}</div></td>
+                    <td className="py-2 px-2 text-right font-mono text-teal-300">{b.internet > 0 ? formatVND(b.internet) : '-'}</td>
+                    <td className="py-2 px-2 text-right font-mono text-purple-300">{b.service > 0 ? formatVND(b.service) : '-'}</td>
+                    <td className="py-2 px-2 text-right font-mono text-white">{b.rent > 0 ? formatVND(b.rent) : '-'}</td>
+                    <td className="py-2 px-2 text-right font-mono text-emerald-300 font-semibold">{formatVND(b.total)}</td>
+                    <td className="py-2 px-2 text-center">
+                      <span className={"px-2 py-0.5 rounded-full text-xs font-semibold " + (b.status === 'Paid' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400')}>{b.status === 'Paid' ? 'Đã thu' : 'Chưa thu'}</span>
+                    </td>
+                    <td className="py-2 px-2 text-center">
+                      <div className="flex gap-1 justify-center">
+                        <button onClick={function(){setPreviewBill(b)}} className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs hover:bg-blue-500/30" title="Xem phiếu">Phiếu</button>
+                        <button onClick={function(){setSelBill(b);setShowModal('editBill')}} className="bg-amber-500/20 text-amber-300 px-2 py-1 rounded text-xs hover:bg-amber-500/30" title="Sửa phiếu">✎</button>
+                        <button onClick={function(){
+                          if(confirm('Xóa phiếu ' + b.room + ' tháng ' + b.month + '?\n\nPhiếu sẽ bị xóa vĩnh viễn.')) {
+                            setBills(bills.filter(function(x){return x.id !== b.id}));
+                          }
+                        }} className="bg-red-500/20 text-red-300 px-2 py-1 rounded text-xs hover:bg-red-500/30" title="Xóa phiếu">✕</button>
+                        {b.status === 'Unpaid' && <button onClick={function(){setSelBill(b);setShowModal('payBill')}} className="bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded text-xs hover:bg-emerald-500/30">Thu tiền</button>}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== NEW BILL MODAL =====
+function NewBillModal({ rooms, bills, setBills, settings, onClose, onPreview }) {
+  var _f = React.useState({ month: new Date().toISOString().slice(0, 7), room: '', elecNew: 0, waterNew: 0, internet: true, service: true, months: 1 });
+  var form = _f[0]; var setForm = _f[1];
+
+  var room = rooms.find(function(r){return r.id === form.room});
+  var getOld = function() {
+    var rb = bills.filter(function(b){return b.room === form.room}).sort(function(a,b){return b.month.localeCompare(a.month)});
+    return rb.length > 0 ? { elecOld: rb[0].elecNew, waterOld: rb[0].waterNew } : { elecOld: 0, waterOld: 0 };
+  };
+  var old = form.room ? getOld() : { elecOld: 0, waterOld: 0 };
+
+  var elecPrice = settings.elecPrice;
+  var waterPP = settings.waterPerPerson;
+  var svcPrice = settings.service;
+  // Use per-room pricing if set
+  if (room) {
+    var rp = getRoomPrice(room, settings);
+    elecPrice = rp.elecPrice;
+    waterPP = rp.waterPerPerson;
+    svcPrice = rp.service;
+  }
+
+  var elecUsed = Math.max(0, form.elecNew - old.elecOld);
+  var elecCost = elecUsed * elecPrice;
+  var isWaterMeter = room && room.waterType === 'meter';
+  var waterUsed = isWaterMeter ? Math.max(0, form.waterNew - old.waterOld) : (room ? room.people : 0);
+  var waterCost = isWaterMeter ? waterUsed * (room ? getRoomPrice(room, settings).waterPrice : settings.waterPrice) : waterUsed * waterPP;
+  var internetCost = form.internet ? (room ? getRoomPrice(room, settings).internet : settings.internet) : 0;
+  var serviceCost = form.service ? svcPrice * (room ? room.people : 0) : 0;
+  var rentCost = (room ? room.rent : 0) * form.months;
+  var total = elecCost + waterCost + internetCost + serviceCost + rentCost;
+
+  function submit() {
+    if (!form.room) return;
+    var newId = bills.length > 0 ? Math.max.apply(null, bills.map(function(b){return b.id})) + 1 : 1;
+    var newBill = {
+      id: newId, month: form.month, room: form.room,
+      elecOld: old.elecOld, elecNew: form.elecNew, elecUsed: elecUsed, elecCost: elecCost,
+      waterOld: old.waterOld, waterNew: form.waterNew, waterUsed: waterUsed, waterCost: waterCost,
+      internet: internetCost, service: serviceCost, rent: rentCost,
+      total: total, paid: 0, debt: total, status: 'Unpaid'
+    };
+    setBills(bills.concat([newBill]));
+    onClose();
+    if (onPreview) onPreview(newBill);
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-lg" onClick={function(e){e.stopPropagation()}}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-white">Nhập chỉ số điện nước</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <label className="text-xs text-slate-400">Tháng</label>
+            <input type="month" value={form.month} onChange={function(e){setForm(Object.assign({},form,{month:e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400">Phòng</label>
+            <select value={form.room} onChange={function(e){setForm(Object.assign({},form,{room:e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1">
+              <option value="">Chọn phòng</option>
+              {rooms.filter(function(r){return r.status==='Đang thuê'}).map(function(r){return <option key={r.id} value={r.id}>{r.id} - {r.tenant}</option>})}
+            </select>
+          </div>
+        </div>
+
+        {form.room && (
+          <div className="space-y-3">
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 text-xs text-slate-400">
+              Chỉ số cũ: Điện <span className="text-white font-mono">{old.elecOld}</span> | Nước <span className="text-white font-mono">{old.waterOld}</span>
+              {room && <span className="ml-2">| {room.people} người | {room.waterType === 'meter' ? 'Đồng hồ nước' : 'Nước khoán'}</span>}
+            </div>
+            <div className={"grid gap-3 " + (isWaterMeter ? 'grid-cols-2' : 'grid-cols-1')}>
+              <div><label className="text-xs text-slate-400">Điện mới</label><input type="number" value={form.elecNew} onChange={function(e){setForm(Object.assign({},form,{elecNew:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+              {isWaterMeter && <div><label className="text-xs text-slate-400">Nước mới</label><input type="number" value={form.waterNew} onChange={function(e){setForm(Object.assign({},form,{waterNew:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>}
+            </div>
+            <div className="flex gap-4 items-center text-sm">
+              <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.internet} onChange={function(e){setForm(Object.assign({},form,{internet:e.target.checked}))}} /> <span className="text-slate-300">Internet</span></label>
+              <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.service} onChange={function(e){setForm(Object.assign({},form,{service:e.target.checked}))}} /> <span className="text-slate-300">Dịch vụ</span></label>
+              <div><label className="text-xs text-slate-400">Số tháng phòng</label><input type="number" min={0} value={form.months} onChange={function(e){setForm(Object.assign({},form,{months:+e.target.value}))}} className="w-16 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white ml-2" /></div>
+            </div>
+            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4 text-sm space-y-1">
+              {room && room.pricing && Object.keys(room.pricing).some(function(k){return room.pricing[k] != null}) && (
+                <div className="text-amber-400 text-xs mb-2 flex items-center gap-1">✎ Phòng {form.room} áp dụng giá riêng</div>
+              )}
+              <div className="flex justify-between"><span className="text-slate-400">Điện ({elecUsed} số × {formatVND(elecPrice)}đ)</span><span className="font-mono">{formatVND(elecCost)}đ</span></div>
+              <div className="flex justify-between"><span className="text-slate-400">Nước {isWaterMeter ? '(' + waterUsed + ' m³)' : '(' + waterUsed + ' người)'}</span><span className="font-mono">{formatVND(waterCost)}đ</span></div>
+              <div className="flex justify-between"><span className="text-slate-400">Internet</span><span className="font-mono">{formatVND(internetCost)}đ</span></div>
+              <div className="flex justify-between"><span className="text-slate-400">Dịch vụ ({room ? room.people : 0} người)</span><span className="font-mono">{formatVND(serviceCost)}đ</span></div>
+              <div className="flex justify-between"><span className="text-slate-400">Tiền phòng ({form.months} tháng)</span><span className="font-mono">{formatVND(rentCost)}đ</span></div>
+              <div className="flex justify-between pt-2 border-t border-emerald-500/20 text-lg font-bold"><span>Tổng cộng</span><span className="text-emerald-400 font-mono">{formatVND(total)}đ</span></div>
+            </div>
+          </div>
+        )}
+        <div className="flex gap-2 mt-4">
+          <button onClick={onClose} className="flex-1 py-2 rounded-lg text-sm bg-slate-800 text-slate-400">Hủy</button>
+          <button onClick={submit} className="flex-1 py-2 rounded-lg text-sm bg-emerald-500 text-white font-medium hover:bg-emerald-600">Lưu phiếu</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== EDIT BILL MODAL =====
+function EditBillModal({ bill, rooms, bills, setBills, settings, onClose }) {
+  var room = rooms.find(function(r){return r.id === bill.room}) || {};
+  var rp = room.id ? getRoomPrice(room, settings) : settings;
+  var isWaterMeter = room.waterType === 'meter';
+
+  var _f = React.useState({
+    month: bill.month, elecOld: bill.elecOld, elecNew: bill.elecNew,
+    waterOld: bill.waterOld, waterNew: bill.waterNew,
+    internet: bill.internet > 0, service: bill.service > 0,
+    months: bill.rent > 0 ? Math.round(bill.rent / (room.rent || 1)) || 1 : 0
+  });
+  var form = _f[0]; var setForm = _f[1];
+
+  var elecUsed = Math.max(0, form.elecNew - form.elecOld);
+  var elecCost = elecUsed * rp.elecPrice;
+  var waterUsed = isWaterMeter ? Math.max(0, form.waterNew - form.waterOld) : (room.people || 0);
+  var waterCost = isWaterMeter ? waterUsed * rp.waterPrice : waterUsed * rp.waterPerPerson;
+  var internetCost = form.internet ? rp.internet : 0;
+  var serviceCost = form.service ? rp.service * (room.people || 0) : 0;
+  var rentCost = (room.rent || 0) * form.months;
+  var total = elecCost + waterCost + internetCost + serviceCost + rentCost;
+
+  function save() {
+    var updated = Object.assign({}, bill, {
+      month: form.month,
+      elecOld: form.elecOld, elecNew: form.elecNew, elecUsed: elecUsed, elecCost: elecCost,
+      waterOld: form.waterOld, waterNew: form.waterNew, waterUsed: waterUsed, waterCost: waterCost,
+      internet: internetCost, service: serviceCost, rent: rentCost,
+      total: total, debt: Math.max(0, total - bill.paid),
+      status: bill.paid >= total ? 'Paid' : 'Unpaid'
+    });
+    setBills(bills.map(function(b){ return b.id === bill.id ? updated : b; }));
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-lg" onClick={function(e){e.stopPropagation()}}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-white">Sửa phiếu — Phòng {bill.room} ({bill.month})</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="text-xs text-slate-400">Tháng</label><input type="month" value={form.month} onChange={function(e){setForm(Object.assign({},form,{month:e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 mt-5 text-sm text-slate-300">{room.tenant || bill.room} • {room.people || '?'} người • {isWaterMeter ? 'Đồng hồ' : 'Khoán'}</div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="text-xs text-slate-400">Điện cũ</label><input type="number" value={form.elecOld} onChange={function(e){setForm(Object.assign({},form,{elecOld:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+            <div><label className="text-xs text-slate-400">Điện mới</label><input type="number" value={form.elecNew} onChange={function(e){setForm(Object.assign({},form,{elecNew:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+          </div>
+
+          {isWaterMeter && (
+            <div className="grid grid-cols-2 gap-3">
+              <div><label className="text-xs text-slate-400">Nước cũ</label><input type="number" value={form.waterOld} onChange={function(e){setForm(Object.assign({},form,{waterOld:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+              <div><label className="text-xs text-slate-400">Nước mới</label><input type="number" value={form.waterNew} onChange={function(e){setForm(Object.assign({},form,{waterNew:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+            </div>
+          )}
+
+          <div className="flex gap-4 items-center text-sm">
+            <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.internet} onChange={function(e){setForm(Object.assign({},form,{internet:e.target.checked}))}} /> <span className="text-slate-300">Internet</span></label>
+            <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.service} onChange={function(e){setForm(Object.assign({},form,{service:e.target.checked}))}} /> <span className="text-slate-300">Dịch vụ</span></label>
+            <div><label className="text-xs text-slate-400">Tháng phòng</label><input type="number" min={0} value={form.months} onChange={function(e){setForm(Object.assign({},form,{months:+e.target.value}))}} className="w-16 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white ml-2" /></div>
+          </div>
+
+          <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4 text-sm space-y-1">
+            <div className="flex justify-between"><span className="text-slate-400">Điện ({elecUsed} số × {formatVND(rp.elecPrice)}đ)</span><span className="font-mono">{formatVND(elecCost)}đ</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Nước {isWaterMeter ? '(' + waterUsed + ' m³)' : '(' + waterUsed + ' người)'}</span><span className="font-mono">{formatVND(waterCost)}đ</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Internet</span><span className="font-mono">{formatVND(internetCost)}đ</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Dịch vụ ({room.people || 0} ng)</span><span className="font-mono">{formatVND(serviceCost)}đ</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Tiền phòng ({form.months} tháng)</span><span className="font-mono">{formatVND(rentCost)}đ</span></div>
+            <div className="flex justify-between pt-2 border-t border-emerald-500/20 text-lg font-bold"><span>Tổng mới</span><span className="text-emerald-400 font-mono">{formatVND(total)}đ</span></div>
+            {bill.paid > 0 && (
+              <div className="flex justify-between text-xs pt-1"><span className="text-slate-500">Đã thu: {formatVND(bill.paid)}đ</span><span className={"font-mono " + (total - bill.paid > 0 ? 'text-red-400' : 'text-emerald-400')}>{total - bill.paid > 0 ? 'Còn nợ ' + formatVND(total - bill.paid) + 'đ' : 'Đã đủ'}</span></div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex gap-2 mt-4">
+          <button onClick={onClose} className="flex-1 py-2 rounded-lg text-sm bg-slate-800 text-slate-400">Hủy</button>
+          <button onClick={save} className="flex-1 py-2 rounded-lg text-sm bg-amber-500 text-white font-medium hover:bg-amber-600 flex items-center justify-center gap-2"><Save className="w-4 h-4" /> Lưu thay đổi</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== PAY BILL MODAL =====
+function PayBillModal({ bill, rooms, bills, setBills, onPay, onClose }) {
+  var _amt = React.useState(bill.total); var amount = _amt[0]; var setAmount = _amt[1];
+  var room = rooms.find(function(r){return r.id === bill.room});
+
+  function handlePay() {
+    var paid = Number(amount);
+    var newDebt = bill.total - paid;
+    setBills(bills.map(function(b){
+      return b.id === bill.id ? Object.assign({}, b, { paid: paid, debt: Math.max(0, newDebt), status: newDebt <= 0 ? 'Paid' : 'Unpaid' }) : b;
+    }));
+    onPay({
+      date: new Date().toISOString().slice(0, 10),
+      desc: 'Thu tiền phòng ' + bill.room + ' tháng ' + bill.month,
+      room: bill.room, income: paid, expense: 0,
+      category: 'THU_TIEN_NHA', note: 'Từ phiếu tính tiền',
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md" onClick={function(e){e.stopPropagation()}}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-white">Thu tiền phòng {bill.room}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 mb-4 text-sm space-y-2">
+          <div className="flex justify-between"><span className="text-slate-400">Khách thuê</span><span className="text-white font-medium">{room ? room.tenant : bill.room}</span></div>
+          <div className="flex justify-between"><span className="text-slate-400">Tháng</span><span>{bill.month}</span></div>
+          <div className="flex justify-between"><span className="text-slate-400">Tổng tiền</span><span className="text-emerald-400 font-bold font-mono">{formatVND(bill.total)}đ</span></div>
+        </div>
+        <div className="mb-3">
+          <label className="text-xs text-slate-400">Số tiền thu</label>
+          <input type="number" value={amount} onChange={function(e){setAmount(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-3 text-xl text-white font-bold font-mono mt-1" />
+        </div>
+        {Number(amount) < bill.total && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-400 mb-3">Còn nợ: {formatVND(bill.total - Number(amount))}đ</div>
+        )}
+        <div className="flex gap-2">
+          <button onClick={onClose} className="flex-1 py-2 rounded-lg text-sm bg-slate-800 text-slate-400">Hủy</button>
+          <button onClick={handlePay} className="flex-1 py-2 rounded-lg text-sm bg-emerald-500 text-white font-medium hover:bg-emerald-600 flex items-center justify-center gap-2"><Check className="w-4 h-4" /> Xác nhận thu</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== BILL INVOICE (PHIẾU THÔNG BÁO TIỀN PHÒNG) =====
+function BillInvoice({ bill, rooms, bills, settings, onClose }) {
+  var room = rooms.find(function(r){return r.id === bill.room}) || {};
+  var monthParts = bill.month.split('-');
+  var monthLabel = 'Tháng ' + parseInt(monthParts[1]) + ' năm ' + monthParts[0];
+
+  // Find previous month debt
+  var prevMonthBills = bills.filter(function(b){return b.room === bill.room && b.month < bill.month && b.status === 'Unpaid'});
+  var prevDebt = prevMonthBills.reduce(function(s,b){return s + (b.debt || 0)}, 0);
+  var grandTotal = bill.total + prevDebt;
+
+  // VietQR URL
+  var bankId = 'ICB'; // VietinBank
+  var accountNo = '0965996302';
+  var accountName = 'BUI DUY PHONG';
+  var transferInfo = 'Phong ' + bill.room + ' T' + parseInt(monthParts[1]);
+  var qrUrl = 'https://img.vietqr.io/image/' + bankId + '-' + accountNo + '-compact2.png?amount=' + grandTotal + '&addInfo=' + encodeURIComponent(transferInfo) + '&accountName=' + encodeURIComponent(accountName);
+
+  // Format number with dots
+  function fmtN(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+
+  // Elec detail string
+  var elecDetail = bill.elecUsed > 0 ? '(' + fmtN(bill.elecNew) + ' - ' + fmtN(bill.elecOld) + ') = ' + bill.elecUsed + ' Kw x ' + fmtN(bill.elecCost / bill.elecUsed) + ' đ/Kwh' : '';
+  // Water detail
+  var waterDetail = '';
+  if (bill.waterNew > 0 && bill.waterOld >= 0) {
+    waterDetail = '(' + bill.waterNew + ' - ' + bill.waterOld + ') = ' + (bill.waterNew - bill.waterOld) + ' m3 x ' + fmtN(Math.round(bill.waterCost / Math.max(1, bill.waterNew - bill.waterOld))) + ' đ/m3';
+  } else if (bill.waterUsed > 0 && bill.waterCost > 0) {
+    waterDetail = bill.waterUsed + ' người x ' + fmtN(Math.round(bill.waterCost / bill.waterUsed)) + ' đ/người';
+  }
+
+  var rows = [
+    {stt: 1, khoan: 'Phòng', detail: '', amount: bill.rent},
+    {stt: 2, khoan: 'Điện', detail: elecDetail, amount: bill.elecCost},
+    {stt: 3, khoan: 'Nước', detail: waterDetail, amount: bill.waterCost},
+    {stt: 4, khoan: 'Internet', detail: '', amount: bill.internet},
+    {stt: 5, khoan: 'Dịch vụ', detail: '', amount: bill.service},
+  ];
+
+  var cellStyle = {border:'1px solid #333', padding:'8px 12px', fontSize:14};
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}} onClick={onClose}>
+      <div style={{maxHeight:'95vh',overflow:'auto',borderRadius:8}} onClick={function(e){e.stopPropagation()}}>
+        {/* Print button */}
+        <div style={{background:'#1e293b',padding:'12px 20px',display:'flex',justifyContent:'space-between',alignItems:'center',borderRadius:'8px 8px 0 0'}}>
+          <span style={{color:'#94a3b8',fontSize:13}}>Chụp ảnh phiếu này gửi cho khách</span>
+          <button onClick={onClose} style={{background:'none',border:'none',color:'#94a3b8',cursor:'pointer',fontSize:18}}>✕</button>
+        </div>
+
+        {/* Invoice body - white background for screenshot */}
+        <div id="bill-invoice" style={{background:'#fff',color:'#000',padding:'32px 36px',fontFamily:'serif',width:620,maxWidth:'100%'}}>
+          {/* Header */}
+          <div style={{textAlign:'center',marginBottom:24}}>
+            <div style={{fontSize:22,fontWeight:'bold',fontStyle:'italic'}}>THÔNG BÁO TIỀN PHÒNG TRỌ</div>
+            <div style={{fontSize:15,marginTop:4}}>{monthLabel}</div>
+          </div>
+
+          {/* Recipient info */}
+          <div style={{marginBottom:8,fontSize:14,lineHeight:1.8}}>
+            <div style={{display:'flex',gap:24}}>
+              <div>Kính gửi: <strong style={{fontSize:16}}>{room.tenant || '—'}</strong></div>
+              <div style={{marginLeft:'auto'}}>CCCD số: <strong>{room.cccd || '..................'}</strong></div>
+            </div>
+            <div>Ở phòng số: <strong style={{fontSize:16,background:'#ffeb3b',padding:'1px 10px',borderRadius:3}}>{bill.room}</strong></div>
+          </div>
+
+          <div style={{fontSize:13,marginBottom:12,fontStyle:'italic'}}>
+            Xin thông báo ông/bà biết, tiền thuê phòng và các chi phí dịch vụ khác trong tháng. Cụ thể như sau:
+          </div>
+
+          {/* Table */}
+          <table style={{width:'100%',borderCollapse:'collapse',marginBottom:20}}>
+            <thead>
+              <tr style={{background:'#f5f5f5'}}>
+                <th style={Object.assign({},cellStyle,{textAlign:'center',width:40,fontWeight:'bold'})}>STT</th>
+                <th style={Object.assign({},cellStyle,{width:80,fontWeight:'bold'})}>Khoản</th>
+                <th style={Object.assign({},cellStyle,{fontWeight:'bold'})}>Chi tiết</th>
+                <th style={Object.assign({},cellStyle,{textAlign:'right',width:120,fontWeight:'bold'})}>Thành Tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(function(r) {
+                return (
+                  <tr key={r.stt}>
+                    <td style={Object.assign({},cellStyle,{textAlign:'center'})}>{r.stt}</td>
+                    <td style={cellStyle}>{r.khoan}</td>
+                    <td style={Object.assign({},cellStyle,{fontSize:13})}>{r.detail}</td>
+                    <td style={Object.assign({},cellStyle,{textAlign:'right',fontFamily:'monospace'})}>{fmtN(r.amount)}</td>
+                  </tr>
+                );
+              })}
+              <tr style={{background:'#f9f9f9'}}>
+                <td style={cellStyle}></td>
+                <td colSpan={2} style={Object.assign({},cellStyle,{fontWeight:'bold',fontSize:15})}>Cộng:</td>
+                <td style={Object.assign({},cellStyle,{textAlign:'right',fontWeight:'bold',fontSize:16,fontFamily:'monospace',color:'#d32f2f'})}>{fmtN(bill.total)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Payment section + QR code side by side */}
+          <div style={{display:'flex',gap:20}}>
+            {/* Left: payment info */}
+            <div style={{flex:1,fontSize:14,lineHeight:2}}>
+              <div style={{textDecoration:'underline',fontWeight:'bold',marginBottom:4}}>Phần Thanh toán:</div>
+              <div style={{display:'flex',justifyContent:'space-between'}}>
+                <span>-Số tiền còn nợ tháng trước:</span>
+                <span style={{fontFamily:'monospace'}}>{prevDebt > 0 ? fmtN(prevDebt) : '-'}</span>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between'}}>
+                <span>-Phải trả tháng này:</span>
+                <span style={{fontFamily:'monospace'}}>{fmtN(bill.total)}</span>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',borderTop:'1px solid #333',paddingTop:4,marginTop:4}}>
+                <strong style={{fontSize:15}}>Tổng Cộng:</strong>
+                <strong style={{fontSize:16,fontFamily:'monospace'}}>{fmtN(grandTotal)}</strong>
+              </div>
+              <div style={{marginTop:8,fontSize:12,color:'#666'}}>
+                Chi tiết thanh toán:
+                <div style={{borderBottom:'1px dotted #999',marginTop:4,height:20}}></div>
+                <div style={{borderBottom:'1px dotted #999',height:20}}></div>
+              </div>
+            </div>
+
+            {/* Right: QR code + bank info */}
+            <div style={{width:200,textAlign:'center'}}>
+              <div style={{display:'flex',gap:8,justifyContent:'center',alignItems:'center',marginBottom:8}}>
+                <span style={{color:'#00308F',fontWeight:'bold',fontSize:11}}>VietinBank</span>
+                <span style={{color:'#e53935',fontWeight:'bold',fontSize:10}}>napas247</span>
+                <span style={{color:'#1565c0',fontWeight:'bold',fontSize:10}}>VietQR</span>
+              </div>
+              <img src={qrUrl} alt="QR thanh toán" style={{width:180,height:180,border:'1px solid #ddd',borderRadius:8}} />
+              <div style={{marginTop:8}}>
+                <div style={{fontWeight:'bold',fontSize:14}}>BUI DUY PHONG</div>
+                <div style={{fontSize:12,color:'#666'}}>Alias 0965996302</div>
+                <div style={{fontSize:11,color:'#888'}}>VietinBank CN HAI BA TRUNG - HOI SO</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== SETTINGS VIEW =====
+function SettingsView({ settings, setSettings, rooms, transactions, syncState, setSyncState, setRooms, setTransactions, setBills }) {
+  var _t = React.useState(Object.assign({}, settings)); var temp = _t[0]; var setTemp = _t[1];
+  function save() { setSettings(Object.assign({}, temp)); }
+
+  return (
+    <div className="max-w-2xl space-y-4">
+      <h2 className="text-xl font-bold text-white">Cài đặt</h2>
+      <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-white mb-2">Đơn giá điện nước</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-slate-400">Điện (đ/kWh)</label><input type="number" value={temp.elecPrice} onChange={function(e){setTemp(Object.assign({},temp,{elecPrice:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+          <div><label className="text-xs text-slate-400">Nước đồng hồ (đ/m³)</label><input type="number" value={temp.waterPrice} onChange={function(e){setTemp(Object.assign({},temp,{waterPrice:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+          <div><label className="text-xs text-slate-400">Nước khoán (đ/người)</label><input type="number" value={temp.waterPerPerson} onChange={function(e){setTemp(Object.assign({},temp,{waterPerPerson:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+          <div><label className="text-xs text-slate-400">Internet (đ/tháng)</label><input type="number" value={temp.internet} onChange={function(e){setTemp(Object.assign({},temp,{internet:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+          <div><label className="text-xs text-slate-400">Dịch vụ (đ/người/tháng)</label><input type="number" value={temp.service} onChange={function(e){setTemp(Object.assign({},temp,{service:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+          <div><label className="text-xs text-slate-400">Tiền thuê nhà/tháng</label><input type="number" value={temp.monthlyRent} onChange={function(e){setTemp(Object.assign({},temp,{monthlyRent:+e.target.value}))}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+        </div>
+        <button onClick={save} className="w-full mt-3 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-all"><Save className="w-4 h-4" /> Lưu cài đặt</button>
+      </div>
+      <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 text-xs text-slate-300 space-y-1">
+        <div className="text-amber-400 font-semibold mb-1">Phòng có giá riêng (✎)</div>
+        {(function(){
+          var customRooms = rooms.filter(function(r){return r.pricing && Object.keys(r.pricing).some(function(k){return r.pricing[k] != null})});
+          if (customRooms.length === 0) return <div className="text-slate-500">Chưa có phòng nào cài giá riêng. Vào Phòng → Chỉnh sửa → tab "Giá riêng" để thiết lập.</div>;
+          return customRooms.map(function(r) {
+            var diffs = [];
+            if (r.pricing.elecPrice != null) diffs.push('Điện ' + formatVND(r.pricing.elecPrice) + 'đ/kWh');
+            if (r.pricing.waterPrice != null) diffs.push('Nước ' + formatVND(r.pricing.waterPrice) + 'đ/m³');
+            if (r.pricing.waterPerPerson != null) diffs.push('Nước ' + formatVND(r.pricing.waterPerPerson) + 'đ/ng');
+            if (r.pricing.internet != null) diffs.push('Internet ' + formatVND(r.pricing.internet) + 'đ');
+            if (r.pricing.service != null) diffs.push('DV ' + formatVND(r.pricing.service) + 'đ/ng');
+            return <div key={r.id}>• Phòng {r.id}: {diffs.join(', ')}</div>;
+          });
+        })()}
+      </div>
+      <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5">
+        <div className="text-sm text-white font-medium mb-2">Thông tin dự án</div>
+        <div className="text-xs text-slate-400 space-y-1">
+          <div>Chủ sở hữu: Phong (100%)</div>
+          <div>Số phòng: 12 (10 cho thuê + 1 trống + 1 chủ)</div>
+          <div>Dữ liệu: {(function(){var d=loadData();return d?'Đã lưu lúc '+new Date(d.savedAt).toLocaleString('vi-VN'):'Chưa lưu'})()}</div>
+          <div>Phiên bản: CCMN Pro v4.0 - Online</div>
+        </div>
+      </div>
+
+      <div className="bg-slate-800/50 border border-emerald-500/30 rounded-xl p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+          <Check className="w-4 h-4 text-emerald-400" />
+          Google Sheets — Đã kết nối
+        </h3>
+        <div className="text-xs text-slate-400">Dữ liệu tự động đồng bộ lên Google Sheets mỗi khi có thay đổi. Mất mạng → lưu hàng đợi → tự sync lại khi có mạng.</div>
+        <div className="flex gap-2">
+          <button onClick={function(){
+            setSyncState({status:'saving',msg:'↑ Đang sync...'});
+            syncToCloud({rooms:rooms,transactions:transactions,bills:bills,settings:settings},function(ok,msg){
+              setSyncState({status:ok?'ok':'warn',msg:ok?'✅ Đã đẩy lên Sheets':'⚠ '+msg});
+              setTimeout(function(){setSyncState({status:'idle',msg:''})},3000);
+            });
+          }} className="bg-blue-500/20 text-blue-300 px-3 py-2 rounded-lg text-xs hover:bg-blue-500/30 flex items-center gap-1">
+            <ArrowUpRight className="w-3.5 h-3.5" /> Đẩy lên Sheets
+          </button>
+          <button onClick={function(){
+            setSyncState({status:'loading',msg:'↓ Đang tải...'});
+            syncFromCloud(function(ok, data, err){
+              if (ok && data) {
+                if (data.rooms) setRooms(data.rooms);
+                if (data.transactions) setTransactions(data.transactions);
+                if (data.bills) setBills(data.bills);
+                if (data.settings) setSettings(data.settings);
+                setSyncState({status:'ok',msg:'✅ Đã tải từ Sheets'});
+              } else {
+                setSyncState({status:'warn',msg:'⚠ ' + (err||'Lỗi')});
+              }
+              setTimeout(function(){setSyncState({status:'idle',msg:''})},3000);
+            });
+          }} className="bg-emerald-500/20 text-emerald-300 px-3 py-2 rounded-lg text-xs hover:bg-emerald-500/30 flex items-center gap-1">
+            <ArrowDownRight className="w-3.5 h-3.5" /> Tải từ Sheets
+          </button>
+        </div>
+        <div className="text-xs text-slate-500">Hàng đợi: {(function(){var q=getQueue();return q.length>0?q.length+' thao tác chờ sync':'Trống (tốt!)'})()}</div>
+      </div>
+
+      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-white">Quản lý dữ liệu</h3>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={function(){
+            var data = loadData();
+            if (!data) return alert('Chưa có dữ liệu');
+            var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'ccmn-backup-' + new Date().toISOString().slice(0,10) + '.json';
+            a.click();
+          }} className="bg-blue-500/20 text-blue-300 px-3 py-2 rounded-lg text-xs hover:bg-blue-500/30 flex items-center gap-1">
+            <Download className="w-3.5 h-3.5" /> Sao lưu dữ liệu (JSON)
+          </button>
+          <button onClick={function(){
+            var input = document.createElement('input');
+            input.type = 'file'; input.accept = '.json';
+            input.onchange = function(e){
+              var file = e.target.files[0];
+              if (!file) return;
+              var reader = new FileReader();
+              reader.onload = function(ev){
+                try {
+                  var data = JSON.parse(ev.target.result);
+                  if (!data.rooms || !data.transactions) return alert('File không hợp lệ');
+                  if (!confirm('Nhập dữ liệu sẽ GHI ĐÈ toàn bộ. Tiếp tục?')) return;
+                  saveData(data);
+                  location.reload();
+                } catch(err) { alert('Lỗi đọc file: ' + err.message); }
+              };
+              reader.readAsText(file);
+            };
+            input.click();
+          }} className="bg-amber-500/20 text-amber-300 px-3 py-2 rounded-lg text-xs hover:bg-amber-500/30 flex items-center gap-1">
+            <FileText className="w-3.5 h-3.5" /> Nhập dữ liệu từ file
+          </button>
+          <button onClick={function(){
+            if (!confirm('XÓA TOÀN BỘ dữ liệu đã lưu và về mặc định?\n\nHành động này KHÔNG THỂ hoàn tác!')) return;
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+          }} className="bg-red-500/20 text-red-300 px-3 py-2 rounded-lg text-xs hover:bg-red-500/30 flex items-center gap-1">
+            <Trash2 className="w-3.5 h-3.5" /> Xóa dữ liệu (reset)
+          </button>
+        </div>
+        <div className="text-xs text-slate-500">Dữ liệu được tự động lưu vào trình duyệt mỗi khi có thay đổi. Nên sao lưu định kỳ!</div>
+      </div>
+    </div>
+  );
+}
+
+// ===== EDIT TRANSACTION MODAL =====
+function EditTransactionModal({ txn, onSave, onClose }) {
+  var isIncome = txn.income > 0;
+  var _type = React.useState(isIncome ? 'income' : 'expense'); var txnType = _type[0]; var setTxnType = _type[1];
+  var _date = React.useState(txn.date || ''); var date = _date[0]; var setDate = _date[1];
+  var _desc = React.useState(txn.desc || ''); var desc = _desc[0]; var setDesc = _desc[1];
+  var _amount = React.useState(isIncome ? txn.income : txn.expense); var amount = _amount[0]; var setAmount = _amount[1];
+  var _room = React.useState(txn.room || ''); var room = _room[0]; var setRoom = _room[1];
+  var _cat = React.useState(txn.category || ''); var cat = _cat[0]; var setCat = _cat[1];
+  var _note = React.useState(txn.note || ''); var note = _note[0]; var setNote = _note[1];
+
+  var cats = txnType === 'income' ? INCOME_CATS : EXPENSE_CATS;
+
+  function save() {
+    if (!desc || !amount) return;
+    onSave(Object.assign({}, txn, {
+      date: date, desc: desc, room: room, category: cat, note: note,
+      income: txnType === 'income' ? Number(amount) : 0,
+      expense: txnType === 'expense' ? Number(amount) : 0
+    }));
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md" onClick={function(e){e.stopPropagation()}}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-white">Sửa giao dịch</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <button onClick={function(){setTxnType('income');setCat('')}} className={"flex-1 py-2 rounded-lg text-sm font-medium " + (txnType==='income' ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400')}>Thu</button>
+            <button onClick={function(){setTxnType('expense');setCat('')}} className={"flex-1 py-2 rounded-lg text-sm font-medium " + (txnType==='expense' ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-400')}>Chi</button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="text-xs text-slate-400">Ngày</label><input type="date" value={date} onChange={function(e){setDate(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+            <div><label className="text-xs text-slate-400">Số tiền</label><input type="number" value={amount} onChange={function(e){setAmount(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+          </div>
+          <div><label className="text-xs text-slate-400">Diễn giải</label><input type="text" value={desc} onChange={function(e){setDesc(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="text-xs text-slate-400">Phòng</label><input type="text" value={room} onChange={function(e){setRoom(e.target.value)}} placeholder="VD: 202" className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+            <div><label className="text-xs text-slate-400">Phân loại</label>
+              <select value={cat} onChange={function(e){setCat(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1">
+                <option value="">Chọn loại</option>
+                {cats.map(function(c){return <option key={c} value={c}>{CATEGORIES[c].label}</option>})}
+              </select>
+            </div>
+          </div>
+          <div><label className="text-xs text-slate-400">Ghi chú</label><input type="text" value={note} onChange={function(e){setNote(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+        </div>
+        <div className="flex gap-2 mt-4">
+          <button onClick={onClose} className="flex-1 py-2 rounded-lg text-sm bg-slate-800 text-slate-400">Hủy</button>
+          <button onClick={save} className="flex-1 py-2 rounded-lg text-sm bg-amber-500 text-white font-medium hover:bg-amber-600 flex items-center justify-center gap-2"><Save className="w-4 h-4" /> Lưu thay đổi</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== ADD TRANSACTION MODAL =====
+function AddTransactionModal({ onSave, onClose }) {
+  var _type = React.useState('expense'); var txnType = _type[0]; var setTxnType = _type[1];
+  var _date = React.useState(new Date().toISOString().slice(0, 10)); var date = _date[0]; var setDate = _date[1];
+  var _desc = React.useState(''); var desc = _desc[0]; var setDesc = _desc[1];
+  var _room = React.useState('Chung'); var room = _room[0]; var setRoom = _room[1];
+  var _amount = React.useState(''); var amount = _amount[0]; var setAmount = _amount[1];
+  var _cat = React.useState(''); var cat = _cat[0]; var setCat = _cat[1];
+  var _note = React.useState(''); var note = _note[0]; var setNote = _note[1];
+
+  var catOptions = txnType === 'income' ? INCOME_CATS : EXPENSE_CATS;
+
+  function handleSave() {
+    if (!desc || !amount || !cat) return;
+    var amt = parseFloat(amount);
+    if (isNaN(amt) || amt <= 0) return;
+    onSave({
+      date: date,
+      desc: desc,
+      room: room,
+      income: txnType === 'income' ? amt : 0,
+      expense: txnType === 'expense' ? amt : 0,
+      category: cat,
+      note: note,
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md" onClick={function(e){e.stopPropagation()}}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-white">Thêm giao dịch mới</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <button onClick={function(){setTxnType('income');setCat('')}} className={"flex-1 py-2 rounded-lg text-sm font-medium " + (txnType === 'income' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400')}>Thu</button>
+          <button onClick={function(){setTxnType('expense');setCat('')}} className={"flex-1 py-2 rounded-lg text-sm font-medium " + (txnType === 'expense' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-slate-800 text-slate-400')}>Chi</button>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs text-slate-400">Ngày</label>
+            <input type="date" value={date} onChange={function(e){setDate(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400">Phân loại</label>
+            <select value={cat} onChange={function(e){setCat(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1">
+              <option value="">-- Chọn --</option>
+              {catOptions.map(function(c){return <option key={c} value={c}>{CATEGORIES[c].label}</option>})}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-slate-400">Diễn giải</label>
+            <input type="text" value={desc} onChange={function(e){setDesc(e.target.value)}} placeholder="Mô tả giao dịch..." className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-slate-400">Số tiền (đ)</label>
+              <input type="number" value={amount} onChange={function(e){setAmount(e.target.value)}} placeholder="0" className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">Phòng</label>
+              <select value={room} onChange={function(e){setRoom(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1">
+                <option value="Chung">Chung</option>
+                {initialRooms.map(function(r){return <option key={r.id} value={r.id}>{r.id}</option>})}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-slate-400">Ghi chú</label>
+            <input type="text" value={note} onChange={function(e){setNote(e.target.value)}} placeholder="(tùy chọn)" className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" />
+          </div>
+        </div>
+
+        <div className="flex gap-2 mt-5">
+          <button onClick={onClose} className="flex-1 py-2 rounded-lg text-sm bg-slate-800 text-slate-400 hover:bg-slate-700">Hủy</button>
+          <button onClick={handleSave} className={"flex-1 py-2 rounded-lg text-sm font-medium text-white " + (txnType === 'income' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600')}>Lưu giao dịch</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== EDIT ROOM MODAL =====
+function EditRoomModal({ room, onSave, onClose }) {
+  var _tab = React.useState('info'); var tab = _tab[0]; var setTab = _tab[1];
+  var _f = React.useState(Object.assign({}, room, {
+    pricing: Object.assign({elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}, room.pricing || {})
+  }));
+  var f = _f[0]; var setF = _f[1];
+
+  function upd(key, val) { setF(Object.assign({}, f, (function(){var o={};o[key]=val;return o})())); }
+  function updPricing(key, val) {
+    var p = Object.assign({}, f.pricing);
+    p[key] = val === '' || val === null ? null : Number(val);
+    setF(Object.assign({}, f, {pricing: p}));
+  }
+
+  function handleSave() {
+    onSave(Object.assign({}, f, { people: Number(f.people), rent: Number(f.rent), deposit: Number(f.deposit), contractMonths: Number(f.contractMonths || 0) }));
+  }
+
+  var tabs = [
+    {id:'info', label:'Khách thuê', icon: Users},
+    {id:'contract', label:'Hợp đồng', icon: FileText},
+    {id:'pricing', label:'Giá riêng', icon: Zap},
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col" onClick={function(e){e.stopPropagation()}}>
+        <div className="flex justify-between items-center p-5 pb-0">
+          <h3 className="text-lg font-semibold text-white">Phòng {room.id}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="flex gap-1 px-5 pt-3 border-b border-slate-800">
+          {tabs.map(function(t) {
+            var Icon = t.icon;
+            return <button key={t.id} onClick={function(){setTab(t.id)}} className={"flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 transition-all " + (tab === t.id ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-slate-400 hover:text-white')}><Icon className="w-3.5 h-3.5" /> {t.label}</button>;
+          })}
+        </div>
+
+        <div className="p-5 overflow-y-auto flex-1 space-y-3">
+          {tab === 'info' && (
+            <div className="space-y-3">
+              <div><label className="text-xs text-slate-400">Trạng thái</label><select value={f.status} onChange={function(e){upd('status',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1"><option>Đang thuê</option><option>Trống</option></select></div>
+              <div><label className="text-xs text-slate-400">Tên khách thuê</label><input type="text" value={f.tenant} onChange={function(e){upd('tenant',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="text-xs text-slate-400">Số điện thoại</label><input type="tel" value={f.phone||''} onChange={function(e){upd('phone',e.target.value)}} placeholder="0901234567" className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+                <div><label className="text-xs text-slate-400">Số CCCD</label><input type="text" value={f.cccd||''} onChange={function(e){upd('cccd',e.target.value)}} placeholder="012345678901" className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="text-xs text-slate-400">Số người ở</label><input type="number" value={f.people} onChange={function(e){upd('people',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+                <div><label className="text-xs text-slate-400">Cách tính nước</label><select value={f.waterType} onChange={function(e){upd('waterType',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1"><option value="person">Khoán/người</option><option value="meter">Đồng hồ</option></select></div>
+              </div>
+              <div><label className="text-xs text-slate-400">Ngày chuyển vào</label><input type="date" value={f.moveInDate||''} onChange={function(e){upd('moveInDate',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+              <div><label className="text-xs text-slate-400">Ghi chú</label><textarea value={f.note||''} onChange={function(e){upd('note',e.target.value)}} rows={2} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1 resize-none" /></div>
+            </div>
+          )}
+
+          {tab === 'contract' && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="text-xs text-slate-400">Tiền phòng (đ/tháng)</label><input type="number" value={f.rent} onChange={function(e){upd('rent',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+                <div><label className="text-xs text-slate-400">Tiền cọc</label><input type="number" value={f.deposit} onChange={function(e){upd('deposit',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div><label className="text-xs text-slate-400">Ngày bắt đầu</label><input type="date" value={f.contractStart||''} onChange={function(e){upd('contractStart',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+                <div><label className="text-xs text-slate-400">Ngày kết thúc</label><input type="date" value={f.contractEnd||''} onChange={function(e){upd('contractEnd',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+                <div><label className="text-xs text-slate-400">Số tháng</label><input type="number" value={f.contractMonths||''} onChange={function(e){upd('contractMonths',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+              </div>
+              {f.contractEnd && (function() {
+                var cs = getContractStatus(f);
+                if (cs.status === 'none') return null;
+                return (
+                  <div className={"rounded-lg p-3 text-sm text-center font-medium " +
+                    (cs.color === 'red' ? 'bg-red-500/15 text-red-400' :
+                     cs.color === 'amber' ? 'bg-amber-500/15 text-amber-400' :
+                     cs.color === 'yellow' ? 'bg-yellow-500/10 text-yellow-400' :
+                     'bg-emerald-500/10 text-emerald-400')}>
+                    {cs.status === 'expired' ? '⚠ HĐ đã hết hạn!' : '✓ ' + cs.label}
+                  </div>
+                );
+              })()}
+              <div className="bg-slate-800/30 rounded-lg p-3 text-xs text-slate-400 space-y-1">
+                <div className="text-slate-300 font-medium">Lưu ý hợp đồng:</div>
+                <div>• Cập nhật ngày kết thúc khi gia hạn hợp đồng</div>
+                <div>• Hệ thống sẽ cảnh báo khi HĐ còn 30 ngày</div>
+                <div>• HĐ hết hạn sẽ hiển thị cảnh báo đỏ trên Dashboard</div>
+              </div>
+            </div>
+          )}
+
+          {tab === 'pricing' && (
+            <div className="space-y-3">
+              <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3 text-xs text-amber-300">
+                Để trống = dùng giá mặc định từ Cài đặt. Nhập số = áp dụng giá riêng cho phòng này.
+              </div>
+              {[
+                {key:'elecPrice', label:'Giá điện', unit:'đ/kWh', def: 4000},
+                {key:'waterPrice', label:'Giá nước (đồng hồ)', unit:'đ/m³', def: 35000},
+                {key:'waterPerPerson', label:'Giá nước (khoán)', unit:'đ/người/tháng', def: 120000},
+                {key:'internet', label:'Internet', unit:'đ/tháng', def: 100000},
+                {key:'service', label:'Phí dịch vụ', unit:'đ/người/tháng', def: 150000},
+              ].map(function(item) {
+                var hasVal = f.pricing[item.key] != null;
+                return (
+                  <div key={item.key} className={"rounded-lg p-3 " + (hasVal ? 'bg-amber-500/5 border border-amber-500/20' : 'bg-slate-800/30 border border-slate-700')}>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className={"text-xs " + (hasVal ? 'text-amber-400 font-medium' : 'text-slate-400')}>{item.label} <span className="text-slate-500">({item.unit})</span></label>
+                      {hasVal && <button onClick={function(){updPricing(item.key, null)}} className="text-xs text-slate-500 hover:text-red-400">Xóa ✕</button>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input type="number" value={f.pricing[item.key] != null ? f.pricing[item.key] : ''} onChange={function(e){updPricing(item.key, e.target.value)}} placeholder={"Mặc định: " + formatVND(item.def)} className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 p-5 pt-0">
+          <button onClick={onClose} className="flex-1 py-2 rounded-lg text-sm bg-slate-800 text-slate-400">Hủy</button>
+          <button onClick={handleSave} className="flex-1 py-2 rounded-lg text-sm bg-emerald-500 text-white font-medium hover:bg-emerald-600 flex items-center justify-center gap-2"><Save className="w-4 h-4" /> Lưu thay đổi</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== RENDER =====
+ReactDOM.render(React.createElement(CCMNApp), document.getElementById('root'));
+</script>
+</body>
+</html>
