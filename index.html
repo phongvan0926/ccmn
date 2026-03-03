@@ -11,6 +11,15 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 <style>
   body { margin: 0; background: #0f172a; }
+  .ai-response table { border-collapse: collapse; width: 100%; margin: 4px 0; }
+  .ai-response td, .ai-response th { padding: 2px 6px; border: 1px solid #334155; font-size: 12px; }
+  @keyframes bounce { 0%,80%,100% { transform: translateY(0) } 40% { transform: translateY(-6px) } }
+  .animate-bounce { animation: bounce 1.2s infinite; }
+  .animate-spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg) } }
+  .animate-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
+  .bg-slate-950 { background: #020617 }
   /* Tailwind v2 doesn't have slate, add custom */
   .bg-slate-900 { background: #0f172a } .bg-slate-800 { background: #1e293b } .bg-slate-700 { background: #334155 }
   .bg-slate-800\/50 { background: rgba(30,41,59,0.5) } .bg-slate-800\/30 { background: rgba(30,41,59,0.3) }
@@ -109,6 +118,11 @@ var ICON_SVG = {
   Shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>',
   ChevronDown: '<path d="m6 9 6 6 6-6"/>',
   Eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  Sparkles: '<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>',
+  Send: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+  Bot: '<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
+  RefreshCw: '<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+  BarChart3: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
 };
 
 // Create icon components from SVG data
@@ -156,6 +170,11 @@ var Phone = makeIcon("Phone");
 var Shield = makeIcon("Shield");
 var ChevronDown = makeIcon("ChevronDown");
 var Eye = makeIcon("Eye");
+var Sparkles = makeIcon("Sparkles");
+var Send = makeIcon("Send");
+var Bot = makeIcon("Bot");
+var RefreshCw = makeIcon("RefreshCw");
+var BarChart3 = makeIcon("BarChart3");
 
 // ===== STORAGE: Google Sheets Auto-Sync =====
 var STORAGE_KEY = 'ccmn_pro_data';
@@ -843,6 +862,7 @@ function CCMNApp() {
     { id: 'bills', label: 'Tính tiền', icon: Zap },
     { id: 'transactions', label: 'Thu Chi', icon: Wallet },
     { id: 'reports', label: 'Báo cáo', icon: PieChart },
+    { id: 'ai', label: 'AI Trợ lý', icon: Sparkles },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
 
@@ -896,6 +916,7 @@ function CCMNApp() {
           {activeTab === 'bills' && <BillsView bills={bills} setBills={setBills} rooms={rooms} settings={settings} setSelBill={setSelBill} setShowModal={setShowModal} setPreviewBill={setPreviewBill} />}
           {activeTab === 'transactions' && <TransactionsView transactions={transactions} setTransactions={setTransactions} fin={fin} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterMonth={filterMonth} setFilterMonth={setFilterMonth} setShowModal={setShowModal} setSelTxn={setSelTxn} />}
           {activeTab === 'reports' && <ReportsView fin={fin} transactions={transactions} rooms={rooms} stats={stats} />}
+          {activeTab === 'ai' && <AIAssistantView fin={fin} transactions={transactions} rooms={rooms} bills={bills} stats={stats} settings={settings} />}
           {activeTab === 'settings' && <SettingsView settings={settings} setSettings={setSettings} rooms={rooms} transactions={transactions} syncState={syncState} setSyncState={setSyncState} setRooms={setRooms} setTransactions={setTransactions} setBills={setBills} />}
         </div>
       </div>
@@ -2065,6 +2086,325 @@ function BillInvoice({ bill, rooms, bills, settings, onClose }) {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== SETTINGS VIEW =====
+// ===== AI ASSISTANT VIEW — Gemini 2.5 Flash =====
+var GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyAn8tQA1V196P7RXHaUJGylEbHoJ967UO4';
+
+function buildAIContext(fin, transactions, rooms, bills, stats, settings) {
+  var unpaidBills = bills.filter(function(b){return b.status === 'Unpaid'});
+  var unpaidTotal = unpaidBills.reduce(function(s,b){return s + b.debt}, 0);
+  var allMonths = fin.allMonths || [];
+  var roomList = rooms.map(function(r){
+    return 'P.' + r.id + ': ' + (r.tenants && r.tenants.length > 0 ? r.tenants.map(function(t){return t.name}).join(', ') : 'Trống') +
+      (r.contract ? ' | HĐ: ' + (r.contract.start || '') + ' → ' + (r.contract.end || '') : '');
+  }).join('\n');
+
+  // Monthly P&L
+  var monthlyPnl = {};
+  transactions.forEach(function(t) {
+    var m = (t.date || '').slice(0, 7);
+    if (!monthlyPnl[m]) monthlyPnl[m] = {rev: 0, cogs: 0, util: 0, opex: 0};
+    var cat = t.category || '';
+    if (cat === 'THU_TIEN_NHA') monthlyPnl[m].rev += (t.income || 0);
+    else if (cat === 'CHI_THUE_NHA') monthlyPnl[m].cogs += (t.expense || 0);
+    else if (['CHI_DIEN','CHI_NUOC','CHI_MANG'].indexOf(cat) >= 0) monthlyPnl[m].util += (t.expense || 0);
+    else if (['CHI_VE_SINH','CHI_SUA_CHUA','CHI_MOI_GIOI','CHI_SETUP','CHI_PHI_NH','CHI_KHAC'].indexOf(cat) >= 0) monthlyPnl[m].opex += (t.expense || 0);
+  });
+  var pnlStr = Object.keys(monthlyPnl).sort().map(function(m) {
+    var v = monthlyPnl[m]; var net = v.rev - v.cogs - v.util - v.opex;
+    return m + ': Thu ' + v.rev + ' | Thuê nhà ' + v.cogs + ' | Utility ' + v.util + ' | OPEX ' + v.opex + ' | Net ' + net;
+  }).join('\n');
+
+  // Recent transactions
+  var recent = transactions.slice(0, 15).map(function(t) {
+    return t.date + ' | ' + (t.income > 0 ? 'THU ' + t.income : 'CHI ' + t.expense) + ' | ' + t.desc + ' | ' + t.category;
+  }).join('\n');
+
+  // Bills summary by month
+  var billMonths = {};
+  bills.forEach(function(b) {
+    if (!billMonths[b.month]) billMonths[b.month] = {count: 0, total: 0, paid: 0, debt: 0};
+    billMonths[b.month].count++;
+    billMonths[b.month].total += b.total;
+    billMonths[b.month].paid += b.paid;
+    billMonths[b.month].debt += b.debt;
+  });
+  var billsStr = Object.keys(billMonths).sort().map(function(m) {
+    var v = billMonths[m];
+    return m + ': ' + v.count + ' phiếu, tổng ' + v.total + ', thu ' + v.paid + ', nợ ' + v.debt;
+  }).join('\n');
+
+  // Contracts expiring soon
+  var today = new Date().toISOString().slice(0, 10);
+  var expiring = rooms.filter(function(r) {
+    return r.contract && r.contract.end && r.contract.end <= today.slice(0,7) + '-31';
+  });
+
+  return 'Bạn là AI trợ lý quản lý chung cư mini CCMN Pro. Trả lời bằng tiếng Việt, ngắn gọn, chính xác, có số liệu cụ thể.\n\n' +
+    '=== TỔNG QUAN DỰ ÁN ===\n' +
+    'Loại: Thuê nguyên tòa nhà 12 phòng, cho thuê lại từng phòng.\n' +
+    'Bắt đầu: 07/2025. Tiền thuê chủ nhà: ' + (settings.monthlyRent || 42000000) + 'đ/tháng (trả 3 tháng/lần).\n' +
+    'Vốn góp: 127,000,000đ (Phong 60M, Hưng 42M, Chiến 25M). Đã rút vốn: 30M (Phong).\n' +
+    'Hôm nay: ' + today + '\n\n' +
+    '=== TÀI CHÍNH TỔNG HỢP ===\n' +
+    'Số dư TK:        ' + fin.accountBalance + 'đ\n' +
+    'Tổng doanh thu:  ' + fin.revenue + 'đ\n' +
+    'Thuê nhà chủ:    ' + fin.cogs + 'đ\n' +
+    'Lãi gộp:         ' + fin.gross + 'đ (' + (fin.revenue > 0 ? Math.round(fin.gross/fin.revenue*100) : 0) + '%)\n' +
+    'OPEX:            ' + fin.opex + 'đ\n' +
+    'Lãi ròng:        ' + fin.netProfit + 'đ (' + (fin.revenue > 0 ? (fin.netProfit/fin.revenue*100).toFixed(1) : 0) + '%)\n' +
+    'Tổng GD:         ' + transactions.length + '\n\n' +
+    '=== P&L THEO THÁNG ===\n' + pnlStr + '\n\n' +
+    '=== PHÒNG ===\n' + roomList + '\n\n' +
+    '=== HÓA ĐƠN ===\n' + billsStr + '\n' +
+    'Phiếu chưa thu: ' + unpaidBills.length + ' phiếu, tổng nợ: ' + unpaidTotal + 'đ\n' +
+    (unpaidBills.length > 0 ? unpaidBills.map(function(b){return '  P.' + b.room + ' T' + b.month + ': nợ ' + b.debt + 'đ'}).join('\n') + '\n' : '') +
+    '\n=== 15 GIAO DỊCH GẦN NHẤT ===\n' + recent + '\n\n' +
+    '=== QUY TẮC ===\n' +
+    '- Tiền thuê nhà trả 3 tháng/lần. Lần gần nhất: T2/2026 trả 126M (T2+T3+T4). Lần tới: T5/2026.\n' +
+    '- Cho vay: Nhất đã trả hết. Khánh còn nợ 1M. Phong 30M là rút vốn.\n' +
+    '- Giá điện: 3,500đ/kWh. Nước: có 2 loại (theo đồng hồ hoặc theo đầu người).\n' +
+    '- Khi phân tích luôn dùng số thực từ data, không ước lượng.\n' +
+    '- Format số tiền dạng: 1,234,567đ. Dùng bảng khi cần so sánh.\n' +
+    '- Trả lời trong 300 từ trừ khi cần phân tích dài hơn.\n';
+}
+
+function AIAssistantView({ fin, transactions, rooms, bills, stats, settings }) {
+  var _msgs = React.useState([]); var messages = _msgs[0]; var setMessages = _msgs[1];
+  var _input = React.useState(''); var input = _input[0]; var setInput = _input[1];
+  var _loading = React.useState(false); var loading = _loading[0]; var setLoading = _loading[1];
+  var _insightLoading = React.useState(false); var insightLoading = _insightLoading[0]; var setInsightLoading = _insightLoading[1];
+  var _insights = React.useState(null); var insights = _insights[0]; var setInsights = _insights[1];
+  var chatRef = React.useRef(null);
+
+  var systemPrompt = React.useMemo(function() {
+    return buildAIContext(fin, transactions, rooms, bills, stats, settings);
+  }, [fin, transactions, rooms, bills, stats, settings]);
+
+  React.useEffect(function() {
+    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  }, [messages, loading]);
+
+  function callGemini(userMsg, history) {
+    var contents = [{role: 'user', parts: [{text: systemPrompt + '\n\n---\nNgười dùng hỏi: ' + (history && history.length > 0 ? history.map(function(m){return m.role + ': ' + m.text}).join('\n') + '\n' : '') + userMsg}]}];
+    return fetch(GEMINI_API, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({contents: contents, generationConfig: {maxOutputTokens: 2048, temperature: 0.7}})
+    }).then(function(r){return r.json()}).then(function(data) {
+      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+        return data.candidates[0].content.parts.map(function(p){return p.text || ''}).join('');
+      }
+      return 'Không nhận được phản hồi. Vui lòng thử lại.';
+    }).catch(function(err) {
+      return 'Lỗi kết nối: ' + err.message;
+    });
+  }
+
+  function sendMessage(text) {
+    if (!text || !text.trim()) return;
+    var userMsg = text.trim();
+    setInput('');
+    var newMsgs = messages.concat([{role: 'user', text: userMsg, time: new Date().toLocaleTimeString('vi')}]);
+    setMessages(newMsgs);
+    setLoading(true);
+    callGemini(userMsg, messages).then(function(reply) {
+      setMessages(function(prev){return prev.concat([{role: 'ai', text: reply, time: new Date().toLocaleTimeString('vi')}])});
+      setLoading(false);
+    });
+  }
+
+  function loadInsights() {
+    setInsightLoading(true);
+    var prompt = 'Phân tích nhanh tình hình dự án hôm nay. Trả lời dạng JSON với format:\n' +
+      '{"alerts":[{"type":"warn|info|ok","text":"..."}], "kpi":[{"label":"...","value":"...","trend":"up|down|flat"}], "suggestion":"..."}\n' +
+      'Bao gồm: cảnh báo phiếu chưa thu, HĐ sắp hết, dự báo tiền mặt cuối tháng, gợi ý hành động. Chỉ trả về JSON, không markdown.';
+    callGemini(prompt, []).then(function(reply) {
+      try {
+        var clean = reply.replace(/```json|```/g, '').trim();
+        var parsed = JSON.parse(clean);
+        setInsights(parsed);
+      } catch(e) { setInsights({alerts: [{type: 'info', text: reply}], kpi: [], suggestion: ''}); }
+      setInsightLoading(false);
+    });
+  }
+
+  React.useEffect(function() { loadInsights(); }, []);
+
+  var quickActions = [
+    {icon: BarChart3, label: 'P&L tháng này', prompt: 'Phân tích P&L tháng hiện tại so với tháng trước. Ghi rõ số doanh thu, chi phí, lãi/lỗ. So sánh tăng giảm.'},
+    {icon: TrendingUp, label: 'Dự báo tiền mặt', prompt: 'Dự báo dòng tiền từ nay đến hết tháng 4/2026. Liệu có đủ 126M đóng tiền nhà không? Tính cụ thể từng tháng.'},
+    {icon: AlertCircle, label: 'Phiếu chưa thu', prompt: 'Liệt kê tất cả phiếu chưa thu. Phòng nào hay trả trễ? Tổng nợ bao nhiêu? Gợi ý cách nhắc nhở.'},
+    {icon: Users, label: 'Phân tích phòng', prompt: 'Phân tích hiệu quả từng phòng: doanh thu, tỷ lệ thu đúng hạn, chi phí utility. Phòng nào hiệu quả nhất, kém nhất?'},
+    {icon: Wallet, label: 'Chi phí bất thường', prompt: 'Kiểm tra chi phí bất thường: khoản chi nào tăng đột biến? So sánh chi phí sửa chữa, utility giữa các tháng. Có gì cần lưu ý?'},
+    {icon: Calendar, label: 'Nhắc nhở tuần này', prompt: 'Hôm nay là ngày nào? Liệt kê tất cả việc cần làm tuần này: thu tiền, đóng tiền điện nước, HĐ sắp hết hạn, bảo trì định kỳ.'},
+    {icon: Shield, label: 'Hợp đồng sắp hết', prompt: 'Kiểm tra tất cả hợp đồng thuê phòng. Phòng nào sắp hết hạn trong 30 ngày? 60 ngày? Gợi ý hành động gia hạn.'},
+    {icon: PieChart, label: 'ROI & Đầu tư', prompt: 'Phân tích ROI chi tiết: vốn góp, lãi ròng, payback period, lãi trung bình/tháng. So sánh với gửi ngân hàng. Xu hướng lãi qua các tháng.'},
+  ];
+
+  function formatAIText(text) {
+    if (!text) return '';
+    var lines = text.split('\n');
+    return lines.map(function(line, i) {
+      // Bold
+      line = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-emerald-300">$1</strong>');
+      // Headers
+      if (line.match(/^#{1,3}\s/)) {
+        line = '<div class="text-emerald-400 font-bold mt-2 mb-1">' + line.replace(/^#{1,3}\s/, '') + '</div>';
+      }
+      // List items
+      else if (line.match(/^[-•]\s/)) {
+        line = '<div class="pl-3 flex gap-2"><span class="text-emerald-500">•</span><span>' + line.replace(/^[-•]\s/, '') + '</span></div>';
+      }
+      // Table rows
+      else if (line.match(/\|/)) {
+        var cells = line.split('|').filter(function(c){return c.trim()});
+        if (cells.length > 1 && !line.match(/^[\s|:-]+$/)) {
+          line = '<div class="flex gap-1 text-xs font-mono">' + cells.map(function(c){return '<span class="flex-1 px-1 py-0.5 bg-slate-800/50 rounded">' + c.trim() + '</span>'}).join('') + '</div>';
+        } else {
+          line = '';
+        }
+      }
+      else if (line.trim() === '') { line = '<div class="h-2"></div>'; }
+      else { line = '<div>' + line + '</div>'; }
+      return line;
+    }).join('');
+  }
+
+  return (
+    <div className="space-y-4" style={{maxHeight:'calc(100vh - 48px)', display:'flex', flexDirection:'column'}}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center" style={{background:'linear-gradient(135deg,#10b981,#3b82f6)'}}>
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">AI Trợ lý CCMN</h2>
+            <p className="text-xs text-slate-500">Gemini 2.5 Flash • Phân tích real-time</p>
+          </div>
+        </div>
+        <button onClick={loadInsights} className="bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg text-xs hover:bg-slate-700 flex items-center gap-1.5">
+          <RefreshCw className={"w-3 h-3" + (insightLoading ? " animate-spin" : "")} /> Cập nhật insights
+        </button>
+      </div>
+
+      {insights && (
+        <div className="grid grid-cols-1 gap-3" style={{gridTemplateColumns: insights.kpi && insights.kpi.length > 0 ? '1fr 1fr' : '1fr'}}>
+          {insights.alerts && insights.alerts.length > 0 && (
+            <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div className="text-xs font-bold text-slate-400 flex items-center gap-1.5"><Bell className="w-3.5 h-3.5" /> CẢNH BÁO & THÔNG TIN</div>
+              {insights.alerts.map(function(a, i) {
+                var col = a.type === 'warn' ? 'border-amber-500/30 bg-amber-500/5 text-amber-300' : a.type === 'ok' ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300' : 'border-blue-500/30 bg-blue-500/5 text-blue-300';
+                return React.createElement('div', {key: i, className: 'border rounded-lg px-3 py-2 text-xs ' + col}, a.text);
+              })}
+              {insights.suggestion && (
+                <div className="border border-emerald-500/20 bg-emerald-500/5 rounded-lg px-3 py-2 text-xs text-emerald-300">
+                  <span className="font-bold">💡 Gợi ý: </span>{insights.suggestion}
+                </div>
+              )}
+            </div>
+          )}
+          {insights.kpi && insights.kpi.length > 0 && (
+            <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div className="text-xs font-bold text-slate-400 flex items-center gap-1.5"><BarChart3 className="w-3.5 h-3.5" /> CHỈ SỐ QUAN TRỌNG</div>
+              <div className="grid grid-cols-2 gap-2">
+                {insights.kpi.map(function(k, i) {
+                  var trendIcon = k.trend === 'up' ? '↑' : k.trend === 'down' ? '↓' : '→';
+                  var trendColor = k.trend === 'up' ? 'text-emerald-400' : k.trend === 'down' ? 'text-red-400' : 'text-slate-400';
+                  return React.createElement('div', {key: i, className: 'bg-slate-800/50 rounded-lg p-2'},
+                    React.createElement('div', {className: 'text-xs text-slate-500'}, k.label),
+                    React.createElement('div', {className: 'text-sm font-bold text-white flex items-center gap-1'}, k.value, React.createElement('span', {className: 'text-xs ' + trendColor}, trendIcon))
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {insightLoading && !insights && (
+        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center">
+          <div className="animate-pulse flex flex-col items-center gap-2">
+            <Sparkles className="w-6 h-6 text-emerald-400" />
+            <span className="text-sm text-slate-400">AI đang phân tích dữ liệu...</span>
+          </div>
+        </div>
+      )}
+
+      <div className="flex gap-2 flex-wrap">
+        {quickActions.map(function(qa, i) {
+          return (
+            <button key={i} onClick={function(){sendMessage(qa.prompt)}} className="flex items-center gap-1.5 bg-slate-800/70 border border-slate-700/50 text-slate-300 px-3 py-1.5 rounded-lg text-xs hover:bg-slate-700 hover:text-white transition-all" disabled={loading}>
+              <qa.icon className="w-3.5 h-3.5 text-emerald-400" />
+              {qa.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div ref={chatRef} className="flex-1 overflow-auto space-y-3 min-h-0 bg-slate-900/30 border border-slate-800 rounded-xl p-4" style={{maxHeight:'calc(100vh - 440px)', minHeight:'200px'}}>
+        {messages.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <Bot className="w-12 h-12 text-slate-700 mx-auto mb-3" />
+            <p className="text-slate-500 text-sm">Hỏi AI bất kỳ câu gì về dự án CCMN</p>
+            <p className="text-slate-600 text-xs mt-1">VD: "Tháng này lãi bao nhiêu?", "Phòng nào đóng tiền trễ?"</p>
+          </div>
+        )}
+        {messages.map(function(m, i) {
+          if (m.role === 'user') {
+            return (
+              <div key={i} className="flex justify-end">
+                <div className="bg-emerald-500/20 border border-emerald-500/30 rounded-2xl rounded-br-md px-4 py-2.5 max-w-lg">
+                  <div className="text-sm text-emerald-100">{m.text}</div>
+                  <div className="text-xs text-emerald-500/60 mt-1 text-right">{m.time}</div>
+                </div>
+              </div>
+            );
+          }
+          return (
+            <div key={i} className="flex gap-2">
+              <div className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center mt-1" style={{background:'linear-gradient(135deg,#10b981,#3b82f6)'}}>
+                <Sparkles className="w-3.5 h-3.5 text-white" />
+              </div>
+              <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl rounded-bl-md px-4 py-2.5 max-w-2xl overflow-auto">
+                <div className="text-sm text-slate-200 leading-relaxed ai-response" dangerouslySetInnerHTML={{__html: formatAIText(m.text)}}></div>
+                <div className="text-xs text-slate-600 mt-1">{m.time}</div>
+              </div>
+            </div>
+          );
+        })}
+        {loading && (
+          <div className="flex gap-2">
+            <div className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center mt-1" style={{background:'linear-gradient(135deg,#10b981,#3b82f6)'}}>
+              <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
+            </div>
+            <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl rounded-bl-md px-4 py-3">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{animationDelay:'0ms'}}></div>
+                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{animationDelay:'150ms'}}></div>
+                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{animationDelay:'300ms'}}></div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-2">
+        <input type="text" value={input} onChange={function(e){setInput(e.target.value)}}
+          onKeyDown={function(e){if(e.key==='Enter' && !loading) sendMessage(input)}}
+          placeholder="Hỏi AI về tài chính, phòng, hóa đơn, dự báo..."
+          className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50"
+          disabled={loading}
+        />
+        <button onClick={function(){sendMessage(input)}} disabled={loading || !input.trim()}
+          className={"px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2 transition-all " + (loading || !input.trim() ? 'bg-slate-800 text-slate-600' : 'text-white hover:opacity-90')}
+          style={loading || !input.trim() ? {} : {background:'linear-gradient(135deg,#10b981,#3b82f6)'}}>
+          <Send className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );
