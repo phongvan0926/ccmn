@@ -2192,47 +2192,80 @@ function AIAssistantView({ fin, transactions, rooms, bills, stats, settings }) {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [messages, loading]);
 
-  function callGemini(userMsg, history) {
-    var contents = [{role: 'user', parts: [{text: systemPrompt}]}, {role: 'model', parts: [{text: 'Đã hiểu. Tôi đã nắm toàn bộ dữ liệu dự án CCMN Pro. Sẵn sàng phân tích.'}]}];
-    // Add conversation history as proper multi-turn
+  // ===== GEMINI API ENGINE (v3 - robust) =====
+  function buildContents(userMsg, history) {
+    var contents = [
+      {role: 'user', parts: [{text: systemPrompt}]},
+      {role: 'model', parts: [{text: 'Đã hiểu toàn bộ dữ liệu CCMN Pro. Sẵn sàng phân tích.'}]}
+    ];
     if (history && history.length > 0) {
       history.forEach(function(m) {
         contents.push({role: m.role === 'user' ? 'user' : 'model', parts: [{text: m.text}]});
       });
     }
     contents.push({role: 'user', parts: [{text: userMsg}]});
+    return contents;
+  }
 
-    return fetch(GEMINI_API.replace('generateContent', 'streamGenerateContent') + '&alt=sse', {
+  function extractGeminiText(data) {
+    if (!data) return '[extractGeminiText] data is null/undefined';
+    if (data.error) return 'API Error: ' + (data.error.message || JSON.stringify(data.error));
+    if (!data.candidates || data.candidates.length === 0) {
+      if (data.promptFeedback) return 'Blocked by safety: ' + JSON.stringify(data.promptFeedback);
+      return '[extractGeminiText] No candidates. Keys: ' + Object.keys(data).join(',');
+    }
+    var c = data.candidates[0];
+    if (!c.content || !c.content.parts) {
+      return '[extractGeminiText] No content.parts. finishReason=' + (c.finishReason || 'none') + ' Keys: ' + Object.keys(c).join(',');
+    }
+    var parts = c.content.parts;
+    // Gemini 2.5 Flash thinking model: filter out thought parts
+    var textParts = parts.filter(function(p) { return p.text !== undefined && p.text !== null && !p.thought; });
+    if (textParts.length === 0) {
+      // fallback: include thinking parts too
+      textParts = parts.filter(function(p) { return p.text !== undefined && p.text !== null; });
+    }
+    if (textParts.length === 0) {
+      return '[extractGeminiText] Parts have no text. Part keys: ' + parts.map(function(p){return Object.keys(p).join('+')}).join(', ');
+    }
+    return textParts.map(function(p) { return p.text; }).join('');
+  }
+
+  function callGemini(userMsg, history) {
+    var body = JSON.stringify({
+      contents: buildContents(userMsg, history),
+      generationConfig: {maxOutputTokens: 8192, temperature: 0.7}
+    });
+    console.log('[CCMN AI] Calling Gemini, prompt length:', body.length);
+
+    return fetch(GEMINI_API, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({contents: contents, generationConfig: {maxOutputTokens: 8192, temperature: 0.7}})
-    }).then(function(r) {
-      var reader = r.body.getReader();
-      var decoder = new TextDecoder();
-      var fullText = '';
-      function read() {
-        return reader.read().then(function(result) {
-          if (result.done) return fullText || 'Không nhận được phản hồi.';
-          var chunk = decoder.decode(result.value, {stream: true});
-          var lines = chunk.split('\n');
-          lines.forEach(function(line) {
-            if (line.startsWith('data: ')) {
-              try {
-                var json = JSON.parse(line.slice(6));
-                if (json.candidates && json.candidates[0] && json.candidates[0].content) {
-                  json.candidates[0].content.parts.forEach(function(p) {
-                    if (p.text) fullText += p.text;
-                  });
-                }
-              } catch(e) {}
-            }
-          });
-          return read();
+      body: body
+    }).then(function(response) {
+      console.log('[CCMN AI] HTTP status:', response.status, response.statusText);
+      if (!response.ok) {
+        return response.text().then(function(errText) {
+          console.error('[CCMN AI] Error response:', errText.slice(0, 500));
+          return 'HTTP ' + response.status + ': ' + errText.slice(0, 300);
         });
       }
-      return read();
-    }).catch(function(err) {
-      return 'Lỗi kết nối: ' + err.message;
+      return response.text().then(function(rawText) {
+        console.log('[CCMN AI] Response length:', rawText.length);
+        console.log('[CCMN AI] First 300 chars:', rawText.slice(0, 300));
+        try {
+          var jsonData = JSON.parse(rawText);
+          var result = extractGeminiText(jsonData);
+          console.log('[CCMN AI] Extracted text length:', result.length);
+          return result;
+        } catch(parseErr) {
+          console.error('[CCMN AI] JSON parse failed:', parseErr.message);
+          return 'JSON parse error. Raw response (first 500 chars): ' + rawText.slice(0, 500);
+        }
+      });
+    }).catch(function(fetchErr) {
+      console.error('[CCMN AI] Network error:', fetchErr);
+      return 'Network error: ' + fetchErr.message + '. Check console (F12) for details.';
     });
   }
 
@@ -2240,70 +2273,12 @@ function AIAssistantView({ fin, transactions, rooms, bills, stats, settings }) {
     if (!text || !text.trim()) return;
     var userMsg = text.trim();
     setInput('');
-    var newMsgs = messages.concat([{role: 'user', text: userMsg, time: new Date().toLocaleTimeString('vi')}]);
-    setMessages(newMsgs);
+    var historySnapshot = messages.slice();
+    setMessages(function(prev) { return prev.concat([{role: 'user', text: userMsg, time: new Date().toLocaleTimeString('vi')}]); });
     setLoading(true);
-
-    // Streaming version with live update
-    var contents = [{role: 'user', parts: [{text: systemPrompt}]}, {role: 'model', parts: [{text: 'Đã hiểu. Tôi đã nắm toàn bộ dữ liệu dự án CCMN Pro. Sẵn sàng phân tích.'}]}];
-    if (messages && messages.length > 0) {
-      messages.forEach(function(m) {
-        contents.push({role: m.role === 'user' ? 'user' : 'model', parts: [{text: m.text}]});
-      });
-    }
-    contents.push({role: 'user', parts: [{text: userMsg}]});
-
-    var aiMsgIndex = newMsgs.length;
-    setMessages(function(prev){return prev.concat([{role: 'ai', text: '', time: new Date().toLocaleTimeString('vi'), streaming: true}])});
-
-    fetch(GEMINI_API.replace('generateContent', 'streamGenerateContent') + '&alt=sse', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({contents: contents, generationConfig: {maxOutputTokens: 8192, temperature: 0.7}})
-    }).then(function(r) {
-      var reader = r.body.getReader();
-      var decoder = new TextDecoder();
-      var fullText = '';
-      function read() {
-        return reader.read().then(function(result) {
-          if (result.done) {
-            setMessages(function(prev) {
-              var copy = prev.slice();
-              copy[aiMsgIndex] = {role: 'ai', text: fullText || 'Không nhận được phản hồi.', time: new Date().toLocaleTimeString('vi')};
-              return copy;
-            });
-            setLoading(false);
-            return;
-          }
-          var chunk = decoder.decode(result.value, {stream: true});
-          var lines = chunk.split('\n');
-          lines.forEach(function(line) {
-            if (line.startsWith('data: ')) {
-              try {
-                var json = JSON.parse(line.slice(6));
-                if (json.candidates && json.candidates[0] && json.candidates[0].content) {
-                  json.candidates[0].content.parts.forEach(function(p) {
-                    if (p.text) fullText += p.text;
-                  });
-                }
-              } catch(e) {}
-            }
-          });
-          // Update live
-          setMessages(function(prev) {
-            var copy = prev.slice();
-            copy[aiMsgIndex] = {role: 'ai', text: fullText, time: new Date().toLocaleTimeString('vi'), streaming: true};
-            return copy;
-          });
-          return read();
-        });
-      }
-      return read();
-    }).catch(function(err) {
+    callGemini(userMsg, historySnapshot).then(function(reply) {
       setMessages(function(prev) {
-        var copy = prev.slice();
-        copy[aiMsgIndex] = {role: 'ai', text: 'Lỗi kết nối: ' + err.message, time: new Date().toLocaleTimeString('vi')};
-        return copy;
+        return prev.concat([{role: 'ai', text: reply, time: new Date().toLocaleTimeString('vi')}]);
       });
       setLoading(false);
     });
@@ -2311,15 +2286,19 @@ function AIAssistantView({ fin, transactions, rooms, bills, stats, settings }) {
 
   function loadInsights() {
     setInsightLoading(true);
-    var prompt = 'Phân tích nhanh tình hình dự án hôm nay. Trả lời dạng JSON với format:\n' +
-      '{"alerts":[{"type":"warn|info|ok","text":"..."}], "kpi":[{"label":"...","value":"...","trend":"up|down|flat"}], "suggestion":"..."}\n' +
-      'Bao gồm: cảnh báo phiếu chưa thu, HĐ sắp hết, dự báo tiền mặt cuối tháng, gợi ý hành động. Chỉ trả về JSON, không markdown.';
+    var prompt = 'Phân tích nhanh tình hình dự án. Trả lời CHÍNH XÁC dạng JSON thuần (KHÔNG dùng markdown, KHÔNG backtick, KHÔNG text trước/sau), dùng format này:\n{"alerts":[{"type":"warn","text":"canh bao 1"},{"type":"ok","text":"tot 1"},{"type":"info","text":"thong tin 1"}],"kpi":[{"label":"So du","value":"100.7M","trend":"flat"},{"label":"Lai thang","value":"15.6M","trend":"up"}],"suggestion":"goi y hanh dong"}\nalerts: 3-5 items. kpi: 4 items. Chỉ trả về JSON object, KHÔNG gì khác.';
     callGemini(prompt, []).then(function(reply) {
+      console.log('[CCMN AI] Insights raw:', reply.slice(0, 300));
       try {
-        var clean = reply.replace(/```json|```/g, '').trim();
-        var parsed = JSON.parse(clean);
-        setInsights(parsed);
-      } catch(e) { setInsights({alerts: [{type: 'info', text: reply}], kpi: [], suggestion: ''}); }
+        var clean = reply.replace(/```json/g, '').replace(/```/g, '').trim();
+        var s = clean.indexOf('{');
+        var e = clean.lastIndexOf('}');
+        if (s >= 0 && e > s) clean = clean.slice(s, e + 1);
+        setInsights(JSON.parse(clean));
+      } catch(err) {
+        console.log('[CCMN AI] Insights parse error:', err.message);
+        setInsights({alerts: [{type: 'info', text: reply.slice(0, 600)}], kpi: [], suggestion: ''});
+      }
       setInsightLoading(false);
     });
   }
@@ -2327,14 +2306,20 @@ function AIAssistantView({ fin, transactions, rooms, bills, stats, settings }) {
   React.useEffect(function() { loadInsights(); }, []);
 
   var quickActions = [
-    {icon: BarChart3, label: 'P&L tháng này', prompt: 'Phân tích P&L tháng hiện tại so với tháng trước. Ghi rõ số doanh thu, chi phí, lãi/lỗ. So sánh tăng giảm.'},
-    {icon: TrendingUp, label: 'Dự báo tiền mặt', prompt: 'Dự báo dòng tiền từ nay đến hết tháng 4/2026. Liệu có đủ 126M đóng tiền nhà không? Tính cụ thể từng tháng.'},
-    {icon: AlertCircle, label: 'Phiếu chưa thu', prompt: 'Liệt kê tất cả phiếu chưa thu. Phòng nào hay trả trễ? Tổng nợ bao nhiêu? Gợi ý cách nhắc nhở.'},
-    {icon: Users, label: 'Phân tích phòng', prompt: 'Phân tích hiệu quả từng phòng: doanh thu, tỷ lệ thu đúng hạn, chi phí utility. Phòng nào hiệu quả nhất, kém nhất?'},
-    {icon: Wallet, label: 'Chi phí bất thường', prompt: 'Kiểm tra chi phí bất thường: khoản chi nào tăng đột biến? So sánh chi phí sửa chữa, utility giữa các tháng. Có gì cần lưu ý?'},
-    {icon: Calendar, label: 'Nhắc nhở tuần này', prompt: 'Hôm nay là ngày nào? Liệt kê tất cả việc cần làm tuần này: thu tiền, đóng tiền điện nước, HĐ sắp hết hạn, bảo trì định kỳ.'},
-    {icon: Shield, label: 'Hợp đồng sắp hết', prompt: 'Kiểm tra tất cả hợp đồng thuê phòng. Phòng nào sắp hết hạn trong 30 ngày? 60 ngày? Gợi ý hành động gia hạn.'},
-    {icon: PieChart, label: 'ROI & Đầu tư', prompt: 'Phân tích ROI chi tiết: vốn góp, lãi ròng, payback period, lãi trung bình/tháng. So sánh với gửi ngân hàng. Xu hướng lãi qua các tháng.'},
+    {icon: BarChart3, label: 'P&L tháng này', prompt: 'Phân tích P&L tháng hiện tại so với tháng trước. Ghi rõ số doanh thu, chi phí, lãi/lỗ. So sánh tăng giảm bằng bảng.'},
+    {icon: TrendingUp, label: 'Dự báo tiền mặt', prompt: 'Dự báo dòng tiền từ nay đến hết tháng 4/2026. Có đủ 126M đóng tiền nhà không? Tính cụ thể từng tháng.'},
+    {icon: AlertCircle, label: 'Phiếu chưa thu', prompt: 'Liệt kê tất cả phiếu chưa thu hiện tại. Phòng nào hay trả trễ? Tổng nợ bao nhiêu? Gợi ý cách nhắc nhở.'},
+    {icon: Users, label: 'Phân tích phòng', prompt: 'Phân tích hiệu quả từng phòng: doanh thu tổng, utility, lãi ròng/phòng. Bảng xếp hạng.'},
+    {icon: Wallet, label: 'Chi phí bất thường', prompt: 'Kiểm tra chi phí bất thường: khoản chi tăng đột biến? So sánh sửa chữa, utility giữa các tháng.'},
+    {icon: Calendar, label: 'Nhắc nhở tuần này', prompt: 'Liệt kê việc cần làm tuần này: thu tiền, đóng điện nước, HĐ sắp hết, bảo trì. Ưu tiên theo quan trọng.'},
+    {icon: Shield, label: 'Hợp đồng sắp hết', prompt: 'Phòng nào sắp hết HĐ trong 30/60/90 ngày? Gợi ý gia hạn và điều chỉnh giá.'},
+    {icon: PieChart, label: 'ROI & Đầu tư', prompt: 'ROI chi tiết: vốn 127M (rút 30M còn 97M), lãi ròng, payback period. So sánh gửi NH 5%/năm. Bảng lãi qua các tháng.'},
+    {icon: Zap, label: 'Điện nước tháng', prompt: 'Chi phí điện nước tháng gần nhất vs trước. Phòng nào dùng nhiều? Utility chiếm bao nhiêu % doanh thu?'},
+    {icon: CreditCard, label: 'Tổng kết 9 tháng', prompt: 'Tổng kết 9 tháng hoạt động: tổng thu, tổng chi, lãi ròng, tháng lãi/lỗ nhất. Dự báo 3 tháng tới.'},
+    {icon: Droplets, label: 'So sánh tháng', prompt: 'So sánh 3 tháng gần nhất: doanh thu, thuê nhà, utility, OPEX, lãi ròng. Bảng ngang.'},
+    {icon: Phone, label: 'Soạn tin nhắc nợ', prompt: 'Soạn 5 mẫu tin nhắn nhắc thuê nhà đóng tiền phòng, từ lịch sự đến nghiêm túc. Kèm tổng nợ từng phòng.'},
+    {icon: Eye, label: 'Phòng trống', prompt: 'Phòng nào đang trống? Thiệt hại doanh thu/tháng? Gợi ý giá cho thuê cạnh tranh.'},
+    {icon: Clock, label: 'Lịch thanh toán', prompt: 'Lịch thanh toán 3 tháng tới: tiền nhà chủ, điện nước, mạng. Timeline với số tiền dự kiến.'},
   ];
 
   function formatAIText(text) {
@@ -2461,22 +2446,23 @@ function AIAssistantView({ fin, transactions, rooms, bills, stats, settings }) {
                 <Sparkles className="w-3.5 h-3.5 text-white" />
               </div>
               <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl rounded-bl-md px-4 py-2.5 max-w-2xl overflow-auto">
-                <div className={"text-sm text-slate-200 leading-relaxed ai-response" + (m.streaming ? " streaming-cursor" : "")} dangerouslySetInnerHTML={{__html: formatAIText(m.text)}}></div>
+                <div className="text-sm text-slate-200 leading-relaxed ai-response" dangerouslySetInnerHTML={{__html: formatAIText(m.text)}}></div>
                 <div className="text-xs text-slate-600 mt-1">{m.time}</div>
               </div>
             </div>
           );
         })}
-        {loading && messages.length > 0 && messages[messages.length-1].text === '' && (
+        {loading && (
           <div className="flex gap-2">
             <div className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center mt-1" style={{background:'linear-gradient(135deg,#10b981,#3b82f6)'}}>
               <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
             </div>
             <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl rounded-bl-md px-4 py-3">
-              <div className="flex gap-1">
+              <div className="flex gap-1 items-center">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{animationDelay:'0ms'}}></div>
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{animationDelay:'150ms'}}></div>
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce" style={{animationDelay:'300ms'}}></div>
+                <span className="text-xs text-slate-500 ml-2">Đang phân tích...</span>
               </div>
             </div>
           </div>
