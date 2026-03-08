@@ -140,6 +140,7 @@ var ICON_SVG = {
   Phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
   Shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>',
   ChevronDown: '<path d="m6 9 6 6 6-6"/>',
+  ChevronUp: '<path d="m18 15-6-6-6 6"/>',
   Eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
   Sparkles: '<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>',
   Send: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
@@ -195,6 +196,7 @@ var Clock = makeIcon("Clock");
 var Phone = makeIcon("Phone");
 var Shield = makeIcon("Shield");
 var ChevronDown = makeIcon("ChevronDown");
+var ChevronUp = makeIcon("ChevronUp");
 var Eye = makeIcon("Eye");
 var Sparkles = makeIcon("Sparkles");
 var Send = makeIcon("Send");
@@ -239,6 +241,7 @@ function syncToCloud(data, callback) {
   var payload = {
     rooms: data.rooms, transactions: data.transactions,
     bills: data.bills, settings: data.settings,
+    models: data.models || null,
     savedAt: new Date().toISOString()
   };
   fetch(API_URL, {
@@ -820,11 +823,15 @@ function CCMNApp() {
   var apiKey = _apiKey[0]; var setApiKey = _apiKey[1];
   function updateApiKey(key) { setApiKey(key); try { localStorage.setItem('ccmn_gemini_key', key); } catch(e) {} }
   // Gemini Model selection
-  var _model = React.useState(function() { try { return localStorage.getItem('ccmn_gemini_model') || 'gemini-3-flash-preview'; } catch(e) { return 'gemini-3-flash-preview'; } });
+  var _model = React.useState(function() { try { var s = localStorage.getItem('ccmn_gemini_model'); if (s) return s; } catch(e) {} return GEMINI_MODELS.length > 0 ? GEMINI_MODELS[0].id : 'gemini-3-flash-preview'; });
   var geminiModel = _model[0]; var setGeminiModel = _model[1];
   function updateModel(m) { setGeminiModel(m); try { localStorage.setItem('ccmn_gemini_model', m); } catch(e) {} }
   var _models = React.useState(GEMINI_MODELS); var modelList = _models[0]; var setModelList = _models[1];
-  function updateModelList(newList) { setModelList(newList); saveModels(newList); GEMINI_MODELS = newList; }
+  function updateModelList(newList) {
+    setModelList(newList); saveModels(newList); GEMINI_MODELS = newList;
+    // First model = default
+    if (newList.length > 0 && geminiModel !== newList[0].id) { updateModel(newList[0].id); }
+  }
 
   // Sync status
   var _sync = React.useState({status:'idle',msg:''}); var syncState = _sync[0]; var setSyncState = _sync[1];
@@ -854,7 +861,11 @@ function CCMNApp() {
         if (data.transactions) setTransactions(data.transactions);
         if (data.bills) setBills(data.bills);
         if (data.settings) setSettings(data.settings);
-        saveData({rooms:data.rooms||rooms, transactions:data.transactions||transactions, bills:data.bills||bills, settings:data.settings||settings, savedAt:data.savedAt});
+        if (data.models && Array.isArray(data.models) && data.models.length > 0) {
+          updateModelList(data.models);
+          updateModel(data.models[0].id);
+        }
+        saveData({rooms:data.rooms||rooms, transactions:data.transactions||transactions, bills:data.bills||bills, settings:data.settings||settings, models:data.models||modelList, savedAt:data.savedAt});
         setSyncState({status:'ok',msg:'✅ Đã đồng bộ Sheets'});
       } else {
         setSyncState({status:'warn',msg:'⚠ Offline — dùng cache'});
@@ -869,7 +880,7 @@ function CCMNApp() {
   React.useEffect(function() {
     // Skip first render (đã load từ Sheets rồi)
     if (_firstRender.current) { _firstRender.current = false; return; }
-    var data = { rooms: rooms, transactions: transactions, bills: bills, settings: settings, savedAt: new Date().toISOString() };
+    var data = { rooms: rooms, transactions: transactions, bills: bills, settings: settings, models: modelList, savedAt: new Date().toISOString() };
     saveData(data);
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(function() {
@@ -879,7 +890,7 @@ function CCMNApp() {
         setTimeout(function(){setSyncState({status:'idle',msg:''})}, 2000);
       });
     }, 2000);
-  }, [rooms, transactions, bills, settings]);
+  }, [rooms, transactions, bills, settings, modelList]);
 
 
   // Dynamic calculations from transactions
@@ -962,7 +973,7 @@ function CCMNApp() {
           {activeTab === 'bills' && <BillsView bills={bills} setBills={setBills} rooms={rooms} settings={settings} setSelBill={setSelBill} setShowModal={setShowModal} setPreviewBill={setPreviewBill} billFilter={billFilter} setBillFilter={setBillFilter} />}
           {activeTab === 'transactions' && <TransactionsView transactions={transactions} setTransactions={setTransactions} fin={fin} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterMonth={filterMonth} setFilterMonth={setFilterMonth} setShowModal={setShowModal} setSelTxn={setSelTxn} />}
           {activeTab === 'reports' && <ReportsView fin={fin} transactions={transactions} rooms={rooms} stats={stats} />}
-          {activeTab === 'ai' && <AIAssistantView fin={fin} transactions={transactions} rooms={rooms} bills={bills} stats={stats} settings={settings} apiKey={apiKey} updateApiKey={updateApiKey} geminiModel={geminiModel} updateModel={updateModel} />}
+          {activeTab === 'ai' && <AIAssistantView fin={fin} transactions={transactions} rooms={rooms} bills={bills} stats={stats} settings={settings} apiKey={apiKey} updateApiKey={updateApiKey} geminiModel={geminiModel} updateModel={updateModel} modelList={modelList} />}
           {activeTab === 'settings' && <SettingsView settings={settings} setSettings={setSettings} rooms={rooms} transactions={transactions} syncState={syncState} setSyncState={setSyncState} setRooms={setRooms} setTransactions={setTransactions} setBills={setBills} modelList={modelList} updateModelList={updateModelList} apiKey={apiKey} />}
         </div>
       </div>
@@ -2272,7 +2283,7 @@ function buildAIContext(fin, transactions, rooms, bills, stats, settings) {
     '- Trả lời trong 300 từ trừ khi cần phân tích dài hơn.\n';
 }
 
-function AIAssistantView({ fin, transactions, rooms, bills, stats, settings, apiKey, updateApiKey, geminiModel, updateModel }) {
+function AIAssistantView({ fin, transactions, rooms, bills, stats, settings, apiKey, updateApiKey, geminiModel, updateModel, modelList }) {
   var _msgs = React.useState([]); var messages = _msgs[0]; var setMessages = _msgs[1];
   var _input = React.useState(''); var input = _input[0]; var setInput = _input[1];
   var _loading = React.useState(false); var loading = _loading[0]; var setLoading = _loading[1];
@@ -2470,7 +2481,7 @@ function AIAssistantView({ fin, transactions, rooms, bills, stats, settings, api
         <div className="flex items-center gap-2">
           <select value={geminiModel} onChange={function(e){updateModel(e.target.value); setInsights(null);}}
             className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50">
-            {GEMINI_MODELS.map(function(m){return <option key={m.id} value={m.id}>{m.label}</option>})}
+            {(modelList || GEMINI_MODELS).map(function(m){return <option key={m.id} value={m.id}>{m.label}</option>})}
           </select>
           <button onClick={loadInsights} className="bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg text-xs hover:bg-slate-700 flex items-center gap-1.5" disabled={!apiKey}>
             <RefreshCw className={"w-3 h-3" + (insightLoading ? " animate-spin" : "")} /> Refresh
@@ -2515,7 +2526,7 @@ function AIAssistantView({ fin, transactions, rooms, bills, stats, settings, api
         <div className="flex items-center gap-3 text-xs">
           <span className="text-slate-600 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> API Key sẵn sàng</span>
           <span className="text-slate-600">•</span>
-          <span className="text-slate-500">{(GEMINI_MODELS.find(function(m){return m.id === geminiModel}) || {}).desc || geminiModel}</span>
+          <span className="text-slate-500">{((modelList || GEMINI_MODELS).find(function(m){return m.id === geminiModel}) || {}).desc || geminiModel}</span>
           <button onClick={function(){setShowKeyInput(true)}} className="text-slate-600 hover:text-amber-400 ml-auto">Đổi key</button>
         </div>
       )}
@@ -2727,9 +2738,18 @@ function SettingsView({ settings, setSettings, rooms, transactions, syncState, s
         <div className="space-y-2 mb-3">
           {(modelList || []).map(function(m, i) {
             return (
-              <div key={i} className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-2.5">
+              <div key={i} className={"flex items-center gap-2 rounded-lg p-2.5 " + (i === 0 ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-slate-900/50')}>
+                <div className="flex flex-col gap-0.5 flex-shrink-0">
+                  <button onClick={function(){if(i===0)return;var n=modelList.slice();var tmp=n[i];n[i]=n[i-1];n[i-1]=tmp;updateModelList(n)}}
+                    className={"p-0.5 rounded " + (i === 0 ? 'text-slate-700' : 'text-slate-400 hover:text-white hover:bg-slate-700')} disabled={i===0}><ChevronUp className="w-3.5 h-3.5" /></button>
+                  <button onClick={function(){if(i>=modelList.length-1)return;var n=modelList.slice();var tmp=n[i];n[i]=n[i+1];n[i+1]=tmp;updateModelList(n)}}
+                    className={"p-0.5 rounded " + (i >= modelList.length-1 ? 'text-slate-700' : 'text-slate-400 hover:text-white hover:bg-slate-700')} disabled={i>=modelList.length-1}><ChevronDown className="w-3.5 h-3.5" /></button>
+                </div>
                 <div className="flex-1 min-w-0">
-                  <input type="text" defaultValue={m.id} className="bg-transparent text-white text-xs font-mono w-full outline-none border-b border-transparent focus:border-emerald-500/50 pb-0.5" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{id:e.target.value.trim()});updateModelList(n)}} />
+                  <div className="flex items-center gap-2">
+                    <input type="text" defaultValue={m.id} className="bg-transparent text-white text-xs font-mono flex-1 min-w-0 outline-none border-b border-transparent focus:border-emerald-500/50 pb-0.5" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{id:e.target.value.trim()});updateModelList(n)}} />
+                    {i === 0 && <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 flex-shrink-0">Mặc định</span>}
+                  </div>
                   <div className="flex gap-2 mt-1">
                     <input type="text" defaultValue={m.label} placeholder="Tên" className="bg-transparent text-slate-300 text-xs flex-1 outline-none" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{label:e.target.value.trim()});updateModelList(n)}} />
                     <input type="text" defaultValue={m.desc} placeholder="Mô tả" className="bg-transparent text-slate-500 text-xs flex-1 outline-none" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{desc:e.target.value.trim()});updateModelList(n)}} />
@@ -2738,10 +2758,10 @@ function SettingsView({ settings, setSettings, rooms, transactions, syncState, s
                 <button onClick={function(){
                   if (!apiKey) { alert('Cần API Key'); return; }
                   fetch(GEMINI_ENDPOINT + m.id + ':generateContent?key=' + apiKey, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:'hi'}]}],generationConfig:{maxOutputTokens:10}})})
-                  .then(function(r){alert(r.ok ? 'Model hoạt động!' : 'Lỗi ' + r.status + ' — Model có thể đã bị xóa')})
-                  .catch(function(e){alert('Lỗi: ' + e.message)});
+                  .then(function(r){alert(r.ok ? '✅ ' + m.id + ' OK!' : '❌ Lỗi ' + r.status)})
+                  .catch(function(e){alert('❌ ' + e.message)});
                 }} className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1.5 rounded hover:bg-blue-500/30 flex-shrink-0">Test</button>
-                <button onClick={function(){if(confirm('Xóa model ' + m.id + '?')){updateModelList(modelList.filter(function(_,j){return j!==i}))}}} className="text-xs bg-red-500/20 text-red-400 px-2 py-1.5 rounded hover:bg-red-500/30 flex-shrink-0">Xóa</button>
+                <button onClick={function(){if(modelList.length<=1){alert('Phải giữ ít nhất 1 model');return}if(confirm('Xóa ' + m.id + '?')){updateModelList(modelList.filter(function(_,j){return j!==i}))}}} className="text-xs bg-red-500/20 text-red-400 px-2 py-1.5 rounded hover:bg-red-500/30 flex-shrink-0">Xóa</button>
               </div>
             );
           })}
@@ -2823,7 +2843,7 @@ function ScanTransactionModal({ apiKey, geminiModel, rooms, onSave, onClose }) {
   var _note = React.useState(''); var note = _note[0]; var setNote = _note[1];
   var _rawAI = React.useState(''); var rawAI = _rawAI[0]; var setRawAI = _rawAI[1];
   var _textInput = React.useState(''); var textInput = _textInput[0]; var setTextInput = _textInput[1];
-  var _selectedModel = React.useState(geminiModel || 'gemini-3-flash-preview'); var selectedModel = _selectedModel[0]; var setSelectedModel = _selectedModel[1];
+  var _selectedModel = React.useState(geminiModel || (GEMINI_MODELS.length > 0 ? GEMINI_MODELS[0].id : 'gemini-3-flash-preview')); var selectedModel = _selectedModel[0]; var setSelectedModel = _selectedModel[1];
   var fileRef = React.useRef(null);
 
   function analyzeText(text) {
