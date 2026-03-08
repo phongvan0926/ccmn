@@ -98,6 +98,8 @@
   .flex-shrink-0 { flex-shrink: 0 }
   @media (min-width: 768px) { .md\:grid-cols-2 { grid-template-columns: repeat(2,1fr) } .md\:grid-cols-4 { grid-template-columns: repeat(4,1fr) } .md\:col-span-2 { grid-column: span 2 } .md\:grid-cols-5 { grid-template-columns: repeat(5,1fr) } }
   @media (min-width: 1024px) { .lg\:grid-cols-3 { grid-template-columns: repeat(3,1fr) } .lg\:grid-cols-4 { grid-template-columns: repeat(4,1fr) } }
+  .grid-cols-6 { grid-template-columns: repeat(6,1fr); }
+  @media (max-width: 480px) { .grid-cols-6 { grid-template-columns: repeat(4,1fr); } }
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px } ::-webkit-scrollbar-track { background: #1e293b } ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px }
 </style>
@@ -811,15 +813,18 @@ function CCMNApp() {
   var _settings = React.useState(_saved && _saved.settings ? _saved.settings : defaultSettings); var settings = _settings[0]; var setSettings = _settings[1];
   var _search = React.useState(''); var searchTerm = _search[0]; var setSearchTerm = _search[1];
   var _filter = React.useState('all'); var filterMonth = _filter[0]; var setFilterMonth = _filter[1];
+  var _bf = React.useState('all'); var billFilter = _bf[0]; var setBillFilter = _bf[1];
 
   // Gemini API Key: built-in (encoded) + localStorage override
   var _apiKey = React.useState(function() { try { return localStorage.getItem('ccmn_gemini_key') || _dk(); } catch(e) { return _dk(); } });
   var apiKey = _apiKey[0]; var setApiKey = _apiKey[1];
   function updateApiKey(key) { setApiKey(key); try { localStorage.setItem('ccmn_gemini_key', key); } catch(e) {} }
   // Gemini Model selection
-  var _model = React.useState(function() { try { return localStorage.getItem('ccmn_gemini_model') || 'gemini-3.1-pro-preview'; } catch(e) { return 'gemini-3.1-pro-preview'; } });
+  var _model = React.useState(function() { try { return localStorage.getItem('ccmn_gemini_model') || 'gemini-3-flash-preview'; } catch(e) { return 'gemini-3-flash-preview'; } });
   var geminiModel = _model[0]; var setGeminiModel = _model[1];
   function updateModel(m) { setGeminiModel(m); try { localStorage.setItem('ccmn_gemini_model', m); } catch(e) {} }
+  var _models = React.useState(GEMINI_MODELS); var modelList = _models[0]; var setModelList = _models[1];
+  function updateModelList(newList) { setModelList(newList); saveModels(newList); GEMINI_MODELS = newList; }
 
   // Sync status
   var _sync = React.useState({status:'idle',msg:''}); var syncState = _sync[0]; var setSyncState = _sync[1];
@@ -952,18 +957,18 @@ function CCMNApp() {
         </div>
 
         <div className="flex-1 p-6 overflow-auto main-content" style={{maxHeight:'100vh'}}>
-          {activeTab === 'dashboard' && <DashboardView stats={stats} fin={fin} rooms={rooms} bills={bills} setActiveTab={setActiveTab} setShowModal={setShowModal} />}
+          {activeTab === 'dashboard' && <DashboardView stats={stats} fin={fin} rooms={rooms} bills={bills} setActiveTab={setActiveTab} setShowModal={setShowModal} setBillFilter={setBillFilter} />}
           {activeTab === 'rooms' && <RoomsView rooms={rooms} setRooms={setRooms} settings={settings} setSelectedRoom={setSelectedRoom} setShowModal={setShowModal} />}
-          {activeTab === 'bills' && <BillsView bills={bills} setBills={setBills} rooms={rooms} settings={settings} setSelBill={setSelBill} setShowModal={setShowModal} setPreviewBill={setPreviewBill} />}
+          {activeTab === 'bills' && <BillsView bills={bills} setBills={setBills} rooms={rooms} settings={settings} setSelBill={setSelBill} setShowModal={setShowModal} setPreviewBill={setPreviewBill} billFilter={billFilter} setBillFilter={setBillFilter} />}
           {activeTab === 'transactions' && <TransactionsView transactions={transactions} setTransactions={setTransactions} fin={fin} searchTerm={searchTerm} setSearchTerm={setSearchTerm} filterMonth={filterMonth} setFilterMonth={setFilterMonth} setShowModal={setShowModal} setSelTxn={setSelTxn} />}
           {activeTab === 'reports' && <ReportsView fin={fin} transactions={transactions} rooms={rooms} stats={stats} />}
           {activeTab === 'ai' && <AIAssistantView fin={fin} transactions={transactions} rooms={rooms} bills={bills} stats={stats} settings={settings} apiKey={apiKey} updateApiKey={updateApiKey} geminiModel={geminiModel} updateModel={updateModel} />}
-          {activeTab === 'settings' && <SettingsView settings={settings} setSettings={setSettings} rooms={rooms} transactions={transactions} syncState={syncState} setSyncState={setSyncState} setRooms={setRooms} setTransactions={setTransactions} setBills={setBills} />}
+          {activeTab === 'settings' && <SettingsView settings={settings} setSettings={setSettings} rooms={rooms} transactions={transactions} syncState={syncState} setSyncState={setSyncState} setRooms={setRooms} setTransactions={setTransactions} setBills={setBills} modelList={modelList} updateModelList={updateModelList} apiKey={apiKey} />}
         </div>
       </div>
 
       {showModal === 'addTransaction' && <AddTransactionModal onSave={addTransaction} onClose={function(){setShowModal(null)}} />}
-      {showModal === 'scanTransaction' && <ScanTransactionModal apiKey={apiKey} geminiModel={geminiModel} onSave={addTransaction} onClose={function(){setShowModal(null)}} />}
+      {showModal === 'scanTransaction' && <ScanTransactionModal apiKey={apiKey} geminiModel={geminiModel} rooms={rooms} onSave={addTransaction} onClose={function(){setShowModal(null)}} />}
       {showModal === 'editTxn' && selTxn && <EditTransactionModal txn={selTxn} onSave={function(updated){
         setTransactions(transactions.map(function(t){return t.id === updated.id ? updated : t}));
         setShowModal(null); setSelTxn(null);
@@ -997,7 +1002,7 @@ function CCMNApp() {
 }
 
 // ===== DASHBOARD =====
-function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal }) {
+function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal, setBillFilter }) {
   var unpaidBills = bills.filter(function(b){return b.status === 'Unpaid'});
   var totalDebt = unpaidBills.reduce(function(s,b){return s+(b.debt||0)},0);
   var kpis = [
@@ -1029,7 +1034,7 @@ function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal })
           <div className="text-sm font-medium text-white">Nhập chỉ số điện nước</div>
           <div className="text-xs text-slate-400">Tạo phiếu tính tiền</div>
         </button>
-        <button onClick={function(){setActiveTab('bills')}} className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-left hover:bg-emerald-500/20 transition-all">
+        <button onClick={function(){setBillFilter('unpaid');setActiveTab('bills')}} className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-left hover:bg-emerald-500/20 transition-all">
           <CreditCard className="w-6 h-6 text-emerald-400 mb-2" />
           <div className="text-sm font-medium text-white">Ghi nhận thu tiền</div>
           <div className="text-xs text-slate-400">{unpaidBills.length > 0 ? unpaidBills.length + ' phòng chưa thu' : 'Đã thu hết'}</div>
@@ -1053,7 +1058,7 @@ function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal })
             <div className="text-sm font-semibold text-red-400">Có {unpaidBills.length} phòng chưa thanh toán</div>
             <div className="text-xs text-slate-400">Tổng nợ: <span className="text-red-400 font-mono font-semibold">{formatVND(totalDebt)}đ</span></div>
           </div>
-          <button onClick={function(){setActiveTab('bills')}} className="bg-red-500/20 border border-red-500/40 text-red-300 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-500/30">Thu tiền →</button>
+          <button onClick={function(){setBillFilter('unpaid');setActiveTab('bills')}} className="bg-red-500/20 border border-red-500/40 text-red-300 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-500/30">Thu tiền →</button>
         </div>
       )}
 
@@ -1072,16 +1077,18 @@ function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal })
         );
       })()}
 
-      <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Sơ lược phòng</h3>
-        <div className="grid grid-cols-4 gap-3">
+      <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
+        <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2"><Building2 className="w-4 h-4 text-slate-400" /> Sơ lược phòng ({stats.occupiedRooms}/{stats.totalRooms})</h3>
+        <div className="grid grid-cols-4 md:grid-cols-4 gap-2">
           {rooms.map(function(room) {
             var isOccupied = room.status === 'Đang thuê';
             return (
-              <div key={room.id} className={"rounded-xl p-3 border transition-all " + (isOccupied ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-slate-800/50 border-slate-700/50')}>
-                <div className="text-lg font-bold mb-1">{room.id}</div>
-                <div className={"text-xs " + (isOccupied ? 'text-emerald-400' : 'text-slate-500')}>{isOccupied ? room.tenant : 'Trống'}</div>
-                {isOccupied && <div className="text-xs text-slate-500 mt-1">{formatVND(room.rent)}đ</div>}
+              <div key={room.id} className={"rounded-lg px-2.5 py-2 border flex items-center gap-2 " + (isOccupied ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-slate-800/50 border-slate-700/50')}>
+                <div className={"text-sm font-bold flex-shrink-0 w-8 " + (isOccupied ? 'text-white' : 'text-slate-600')}>{room.id}</div>
+                <div className="flex-1 min-w-0">
+                  <div className={"text-xs truncate " + (isOccupied ? 'text-emerald-400' : 'text-slate-600')}>{isOccupied ? room.tenant : 'Trống'}</div>
+                  {isOccupied && <div className="text-xs text-slate-500 font-mono">{formatVND(room.rent)}đ</div>}
+                </div>
               </div>
             );
           })}
@@ -1097,7 +1104,7 @@ function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal })
               var barW = maxRev > 0 ? (m.revenue / maxRev * 100) : 0;
               return (
                 <div key={m.month} className="flex items-center gap-3">
-                  <span className="text-xs text-slate-400 w-16">{m.month.replace('20','').replace('-','/')}</span>
+                  <span className="text-xs text-slate-400 w-20 font-mono">{m.month.replace('-','/')}</span>
                   <div className="flex-1 h-6 bg-slate-800 rounded relative overflow-hidden">
                     <div className="h-full bg-emerald-500/30 rounded" style={{width: barW + '%'}}></div>
                     <span className="absolute inset-0 flex items-center px-2 text-xs font-mono text-emerald-300">+{formatVND(m.revenue)}</span>
@@ -1287,7 +1294,7 @@ function RoomsView({ rooms, setRooms, settings, setSelectedRoom, setShowModal })
 function TransactionsView({ transactions, setTransactions, fin, searchTerm, setSearchTerm, filterMonth, setFilterMonth, setShowModal, setSelTxn }) {
   var _catFilter = React.useState('all'); var catFilter = _catFilter[0]; var setCatFilter = _catFilter[1];
 
-  var months = fin.allMonths || [];
+  var months = (fin.allMonths || []).slice().reverse();
   var filtered = transactions.filter(function(t) {
     if (filterMonth !== 'all' && (t.date || '').slice(0, 7) !== filterMonth) return false;
     if (catFilter !== 'all' && t.category !== catFilter) return false;
@@ -1296,7 +1303,7 @@ function TransactionsView({ transactions, setTransactions, fin, searchTerm, setS
       return (t.desc || '').toLowerCase().indexOf(s) >= 0 || (t.room || '').toLowerCase().indexOf(s) >= 0 || (t.note || '').toLowerCase().indexOf(s) >= 0;
     }
     return true;
-  });
+  }).sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
 
   // Summary by category for filtered
   var catSummary = {};
@@ -1314,7 +1321,7 @@ function TransactionsView({ transactions, setTransactions, fin, searchTerm, setS
         <h2 className="text-xl font-bold text-white">Nhật ký Thu Chi</h2>
         <div className="flex gap-2">
           <button onClick={function(){setShowModal('scanTransaction')}} className="border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all">
-            <Camera className="w-4 h-4" /> Quét ảnh
+            <Sparkles className="w-4 h-4" /> Nhập bằng AI
           </button>
           <button onClick={function(){setShowModal('addTransaction')}} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all">
             <Plus className="w-4 h-4" /> Thêm
@@ -1495,10 +1502,10 @@ function ReportsView({ fin, transactions, rooms, stats }) {
                   <th className="text-right py-1.5 px-2 text-cyan-400">Lũy kế</th>
                 </tr></thead>
                 <tbody>
-                  {fin.monthlyPnL.map(function(m, i) {
+                  {fin.monthlyPnL.slice().reverse().map(function(m, i) {
                     return (
                       <tr key={i} className="border-b border-slate-700/50 hover:bg-slate-700/30">
-                        <td className="py-1.5 px-2 text-white font-medium">{m.month.replace('20','').replace('-','/')}</td>
+                        <td className="py-1.5 px-2 text-white font-medium font-mono">{m.month.replace('-','/')}</td>
                         <td className="py-1.5 px-2 text-right text-emerald-300 font-mono">{formatVND(m.revenue)}</td>
                         <td className="py-1.5 px-2 text-right text-red-300 font-mono">{m.cogs > 0 ? '-' + formatVND(m.cogs) : '-'}</td>
                         <td className="py-1.5 px-2 text-right text-orange-300 font-mono">{m.utility > 0 ? '-' + formatVND(m.utility) : '-'}</td>
@@ -1603,7 +1610,7 @@ function ReportsView({ fin, transactions, rooms, stats }) {
                       }
                       return (
                         <div key={mi} className="flex items-center gap-2 text-xs">
-                          <span className="text-slate-400 w-12">{m.month.replace('20','').replace('-','/')}</span>
+                          <span className="text-slate-400 w-16 font-mono">{m.month.replace('-','/')}</span>
                           <div className="flex-1 h-5 bg-slate-700/50 rounded relative overflow-hidden">
                             <div className={"h-full rounded " + (mNet >= 0 ? 'bg-emerald-500/30' : 'bg-red-500/30')} style={{width: Math.min(Math.abs(mNet) / (c.totalRev > 0 ? c.totalRev : 1) * 200, 100) + '%'}}></div>
                             <span className={"absolute inset-0 flex items-center px-2 font-mono " + (mNet >= 0 ? 'text-emerald-300' : 'text-red-300')}>{mNet >= 0 ? '+' : ''}{formatVND(mNet)}</span>
@@ -1671,13 +1678,16 @@ function ReportsView({ fin, transactions, rooms, stats }) {
 }
 
 // ===== BILLS VIEW =====
-function BillsView({ bills, setBills, rooms, settings, setSelBill, setShowModal, setPreviewBill }) {
+function BillsView({ bills, setBills, rooms, settings, setSelBill, setShowModal, setPreviewBill, billFilter, setBillFilter }) {
   var _fm = React.useState(''); var filterMonth = _fm[0]; var setFilterMonth = _fm[1];
+  var statusFilter = billFilter || 'all';
   var months = Array.from(new Set(bills.map(function(b){return b.month}))).sort().reverse();
   var filtered = bills.filter(function(b) {
     if (filterMonth && b.month !== filterMonth) return false;
+    if (statusFilter === 'unpaid' && b.status !== 'Unpaid') return false;
+    if (statusFilter === 'paid' && b.status !== 'Paid') return false;
     return true;
-  });
+  }).sort(function(a, b) { return (b.month || '').localeCompare(a.month || '') || (b.room || '').localeCompare(a.room || ''); });
   var totalBills = filtered.reduce(function(s,b){return s+b.total},0);
   var totalPaid = filtered.reduce(function(s,b){return s+b.paid},0);
   var totalDebt = filtered.reduce(function(s,b){return s+b.debt},0);
@@ -1691,11 +1701,17 @@ function BillsView({ bills, setBills, rooms, settings, setSelBill, setShowModal,
         </button>
       </div>
 
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 items-center flex-wrap">
         <select value={filterMonth} onChange={function(e){setFilterMonth(e.target.value)}} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
           <option value="">Tất cả tháng</option>
           {months.map(function(m){return <option key={m} value={m}>{m}</option>})}
         </select>
+        <div className="flex gap-1">
+          {[{v:'all',l:'Tất cả'},{v:'unpaid',l:'Chưa thu'},{v:'paid',l:'Đã thu'}].map(function(f){
+            return <button key={f.v} onClick={function(){setBillFilter(f.v)}}
+              className={"px-3 py-1.5 rounded-lg text-xs font-medium " + (statusFilter === f.v ? (f.v === 'unpaid' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : f.v === 'paid' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-700 text-white border border-slate-600') : 'bg-slate-800 text-slate-400 border border-slate-700')}>{f.l}</button>
+          })}
+        </div>
         <span className="text-xs text-slate-500">{filtered.length} phiếu</span>
       </div>
 
@@ -2157,15 +2173,21 @@ function BillInvoice({ bill, rooms, bills, settings, onClose }) {
   );
 }
 
-// ===== SETTINGS VIEW =====
-// ===== AI ASSISTANT VIEW — Gemini 2.5 Flash =====
+// ===== AI ASSISTANT VIEW =====
 var GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/';
-var GEMINI_MODELS = [
-  {id: 'gemini-3.1-pro-preview', label: '3.1 Pro Preview', desc: 'Mạnh nhất, reasoning tốt nhất', tier: 'pro'},
-  {id: 'gemini-3-flash-preview', label: '3 Flash', desc: 'Nhanh, free tier rộng rãi', tier: 'free'},
-  {id: 'gemini-2.5-flash', label: '2.5 Flash', desc: 'Ổn định, free tier lớn', tier: 'free'},
-  {id: 'gemini-2.5-pro', label: '2.5 Pro', desc: 'Cân bằng chất lượng/tốc độ', tier: 'free'},
+// Model list — editable in Settings. Saved to localStorage.
+var DEFAULT_MODELS = [
+  { id: 'gemini-3-flash-preview',  label: '3 Flash',           desc: 'Nhanh, free tier rộng rãi',    free: true  },
+  { id: 'gemini-3.1-pro-preview',  label: '3.1 Pro Preview',   desc: 'Mạnh nhất, reasoning sâu',     free: false },
+  { id: 'gemini-2.5-flash',        label: '2.5 Flash',         desc: 'Ổn định (hết hạn 06/2026)',    free: true  },
+  { id: 'gemini-2.5-pro',          label: '2.5 Pro',           desc: 'Cân bằng (hết hạn 06/2026)',   free: true  },
 ];
+function loadModels() {
+  try { var s = localStorage.getItem('ccmn_gemini_models'); if (s) { var p = JSON.parse(s); if (Array.isArray(p) && p.length > 0) return p; } } catch(e) {}
+  return DEFAULT_MODELS;
+}
+function saveModels(models) { try { localStorage.setItem('ccmn_gemini_models', JSON.stringify(models)); } catch(e) {} }
+var GEMINI_MODELS = loadModels();
 // Key encoded (XOR) — not plaintext, safe for public repos
 var _ek = [34,42,23,15,97,73,112,109,50,15,6,95,113,7,70,118,86,2,58,92,98,124,87,93,45,42,89,40,90,70,104,115,23,84,84,90,85,125,99];
 var _xk = 'ccmn2025';
@@ -2385,7 +2407,7 @@ function AIAssistantView({ fin, transactions, rooms, bills, stats, settings, api
     });
   }
 
-  React.useEffect(function() { if (apiKey) loadInsights(); }, [apiKey]);
+  // Insights loaded manually by clicking Refresh button, not auto
 
   var quickActions = [
     {icon: BarChart3, label: 'P&L tháng này', prompt: 'Phân tích P&L tháng hiện tại so với tháng trước. Ghi rõ số doanh thu, chi phí, lãi/lỗ. So sánh tăng giảm bằng bảng.'},
@@ -2617,7 +2639,7 @@ function AIAssistantView({ fin, transactions, rooms, bills, stats, settings, api
 }
 
 // ===== SETTINGS VIEW =====
-function SettingsView({ settings, setSettings, rooms, transactions, syncState, setSyncState, setRooms, setTransactions, setBills }) {
+function SettingsView({ settings, setSettings, rooms, transactions, syncState, setSyncState, setRooms, setTransactions, setBills, modelList, updateModelList, apiKey }) {
   var _t = React.useState(Object.assign({}, settings)); var temp = _t[0]; var setTemp = _t[1];
   function save() { setSettings(Object.assign({}, temp)); }
 
@@ -2699,6 +2721,40 @@ function SettingsView({ settings, setSettings, rooms, transactions, syncState, s
         <div className="text-xs text-slate-500">Hàng đợi: {(function(){var q=getQueue();return q.length>0?q.length+' thao tác chờ sync':'Trống (tốt!)'})()}</div>
       </div>
 
+      <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-5">
+        <h3 className="text-sm font-semibold text-white mb-2 flex items-center gap-2"><Sparkles className="w-4 h-4 text-emerald-400" /> Quản lý Model AI</h3>
+        <p className="text-xs text-slate-400 mb-3">Google hay xóa model cũ. Cập nhật tại: <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" className="text-emerald-400 underline">Models</a> · <a href="https://ai.google.dev/gemini-api/docs/deprecations" target="_blank" className="text-emerald-400 underline">Deprecations</a></p>
+        <div className="space-y-2 mb-3">
+          {(modelList || []).map(function(m, i) {
+            return (
+              <div key={i} className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-2.5">
+                <div className="flex-1 min-w-0">
+                  <input type="text" defaultValue={m.id} className="bg-transparent text-white text-xs font-mono w-full outline-none border-b border-transparent focus:border-emerald-500/50 pb-0.5" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{id:e.target.value.trim()});updateModelList(n)}} />
+                  <div className="flex gap-2 mt-1">
+                    <input type="text" defaultValue={m.label} placeholder="Tên" className="bg-transparent text-slate-300 text-xs flex-1 outline-none" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{label:e.target.value.trim()});updateModelList(n)}} />
+                    <input type="text" defaultValue={m.desc} placeholder="Mô tả" className="bg-transparent text-slate-500 text-xs flex-1 outline-none" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{desc:e.target.value.trim()});updateModelList(n)}} />
+                  </div>
+                </div>
+                <button onClick={function(){
+                  if (!apiKey) { alert('Cần API Key'); return; }
+                  fetch(GEMINI_ENDPOINT + m.id + ':generateContent?key=' + apiKey, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:'hi'}]}],generationConfig:{maxOutputTokens:10}})})
+                  .then(function(r){alert(r.ok ? 'Model hoạt động!' : 'Lỗi ' + r.status + ' — Model có thể đã bị xóa')})
+                  .catch(function(e){alert('Lỗi: ' + e.message)});
+                }} className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1.5 rounded hover:bg-blue-500/30 flex-shrink-0">Test</button>
+                <button onClick={function(){if(confirm('Xóa model ' + m.id + '?')){updateModelList(modelList.filter(function(_,j){return j!==i}))}}} className="text-xs bg-red-500/20 text-red-400 px-2 py-1.5 rounded hover:bg-red-500/30 flex-shrink-0">Xóa</button>
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex gap-2">
+          <button onClick={function(){
+            var id = prompt('Nhập model ID mới (VD: gemini-4-flash):');
+            if (id && id.trim()) { updateModelList(modelList.concat([{id: id.trim(), label: id.trim().replace('gemini-','').replace('-preview',''), desc: 'Model mới', free: true}])); }
+          }} className="bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-lg text-xs hover:bg-emerald-500/30">+ Thêm model</button>
+          <button onClick={function(){if(confirm('Reset về mặc định?')){updateModelList(DEFAULT_MODELS)}}} className="bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs hover:bg-slate-600">Reset mặc định</button>
+        </div>
+      </div>
+
       <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 space-y-3">
         <h3 className="text-sm font-semibold text-white">Quản lý dữ liệu</h3>
         <div className="flex flex-wrap gap-2">
@@ -2751,7 +2807,7 @@ function SettingsView({ settings, setSettings, rooms, transactions, syncState, s
 
 // ===== EDIT TRANSACTION MODAL =====
 // ===== SCAN TRANSACTION MODAL — Gemini Vision =====
-function ScanTransactionModal({ apiKey, geminiModel, onSave, onClose }) {
+function ScanTransactionModal({ apiKey, geminiModel, rooms, onSave, onClose }) {
   var _step = React.useState('capture'); var step = _step[0]; var setStep = _step[1]; // capture | analyzing | review
   var _img = React.useState(null); var imgData = _img[0]; var setImgData = _img[1]; // base64
   var _preview = React.useState(null); var preview = _preview[0]; var setPreview = _preview[1]; // URL
@@ -2766,7 +2822,52 @@ function ScanTransactionModal({ apiKey, geminiModel, onSave, onClose }) {
   var _cat = React.useState(''); var cat = _cat[0]; var setCat = _cat[1];
   var _note = React.useState(''); var note = _note[0]; var setNote = _note[1];
   var _rawAI = React.useState(''); var rawAI = _rawAI[0]; var setRawAI = _rawAI[1];
+  var _textInput = React.useState(''); var textInput = _textInput[0]; var setTextInput = _textInput[1];
+  var _selectedModel = React.useState(geminiModel || 'gemini-3-flash-preview'); var selectedModel = _selectedModel[0]; var setSelectedModel = _selectedModel[1];
   var fileRef = React.useRef(null);
+
+  function analyzeText(text) {
+    setStep('analyzing');
+    setLoading(true);
+    setError('');
+    var catList = Object.keys(CATEGORIES).map(function(k) { return k + ' (' + CATEGORIES[k].label + ')'; }).join(', ');
+    var prompt = 'Phân tích nội dung sau (có thể là: tin nhắn chuyển khoản, SMS ngân hàng, biên lai, nội dung hóa đơn). ' +
+      'Trích xuất thông tin giao dịch và trả về JSON thuần (không markdown, không backtick):\n' +
+      '{"type":"income hoặc expense","date":"YYYY-MM-DD","amount":số tiền (chỉ số),"desc":"mô tả ngắn","room":"số phòng nếu có hoặc Chung","category":"mã phân loại","note":"ghi chú","confidence":"high/medium/low"}\n' +
+      'Danh sách category: ' + catList + '\n' +
+      'Nếu chuyển khoản ĐẾN mình → income. TỪ mình → expense. Ngày mặc định: ' + new Date().toISOString().slice(0, 10) + '\n' +
+      'Nội dung cần phân tích:\n' + text;
+    var url = GEMINI_ENDPOINT + selectedModel + ':generateContent?key=' + apiKey;
+    fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        contents: [{role: 'user', parts: [{text: prompt}]}],
+        generationConfig: {maxOutputTokens: 2048, temperature: 0.2}
+      })
+    }).then(function(r){return r.text()}).then(function(rawText) {
+      try {
+        var data = JSON.parse(rawText);
+        var result = data.candidates && data.candidates[0] && data.candidates[0].content ?
+          data.candidates[0].content.parts.filter(function(p){return p.text && !p.thought}).map(function(p){return p.text}).join('') : '';
+        if (!result) throw new Error('Empty');
+        setRawAI(result);
+        var clean = result.replace(/```json|```/g, '').trim();
+        var s = clean.indexOf('{'); var e2 = clean.lastIndexOf('}');
+        if (s >= 0 && e2 > s) clean = clean.slice(s, e2 + 1);
+        var parsed = JSON.parse(clean);
+        setTxnType(parsed.type === 'income' ? 'income' : 'expense');
+        setDate(parsed.date || new Date().toISOString().slice(0, 10));
+        setAmount(String(parsed.amount || ''));
+        setDesc(parsed.desc || '');
+        setRoom(parsed.room || 'Chung');
+        setCat(parsed.category || '');
+        setNote(parsed.note || '');
+        setStep('review');
+      } catch(err) { setError('Không thể phân tích: ' + err.message); setStep('capture'); }
+      setLoading(false);
+    }).catch(function(err) { setError('Lỗi: ' + err.message); setLoading(false); setStep('capture'); });
+  }
 
   function handleFile(e) {
     var file = e.target.files && e.target.files[0];
@@ -2797,7 +2898,7 @@ function ScanTransactionModal({ apiKey, geminiModel, onSave, onClose }) {
       'Nếu không rõ ngày, dùng hôm nay: ' + new Date().toISOString().slice(0, 10) + '\n' +
       'Chỉ trả về JSON, không text khác.';
 
-    var url = GEMINI_ENDPOINT + (geminiModel || 'gemini-2.5-flash') + ':generateContent?key=' + apiKey;
+    var url = GEMINI_ENDPOINT + selectedModel + ':generateContent?key=' + apiKey;
 
     fetch(url, {
       method: 'POST',
@@ -2868,7 +2969,7 @@ function ScanTransactionModal({ apiKey, geminiModel, onSave, onClose }) {
         <div className="flex justify-between items-center p-4 border-b border-slate-800 sticky top-0 bg-slate-900 rounded-t-2xl z-10">
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
             <Camera className="w-5 h-5 text-emerald-400" />
-            {step === 'capture' ? 'Quét giao dịch' : step === 'analyzing' ? 'Đang phân tích...' : 'Xác nhận giao dịch'}
+            {step === 'capture' ? 'Nhập bằng AI' : step === 'analyzing' ? 'AI đang phân tích...' : 'Xác nhận giao dịch'}
           </h3>
           <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
         </div>
@@ -2876,31 +2977,58 @@ function ScanTransactionModal({ apiKey, geminiModel, onSave, onClose }) {
         <div className="p-4 space-y-4">
           {step === 'capture' && (
             <React.Fragment>
-              <div className="border-2 border-dashed border-slate-700 rounded-xl p-6 text-center hover:border-emerald-500/50 transition-all cursor-pointer" onClick={function(){fileRef.current && fileRef.current.click()}}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs text-slate-400">Model:</span>
+                <select value={selectedModel} onChange={function(e){setSelectedModel(e.target.value)}}
+                  className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-300 flex-1">
+                  {GEMINI_MODELS.map(function(m){return <option key={m.id} value={m.id}>{m.label} — {m.desc}</option>})}
+                </select>
+              </div>
+
+              <div className="border-2 border-dashed border-slate-700 rounded-xl p-5 text-center hover:border-emerald-500/50 transition-all cursor-pointer" onClick={function(){fileRef.current && fileRef.current.click()}}>
                 {preview ? (
-                  <img src={preview} className="max-h-48 mx-auto rounded-lg mb-2" />
+                  <img src={preview} className="max-h-40 mx-auto rounded-lg mb-2" />
                 ) : (
                   <React.Fragment>
-                    <Camera className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                    <p className="text-sm text-slate-400">Chạm để chụp hoặc chọn ảnh</p>
-                    <p className="text-xs text-slate-600 mt-1">Biên lai, SMS ngân hàng, bill, tin nhắn</p>
+                    <Camera className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                    <p className="text-sm text-slate-400">Chạm để chụp / chọn ảnh</p>
+                    <p className="text-xs text-slate-600 mt-1">Biên lai, SMS, bill, hóa đơn</p>
                   </React.Fragment>
                 )}
-                <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
+                <input ref={fileRef} type="file" accept="image/*,application/pdf,.doc,.docx" capture="environment" onChange={handleFile} className="hidden" />
               </div>
 
               <div className="flex gap-2">
-                <button onClick={function(){fileRef.current && fileRef.current.click()}} className="flex-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
-                  <Camera className="w-4 h-4" /> Chụp ảnh
+                <button onClick={function(){fileRef.current && fileRef.current.click()}} className="flex-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5" /> Chụp ảnh
                 </button>
                 <button onClick={function(){
                   var input = document.createElement('input');
                   input.type = 'file'; input.accept = 'image/*';
                   input.onchange = handleFile;
                   input.click();
-                }} className="flex-1 bg-blue-500/20 border border-blue-500/30 text-blue-400 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
-                  <ImageIcon className="w-4 h-4" /> Thư viện
+                }} className="flex-1 bg-blue-500/20 border border-blue-500/30 text-blue-400 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5" /> Thư viện
                 </button>
+                <button onClick={function(){
+                  var input = document.createElement('input');
+                  input.type = 'file'; input.accept = 'application/pdf,.doc,.docx,.txt';
+                  input.onchange = handleFile;
+                  input.click();
+                }} className="flex-1 bg-purple-500/20 border border-purple-500/30 text-purple-400 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5" /> File
+                </button>
+              </div>
+
+              <div className="relative">
+                <textarea value={textInput} onChange={function(e){setTextInput(e.target.value)}}
+                  placeholder="Hoặc dán nội dung văn bản vào đây: tin nhắn chuyển khoản, SMS ngân hàng, nội dung biên lai..."
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 resize-none" rows="3" />
+                {textInput.trim() && (
+                  <button onClick={function(){analyzeText(textInput)}} className="absolute right-2 bottom-2 px-3 py-1 rounded-lg text-xs font-medium text-white" style={{background:'linear-gradient(135deg,#10b981,#3b82f6)'}}>
+                    Phân tích văn bản
+                  </button>
+                )}
               </div>
 
               {error && <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-xs text-red-300">{error}</div>}
@@ -2952,7 +3080,10 @@ function ScanTransactionModal({ apiKey, geminiModel, onSave, onClose }) {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-slate-400">Phòng</label>
-                    <input type="text" value={room} onChange={function(e){setRoom(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                    <select value={room} onChange={function(e){setRoom(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                      <option value="Chung">Chung</option>
+                      {rooms && rooms.map(function(r){return <option key={r.id} value={r.id}>P.{r.id}{r.tenant ? ' - ' + r.tenant : ''}</option>})}
+                    </select>
                   </div>
                   <div>
                     <label className="text-xs text-slate-400">Phân loại</label>
