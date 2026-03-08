@@ -22,6 +22,25 @@
   @keyframes blink { 0%,100% { opacity:1 } 50% { opacity:0 } }
   .streaming-cursor::after { content: '▋'; animation: blink 0.8s infinite; color: #34d399; }
   .bg-slate-950 { background: #020617 }
+  /* ===== RESPONSIVE MOBILE ===== */
+  @media (max-width: 767px) {
+    .desktop-sidebar { display: none !important; }
+    .mobile-nav { display: flex !important; }
+    .main-content { padding: 12px !important; padding-bottom: 72px !important; max-height: calc(100vh - 60px) !important; }
+    .main-wrapper { flex-direction: column !important; }
+  }
+  @media (min-width: 768px) {
+    .mobile-nav { display: none !important; }
+    .mobile-header { display: none !important; }
+  }
+  .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+    background: #0f172a; border-top: 1px solid #1e293b; padding: 4px 0 env(safe-area-inset-bottom, 4px); }
+  .mobile-header { position: sticky; top: 0; z-index: 40; background: #0f172a; border-bottom: 1px solid #1e293b; }
+  .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .min-w-\[600px\] { min-width: 600px; }
+  @media (max-width: 480px) {
+    .modal-inner { max-width: 100% !important; max-height: 100vh !important; border-radius: 12px !important; margin: 8px !important; }
+  }
   /* Tailwind v2 doesn't have slate, add custom */
   .bg-slate-900 { background: #0f172a } .bg-slate-800 { background: #1e293b } .bg-slate-700 { background: #334155 }
   .bg-slate-800\/50 { background: rgba(30,41,59,0.5) } .bg-slate-800\/30 { background: rgba(30,41,59,0.3) }
@@ -125,6 +144,9 @@ var ICON_SVG = {
   Bot: '<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>',
   RefreshCw: '<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
   BarChart3: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  Camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+  Menu: '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+  ImageIcon: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
 };
 
 // Create icon components from SVG data
@@ -177,6 +199,9 @@ var Send = makeIcon("Send");
 var Bot = makeIcon("Bot");
 var RefreshCw = makeIcon("RefreshCw");
 var BarChart3 = makeIcon("BarChart3");
+var Camera = makeIcon("Camera");
+var Menu = makeIcon("Menu");
+var ImageIcon = makeIcon("ImageIcon");
 
 // ===== STORAGE: Google Sheets Auto-Sync =====
 var STORAGE_KEY = 'ccmn_pro_data';
@@ -886,8 +911,13 @@ function CCMNApp() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100" style={{fontFamily:'system-ui,-apple-system,sans-serif'}}>
-      <div className="flex">
-        <div className="w-56 min-h-screen bg-slate-900/80 border-r border-slate-800 p-4 flex flex-col">
+      <div className="mobile-header flex items-center justify-between px-4 py-3">
+        <h1 className="text-lg font-bold text-emerald-400">CCMN Pro</h1>
+        <div className={"text-sm font-bold font-mono " + (fin.accountBalance >= 0 ? 'text-emerald-400' : 'text-red-400')}>{formatVND(fin.accountBalance)}đ</div>
+      </div>
+
+      <div className="flex main-wrapper">
+        <div className="w-56 min-h-screen bg-slate-900/80 border-r border-slate-800 p-4 flex flex-col desktop-sidebar">
           <div className="mb-6 px-2">
             <h1 className="text-xl font-bold text-emerald-400">CCMN Pro</h1>
             <div className="flex items-center gap-2 mt-1">
@@ -921,7 +951,7 @@ function CCMNApp() {
           </div>
         </div>
 
-        <div className="flex-1 p-6 overflow-auto" style={{maxHeight:'100vh'}}>
+        <div className="flex-1 p-6 overflow-auto main-content" style={{maxHeight:'100vh'}}>
           {activeTab === 'dashboard' && <DashboardView stats={stats} fin={fin} rooms={rooms} bills={bills} setActiveTab={setActiveTab} setShowModal={setShowModal} />}
           {activeTab === 'rooms' && <RoomsView rooms={rooms} setRooms={setRooms} settings={settings} setSelectedRoom={setSelectedRoom} setShowModal={setShowModal} />}
           {activeTab === 'bills' && <BillsView bills={bills} setBills={setBills} rooms={rooms} settings={settings} setSelBill={setSelBill} setShowModal={setShowModal} setPreviewBill={setPreviewBill} />}
@@ -933,12 +963,32 @@ function CCMNApp() {
       </div>
 
       {showModal === 'addTransaction' && <AddTransactionModal onSave={addTransaction} onClose={function(){setShowModal(null)}} />}
+      {showModal === 'scanTransaction' && <ScanTransactionModal apiKey={apiKey} geminiModel={geminiModel} onSave={addTransaction} onClose={function(){setShowModal(null)}} />}
       {showModal === 'editTxn' && selTxn && <EditTransactionModal txn={selTxn} onSave={function(updated){
         setTransactions(transactions.map(function(t){return t.id === updated.id ? updated : t}));
         setShowModal(null); setSelTxn(null);
       }} onClose={function(){setShowModal(null);setSelTxn(null)}} />}
       {showModal === 'newBill' && <NewBillModal rooms={rooms} bills={bills} setBills={setBills} settings={settings} onClose={function(){setShowModal(null)}} onPreview={function(b){setPreviewBill(b)}} />}
       {showModal === 'editBill' && selBill && <EditBillModal bill={selBill} rooms={rooms} bills={bills} setBills={setBills} settings={settings} onClose={function(){setShowModal(null);setSelBill(null)}} />}
+      <div className="mobile-nav">
+        <div className="flex justify-around items-center">
+          {navItems.slice(0, 5).map(function(item) {
+            return (
+              <button key={item.id} onClick={function(){setActiveTab(item.id)}}
+                className={"flex flex-col items-center py-1.5 px-2 rounded-lg transition-all " + (activeTab === item.id ? 'text-emerald-400' : 'text-slate-500')}>
+                <item.icon className="w-5 h-5" />
+                <span className="text-xs mt-0.5" style={{fontSize:'10px'}}>{item.label}</span>
+              </button>
+            );
+          })}
+          <button onClick={function(){setActiveTab(activeTab === 'ai' ? 'settings' : 'ai')}}
+            className={"flex flex-col items-center py-1.5 px-2 rounded-lg transition-all " + (activeTab === 'ai' || activeTab === 'settings' ? 'text-emerald-400' : 'text-slate-500')}>
+            {activeTab === 'settings' ? <Settings className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
+            <span className="text-xs mt-0.5" style={{fontSize:'10px'}}>{activeTab === 'settings' ? 'Cài đặt' : 'AI'}</span>
+          </button>
+        </div>
+      </div>
+
       {showModal === 'payBill' && selBill && <PayBillModal bill={selBill} rooms={rooms} bills={bills} setBills={setBills} onPay={function(t){addTransaction(t);setShowModal(null);setSelBill(null);setActiveTab('transactions')}} onClose={function(){setShowModal(null);setSelBill(null)}} />}
       {previewBill && <BillInvoice bill={previewBill} rooms={rooms} bills={bills} settings={settings} onClose={function(){setPreviewBill(null)}} />}
       {showModal === 'editRoom' && selectedRoom && <EditRoomModal room={selectedRoom} onSave={function(updated){setRooms(function(prev){return prev.map(function(r){return r.id===updated.id?updated:r})});setShowModal(null)}} onClose={function(){setShowModal(null)}} />}
@@ -1260,23 +1310,28 @@ function TransactionsView({ transactions, setTransactions, fin, searchTerm, setS
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-2">
         <h2 className="text-xl font-bold text-white">Nhật ký Thu Chi</h2>
-        <button onClick={function(){setShowModal('addTransaction')}} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all">
-          <Plus className="w-4 h-4" /> Thêm giao dịch
-        </button>
+        <div className="flex gap-2">
+          <button onClick={function(){setShowModal('scanTransaction')}} className="border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all">
+            <Camera className="w-4 h-4" /> Quét ảnh
+          </button>
+          <button onClick={function(){setShowModal('addTransaction')}} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all">
+            <Plus className="w-4 h-4" /> Thêm
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        <select value={filterMonth} onChange={function(e){setFilterMonth(e.target.value)}} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+        <select value={filterMonth} onChange={function(e){setFilterMonth(e.target.value)}} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white flex-1" style={{minWidth:'120px'}}>
           <option value="all">Tất cả tháng</option>
           {months.map(function(m){return <option key={m} value={m}>{m}</option>})}
         </select>
-        <select value={catFilter} onChange={function(e){setCatFilter(e.target.value)}} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+        <select value={catFilter} onChange={function(e){setCatFilter(e.target.value)}} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white flex-1" style={{minWidth:'120px'}}>
           <option value="all">Tất cả loại</option>
           {Object.keys(CATEGORIES).map(function(k){return <option key={k} value={k}>{CATEGORIES[k].label}</option>})}
         </select>
-        <div className="relative flex-1 min-w-48">
+        <div className="relative flex-1" style={{minWidth:'140px'}}>
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
           <input type="text" placeholder="Tìm kiếm..." value={searchTerm} onChange={function(e){setSearchTerm(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-white" />
         </div>
@@ -1297,8 +1352,8 @@ function TransactionsView({ transactions, setTransactions, fin, searchTerm, setS
         </div>
       </div>
 
-      <div className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-x-auto">
+        <table className="w-full text-sm min-w-[600px]">
           <thead>
             <tr className="border-b border-slate-700">
               <th className="text-left py-2 px-3 text-slate-400">Ngày</th>
@@ -2695,6 +2750,242 @@ function SettingsView({ settings, setSettings, rooms, transactions, syncState, s
 }
 
 // ===== EDIT TRANSACTION MODAL =====
+// ===== SCAN TRANSACTION MODAL — Gemini Vision =====
+function ScanTransactionModal({ apiKey, geminiModel, onSave, onClose }) {
+  var _step = React.useState('capture'); var step = _step[0]; var setStep = _step[1]; // capture | analyzing | review
+  var _img = React.useState(null); var imgData = _img[0]; var setImgData = _img[1]; // base64
+  var _preview = React.useState(null); var preview = _preview[0]; var setPreview = _preview[1]; // URL
+  var _loading = React.useState(false); var loading = _loading[0]; var setLoading = _loading[1];
+  var _error = React.useState(''); var error = _error[0]; var setError = _error[1];
+  // Extracted fields
+  var _type = React.useState('expense'); var txnType = _type[0]; var setTxnType = _type[1];
+  var _date = React.useState(new Date().toISOString().slice(0, 10)); var date = _date[0]; var setDate = _date[1];
+  var _desc = React.useState(''); var desc = _desc[0]; var setDesc = _desc[1];
+  var _room = React.useState('Chung'); var room = _room[0]; var setRoom = _room[1];
+  var _amount = React.useState(''); var amount = _amount[0]; var setAmount = _amount[1];
+  var _cat = React.useState(''); var cat = _cat[0]; var setCat = _cat[1];
+  var _note = React.useState(''); var note = _note[0]; var setNote = _note[1];
+  var _rawAI = React.useState(''); var rawAI = _rawAI[0]; var setRawAI = _rawAI[1];
+  var fileRef = React.useRef(null);
+
+  function handleFile(e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    setPreview(URL.createObjectURL(file));
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var base64 = ev.target.result.split(',')[1];
+      setImgData(base64);
+      analyzeImage(base64, file.type);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function analyzeImage(base64, mimeType) {
+    setStep('analyzing');
+    setLoading(true);
+    setError('');
+
+    var catList = Object.keys(CATEGORIES).map(function(k) { return k + ' (' + CATEGORIES[k].label + ')'; }).join(', ');
+
+    var prompt = 'Phân tích ảnh này (có thể là: biên lai chuyển khoản, SMS ngân hàng, hóa đơn, bill điện nước, tin nhắn thu tiền phòng). ' +
+      'Trích xuất thông tin giao dịch và trả về JSON thuần (không markdown, không backtick):\n' +
+      '{"type":"income hoặc expense","date":"YYYY-MM-DD","amount":số tiền (chỉ số),"desc":"mô tả ngắn gọn","room":"số phòng nếu có hoặc Chung","category":"mã phân loại","note":"ghi chú thêm","confidence":"high/medium/low"}\n\n' +
+      'Danh sách category: ' + catList + '\n' +
+      'Quy tắc: THU_TIEN_NHA cho thu tiền phòng, CHI_DIEN cho điện, CHI_NUOC cho nước, CHI_SUA_CHUA cho sửa chữa, THU_VON_GOP cho góp vốn, CHI_MOI_GIOI cho môi giới.\n' +
+      'Nếu ảnh là chuyển khoản ĐẾN mình → income. Chuyển khoản TỪ mình → expense.\n' +
+      'Nếu không rõ ngày, dùng hôm nay: ' + new Date().toISOString().slice(0, 10) + '\n' +
+      'Chỉ trả về JSON, không text khác.';
+
+    var url = GEMINI_ENDPOINT + (geminiModel || 'gemini-2.5-flash') + ':generateContent?key=' + apiKey;
+
+    fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        contents: [{role: 'user', parts: [
+          {inlineData: {mimeType: mimeType || 'image/jpeg', data: base64}},
+          {text: prompt}
+        ]}],
+        generationConfig: {maxOutputTokens: 2048, temperature: 0.2}
+      })
+    }).then(function(r) { return r.text(); })
+    .then(function(rawText) {
+      try {
+        var data = JSON.parse(rawText);
+        var result = '';
+        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+          result = data.candidates[0].content.parts.filter(function(p){return p.text && !p.thought}).map(function(p){return p.text}).join('');
+        }
+        if (!result && data.candidates && data.candidates[0] && data.candidates[0].content) {
+          result = data.candidates[0].content.parts.filter(function(p){return p.text}).map(function(p){return p.text}).join('');
+        }
+        if (!result) throw new Error('Empty response');
+        setRawAI(result);
+
+        var clean = result.replace(/```json|```/g, '').trim();
+        var s = clean.indexOf('{'); var e2 = clean.lastIndexOf('}');
+        if (s >= 0 && e2 > s) clean = clean.slice(s, e2 + 1);
+        var parsed = JSON.parse(clean);
+
+        setTxnType(parsed.type === 'income' ? 'income' : 'expense');
+        setDate(parsed.date || new Date().toISOString().slice(0, 10));
+        setAmount(String(parsed.amount || ''));
+        setDesc(parsed.desc || '');
+        setRoom(parsed.room || 'Chung');
+        setCat(parsed.category || '');
+        setNote(parsed.note || '');
+        setStep('review');
+      } catch (err) {
+        setError('Không thể phân tích ảnh: ' + err.message + '. Raw: ' + rawText.slice(0, 200));
+        setStep('capture');
+      }
+      setLoading(false);
+    }).catch(function(err) {
+      setError('Lỗi kết nối: ' + err.message);
+      setLoading(false);
+      setStep('capture');
+    });
+  }
+
+  function handleSave() {
+    if (!desc || !amount || !cat) return;
+    var amt = parseFloat(amount);
+    if (isNaN(amt) || amt <= 0) return;
+    onSave({
+      date: date, desc: desc, room: room,
+      income: txnType === 'income' ? amt : 0,
+      expense: txnType === 'expense' ? amt : 0,
+      category: cat, note: (note ? note + ' ' : '') + '[📷 AI scan]',
+    });
+  }
+
+  var catOptions = txnType === 'income' ? INCOME_CATS : EXPENSE_CATS;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-3" onClick={onClose}>
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md max-h-[90vh] overflow-auto" onClick={function(e){e.stopPropagation()}}>
+        <div className="flex justify-between items-center p-4 border-b border-slate-800 sticky top-0 bg-slate-900 rounded-t-2xl z-10">
+          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <Camera className="w-5 h-5 text-emerald-400" />
+            {step === 'capture' ? 'Quét giao dịch' : step === 'analyzing' ? 'Đang phân tích...' : 'Xác nhận giao dịch'}
+          </h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="p-4 space-y-4">
+          {step === 'capture' && (
+            <React.Fragment>
+              <div className="border-2 border-dashed border-slate-700 rounded-xl p-6 text-center hover:border-emerald-500/50 transition-all cursor-pointer" onClick={function(){fileRef.current && fileRef.current.click()}}>
+                {preview ? (
+                  <img src={preview} className="max-h-48 mx-auto rounded-lg mb-2" />
+                ) : (
+                  <React.Fragment>
+                    <Camera className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                    <p className="text-sm text-slate-400">Chạm để chụp hoặc chọn ảnh</p>
+                    <p className="text-xs text-slate-600 mt-1">Biên lai, SMS ngân hàng, bill, tin nhắn</p>
+                  </React.Fragment>
+                )}
+                <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
+              </div>
+
+              <div className="flex gap-2">
+                <button onClick={function(){fileRef.current && fileRef.current.click()}} className="flex-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
+                  <Camera className="w-4 h-4" /> Chụp ảnh
+                </button>
+                <button onClick={function(){
+                  var input = document.createElement('input');
+                  input.type = 'file'; input.accept = 'image/*';
+                  input.onchange = handleFile;
+                  input.click();
+                }} className="flex-1 bg-blue-500/20 border border-blue-500/30 text-blue-400 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
+                  <ImageIcon className="w-4 h-4" /> Thư viện
+                </button>
+              </div>
+
+              {error && <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-xs text-red-300">{error}</div>}
+            </React.Fragment>
+          )}
+
+          {step === 'analyzing' && (
+            <div className="text-center py-8">
+              <div className="animate-pulse flex flex-col items-center gap-3">
+                {preview && <img src={preview} className="max-h-32 rounded-lg opacity-60" />}
+                <Sparkles className="w-8 h-8 text-emerald-400" />
+                <p className="text-sm text-slate-400">AI đang phân tích ảnh...</p>
+                <p className="text-xs text-slate-600">Trích xuất thông tin giao dịch</p>
+              </div>
+            </div>
+          )}
+
+          {step === 'review' && (
+            <React.Fragment>
+              {preview && (
+                <div className="flex gap-3 items-start">
+                  <img src={preview} className="w-20 h-20 object-cover rounded-lg border border-slate-700 flex-shrink-0" />
+                  <div className="flex-1 text-xs text-slate-500">
+                    <span className="text-emerald-400 font-medium">AI đã trích xuất</span> — Kiểm tra và sửa nếu cần trước khi lưu
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <button onClick={function(){setTxnType('income');setCat('')}} className={"flex-1 py-2 rounded-lg text-sm font-medium " + (txnType === 'income' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400')}>Thu</button>
+                <button onClick={function(){setTxnType('expense');setCat('')}} className={"flex-1 py-2 rounded-lg text-sm font-medium " + (txnType === 'expense' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-slate-800 text-slate-400')}>Chi</button>
+              </div>
+
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-400">Ngày</label>
+                    <input type="date" value={date} onChange={function(e){setDate(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400">Số tiền</label>
+                    <input type="number" value={amount} onChange={function(e){setAmount(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono" placeholder="0" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400">Diễn giải</label>
+                  <input type="text" value={desc} onChange={function(e){setDesc(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-400">Phòng</label>
+                    <input type="text" value={room} onChange={function(e){setRoom(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400">Phân loại</label>
+                    <select value={cat} onChange={function(e){setCat(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                      <option value="">-- Chọn --</option>
+                      {catOptions.map(function(c){return <option key={c} value={c}>{CATEGORIES[c].label}</option>})}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-400">Ghi chú</label>
+                  <input type="text" value={note} onChange={function(e){setNote(e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button onClick={function(){setStep('capture'); setImgData(null); setPreview(null); setError('')}} className="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">
+                  Quét lại
+                </button>
+                <button onClick={handleSave} disabled={!desc || !amount || !cat}
+                  className={"flex-1 py-2.5 rounded-xl text-sm font-medium " + (!desc || !amount || !cat ? 'bg-slate-700 text-slate-500' : 'text-white')}
+                  style={!desc || !amount || !cat ? {} : {background:'linear-gradient(135deg,#10b981,#3b82f6)'}}>
+                  Xác nhận lưu
+                </button>
+              </div>
+            </React.Fragment>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function EditTransactionModal({ txn, onSave, onClose }) {
   var isIncome = txn.income > 0;
   var _type = React.useState(isIncome ? 'income' : 'expense'); var txnType = _type[0]; var setTxnType = _type[1];
