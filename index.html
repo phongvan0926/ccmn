@@ -987,21 +987,17 @@ function CCMNApp() {
       {showModal === 'newBill' && <NewBillModal rooms={rooms} bills={bills} setBills={setBills} settings={settings} onClose={function(){setShowModal(null)}} onPreview={function(b){setPreviewBill(b)}} />}
       {showModal === 'editBill' && selBill && <EditBillModal bill={selBill} rooms={rooms} bills={bills} setBills={setBills} settings={settings} onClose={function(){setShowModal(null);setSelBill(null)}} />}
       <div className="mobile-nav">
-        <div className="flex justify-around items-center">
-          {navItems.slice(0, 5).map(function(item) {
+        <div className="flex justify-center items-center" style={{gap:'2px'}}>
+          {navItems.map(function(item) {
             return (
               <button key={item.id} onClick={function(){setActiveTab(item.id)}}
-                className={"flex flex-col items-center py-1.5 px-2 rounded-lg transition-all " + (activeTab === item.id ? 'text-emerald-400' : 'text-slate-500')}>
-                <item.icon className="w-5 h-5" />
-                <span className="text-xs mt-0.5" style={{fontSize:'10px'}}>{item.label}</span>
+                className={"flex flex-col items-center py-1 px-2 rounded-lg transition-all flex-1 " + (activeTab === item.id ? 'text-emerald-400' : 'text-slate-500')}
+                style={{maxWidth:'60px',minWidth:'0'}}>
+                <item.icon className="w-4.5 h-4.5" style={{width:'18px',height:'18px'}} />
+                <span className="mt-0.5 truncate w-full text-center" style={{fontSize:'9px'}}>{item.label}</span>
               </button>
             );
           })}
-          <button onClick={function(){setActiveTab(activeTab === 'ai' ? 'settings' : 'ai')}}
-            className={"flex flex-col items-center py-1.5 px-2 rounded-lg transition-all " + (activeTab === 'ai' || activeTab === 'settings' ? 'text-emerald-400' : 'text-slate-500')}>
-            {activeTab === 'settings' ? <Settings className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
-            <span className="text-xs mt-0.5" style={{fontSize:'10px'}}>{activeTab === 'settings' ? 'Cài đặt' : 'AI'}</span>
-          </button>
         </div>
       </div>
 
@@ -1108,7 +1104,7 @@ function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal, s
 
       {recentMonths.length > 0 && (
         <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">P&L 6 tháng gần nhất</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Doanh thu 6 tháng gần nhất</h3>
           <div className="space-y-2">
             {recentMonths.map(function(m) {
               var maxRev = Math.max.apply(null, recentMonths.map(function(x){return x.revenue}));
@@ -1120,7 +1116,7 @@ function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal, s
                     <div className="h-full bg-emerald-500/30 rounded" style={{width: barW + '%'}}></div>
                     <span className="absolute inset-0 flex items-center px-2 text-xs font-mono text-emerald-300">+{formatVND(m.revenue)}</span>
                   </div>
-                  <span className={"text-xs font-mono w-24 text-right " + (m.net >= 0 ? 'text-emerald-400' : 'text-red-400')}>LN: {m.net >= 0 ? '+' : ''}{formatVND(m.net)}</span>
+                  <span className={"text-xs font-mono w-24 text-right " + (m.net >= 0 ? 'text-emerald-400' : 'text-red-400')}>DT: {m.net >= 0 ? '+' : ''}{formatVND(m.net)}</span>
                 </div>
               );
             })}
@@ -2208,8 +2204,11 @@ function buildAIContext(fin, transactions, rooms, bills, stats, settings) {
   var unpaidBills = bills.filter(function(b){return b.status === 'Unpaid'});
   var unpaidTotal = unpaidBills.reduce(function(s,b){return s + b.debt}, 0);
   var allMonths = fin.allMonths || [];
+  var occupiedCount = rooms.filter(function(r){return r.status === 'Đang thuê'}).length;
+  var emptyCount = rooms.length - occupiedCount;
   var roomList = rooms.map(function(r){
-    return 'P.' + r.id + ': ' + (r.tenants && r.tenants.length > 0 ? r.tenants.map(function(t){return t.name}).join(', ') : 'Trống') +
+    var occupied = r.status === 'Đang thuê';
+    return 'P.' + r.id + ': ' + (occupied ? r.tenant + ' | ' + r.people + ' người | ' + r.rent + 'đ/tháng' : 'TRỐNG') +
       (r.contract ? ' | HĐ: ' + (r.contract.start || '') + ' → ' + (r.contract.end || '') : '');
   }).join('\n');
 
@@ -2269,7 +2268,7 @@ function buildAIContext(fin, transactions, rooms, bills, stats, settings) {
     'Lãi ròng:        ' + fin.netProfit + 'đ (' + (fin.revenue > 0 ? (fin.netProfit/fin.revenue*100).toFixed(1) : 0) + '%)\n' +
     'Tổng GD:         ' + transactions.length + '\n\n' +
     '=== P&L THEO THÁNG ===\n' + pnlStr + '\n\n' +
-    '=== PHÒNG ===\n' + roomList + '\n\n' +
+    '=== PHÒNG (' + occupiedCount + ' đang thuê, ' + emptyCount + ' trống) ===\n' + roomList + '\n\n' +
     '=== HÓA ĐƠN ===\n' + billsStr + '\n' +
     'Phiếu chưa thu: ' + unpaidBills.length + ' phiếu, tổng nợ: ' + unpaidTotal + 'đ\n' +
     (unpaidBills.length > 0 ? unpaidBills.map(function(b){return '  P.' + b.room + ' T' + b.month + ': nợ ' + b.debt + 'đ'}).join('\n') + '\n' : '') +
@@ -2738,7 +2737,7 @@ function SettingsView({ settings, setSettings, rooms, transactions, syncState, s
         <div className="space-y-2 mb-3">
           {(modelList || []).map(function(m, i) {
             return (
-              <div key={i} className={"flex items-center gap-2 rounded-lg p-2.5 " + (i === 0 ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-slate-900/50')}>
+              <div key={m.id + '-' + i} className={"flex items-center gap-2 rounded-lg p-2.5 " + (i === 0 ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-slate-900/50')}>
                 <div className="flex flex-col gap-0.5 flex-shrink-0">
                   <button onClick={function(){if(i===0)return;var n=modelList.slice();var tmp=n[i];n[i]=n[i-1];n[i-1]=tmp;updateModelList(n)}}
                     className={"p-0.5 rounded " + (i === 0 ? 'text-slate-700' : 'text-slate-400 hover:text-white hover:bg-slate-700')} disabled={i===0}><ChevronUp className="w-3.5 h-3.5" /></button>
@@ -2747,12 +2746,13 @@ function SettingsView({ settings, setSettings, rooms, transactions, syncState, s
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <input type="text" defaultValue={m.id} className="bg-transparent text-white text-xs font-mono flex-1 min-w-0 outline-none border-b border-transparent focus:border-emerald-500/50 pb-0.5" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{id:e.target.value.trim()});updateModelList(n)}} />
+                    <span className="text-white text-xs font-mono flex-1 min-w-0">{m.id}</span>
                     {i === 0 && <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 flex-shrink-0">Mặc định</span>}
                   </div>
                   <div className="flex gap-2 mt-1">
-                    <input type="text" defaultValue={m.label} placeholder="Tên" className="bg-transparent text-slate-300 text-xs flex-1 outline-none" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{label:e.target.value.trim()});updateModelList(n)}} />
-                    <input type="text" defaultValue={m.desc} placeholder="Mô tả" className="bg-transparent text-slate-500 text-xs flex-1 outline-none" onBlur={function(e){var n=modelList.slice();n[i]=Object.assign({},n[i],{desc:e.target.value.trim()});updateModelList(n)}} />
+                    <span className="text-slate-300 text-xs">{m.label}</span>
+                    <span className="text-slate-600">·</span>
+                    <span className="text-slate-500 text-xs">{m.desc}</span>
                   </div>
                 </div>
                 <button onClick={function(){
