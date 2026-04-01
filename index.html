@@ -341,40 +341,40 @@ var PNL_FINANCIAL_IN = ['THU_LAI_NH'];
 // ===== DỮ LIỆU PHÒNG (nâng cấp: hợp đồng + giá riêng + thông tin khách) =====
 var initialRooms = [
   {id:'201',tenant:'',phone:'',cccd:'',people:0,members:[],rent:0,deposit:0,status:'Trống',waterType:'person',note:'Phòng demo/trống',
-   contractStart:'',contractEnd:'',contractMonths:0,moveInDate:'',
+   contractStart:'',contractEnd:'',contractMonths:0,moveInDate:'',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
   {id:'202',tenant:'Huyền Kim',phone:'',cccd:'',people:1,members:[],rent:5000000,deposit:5000000,status:'Đang thuê',waterType:'meter',note:'',
-   contractStart:'2025-08-01',contractEnd:'2026-08-01',contractMonths:12,moveInDate:'2025-08-01',
+   contractStart:'2025-08-01',contractEnd:'2026-08-01',contractMonths:12,moveInDate:'2025-08-01',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
   {id:'301',tenant:'Trần Hân',phone:'',cccd:'',people:2,members:[],rent:5500000,deposit:0,status:'Đang thuê',waterType:'person',note:'Không thu cọc',
-   contractStart:'2025-08-01',contractEnd:'2026-02-01',contractMonths:6,moveInDate:'2025-08-01',
+   contractStart:'2025-08-01',contractEnd:'2026-02-01',contractMonths:6,moveInDate:'2025-08-01',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:100000}},
   {id:'302',tenant:'Trần Trung Hoàng',phone:'',cccd:'',people:2,members:[],rent:4800000,deposit:4800000,status:'Đang thuê',waterType:'meter',note:'',
-   contractStart:'2025-10-01',contractEnd:'2026-10-01',contractMonths:12,moveInDate:'2025-10-01',
+   contractStart:'2025-10-01',contractEnd:'2026-10-01',contractMonths:12,moveInDate:'2025-10-01',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
   {id:'401',tenant:'Khánh Linh',phone:'',cccd:'',people:1,members:[],rent:5500000,deposit:0,status:'Đang thuê',waterType:'person',note:'Không thu cọc',
-   contractStart:'2025-07-15',contractEnd:'2026-01-15',contractMonths:6,moveInDate:'2025-07-15',
+   contractStart:'2025-07-15',contractEnd:'2026-01-15',contractMonths:6,moveInDate:'2025-07-15',payFreq:1,
    pricing:{elecPrice:3800,waterPrice:null,waterPerPerson:100000,internet:null,service:100000}},
   {id:'402',tenant:'Lan Nguyễn',phone:'',cccd:'',people:2,members:[],rent:4700000,deposit:4700000,status:'Đang thuê',waterType:'person',note:'',
-   contractStart:'2025-11-01',contractEnd:'2026-11-01',contractMonths:12,moveInDate:'2025-11-01',
+   contractStart:'2025-11-01',contractEnd:'2026-11-01',contractMonths:12,moveInDate:'2025-11-01',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
   {id:'501',tenant:'Hỷ Nhi',phone:'',cccd:'',people:1,members:[],rent:5500000,deposit:5500000,status:'Đang thuê',waterType:'meter',note:'',
-   contractStart:'2025-08-01',contractEnd:'2026-08-01',contractMonths:12,moveInDate:'2025-08-01',
+   contractStart:'2025-08-01',contractEnd:'2026-08-01',contractMonths:12,moveInDate:'2025-08-01',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
   {id:'502',tenant:'Kiều Hạnh',phone:'',cccd:'',people:2,members:[],rent:4800000,deposit:4800000,status:'Đang thuê',waterType:'meter',note:'',
-   contractStart:'2025-09-01',contractEnd:'2026-09-01',contractMonths:12,moveInDate:'2025-09-01',
+   contractStart:'2025-09-01',contractEnd:'2026-09-01',contractMonths:12,moveInDate:'2025-09-01',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
   {id:'601',tenant:'Nguyễn Hương Giang',phone:'',cccd:'',people:1,members:[],rent:5500000,deposit:5500000,status:'Đang thuê',waterType:'person',note:'',
-   contractStart:'2025-10-15',contractEnd:'2026-10-15',contractMonths:12,moveInDate:'2025-10-15',
+   contractStart:'2025-10-15',contractEnd:'2026-10-15',contractMonths:12,moveInDate:'2025-10-15',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
   {id:'602',tenant:'Kiều Kiều',phone:'',cccd:'',people:1,members:[],rent:5000000,deposit:5000000,status:'Đang thuê',waterType:'meter',note:'',
-   contractStart:'2025-08-01',contractEnd:'2026-08-01',contractMonths:12,moveInDate:'2025-08-01',
+   contractStart:'2025-08-01',contractEnd:'2026-08-01',contractMonths:12,moveInDate:'2025-08-01',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
   {id:'701',tenant:'',phone:'',cccd:'',people:0,members:[],rent:0,deposit:0,status:'Trống',waterType:'person',note:'Phòng chủ',
-   contractStart:'',contractEnd:'',contractMonths:0,moveInDate:'',
+   contractStart:'',contractEnd:'',contractMonths:0,moveInDate:'',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
   {id:'702',tenant:'Nguyễn Hướng',phone:'',cccd:'',people:1,members:[],rent:4800000,deposit:4800000,status:'Đang thuê',waterType:'meter',note:'',
-   contractStart:'2025-11-01',contractEnd:'2026-11-01',contractMonths:12,moveInDate:'2025-11-01',
+   contractStart:'2025-11-01',contractEnd:'2026-11-01',contractMonths:12,moveInDate:'2025-11-01',payFreq:1,
    pricing:{elecPrice:null,waterPrice:null,waterPerPerson:null,internet:null,service:null}},
 ];
 
@@ -1070,6 +1070,60 @@ function DashboardView({ stats, fin, rooms, bills, setActiveTab, setShowModal, s
       )}
 
       {(function() {
+        var curMonth = new Date().toISOString().slice(0, 7);
+        var occupiedRooms = rooms.filter(function(r){return r.status === 'Đang thuê'});
+        var roomsWithBill = bills.filter(function(b){return b.month === curMonth}).map(function(b){return b.room});
+        var missingBills = occupiedRooms.filter(function(r){return roomsWithBill.indexOf(r.id) < 0});
+        if (missingBills.length > 0) return (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-center gap-4">
+            <Zap className="w-8 h-8 text-yellow-400 flex-shrink-0" />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-yellow-400">{missingBills.length} phòng chưa ghi chỉ số tháng {curMonth.replace('-','/')}</div>
+              <div className="text-xs text-slate-400">{missingBills.map(function(r){return r.id}).join(', ')}</div>
+            </div>
+            <button onClick={function(){setShowModal('newBill')}} className="bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-yellow-500/30">Ghi chỉ số →</button>
+          </div>
+        );
+        return null;
+      })()}
+
+      {(function() {
+        var today = new Date();
+        var rentPayMonths = [2, 5, 8, 11];
+        var curM = today.getMonth() + 1;
+        var curD = today.getDate();
+        var nextPayMonth = null;
+        for (var i = 0; i < rentPayMonths.length; i++) {
+          if (curM === rentPayMonths[i] || (curM === rentPayMonths[i] - 1 && curD >= 15) || (curM + 1 === rentPayMonths[i] && curD >= 15)) {
+            nextPayMonth = rentPayMonths[i]; break;
+          }
+        }
+        if (!nextPayMonth) {
+          for (var j = 0; j < rentPayMonths.length; j++) {
+            var payM = rentPayMonths[j];
+            var daysUntil = (payM - curM + 12) % 12 * 30;
+            if (daysUntil <= 15) { nextPayMonth = payM; break; }
+          }
+        }
+        if (nextPayMonth) {
+          var payDate = today.getFullYear() + '/' + String(nextPayMonth).padStart(2, '0');
+          var monthsLabel = ['', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+          var coverStart = monthsLabel[nextPayMonth];
+          var coverEnd = monthsLabel[nextPayMonth + 2 > 12 ? nextPayMonth + 2 - 12 : nextPayMonth + 2];
+          return (
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 flex items-center gap-4">
+              <CreditCard className="w-8 h-8 text-blue-400 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-blue-400">Nhắc đóng tiền thuê nhà chủ</div>
+                <div className="text-xs text-slate-400">126,000,000đ cho {coverStart}→{coverEnd} | Hạn: đầu {payDate}</div>
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
+
+      {(function() {
         var expiring = rooms.filter(function(r) { var cs = getContractStatus(r); return cs.status === 'expired' || cs.status === 'expiring'; });
         if (expiring.length === 0) return null;
         return (
@@ -1185,6 +1239,7 @@ function RoomsView({ rooms, setRooms, settings, setSelectedRoom, setShowModal })
                 <div className="flex justify-between"><span className="text-slate-400">Tiền phòng:</span><span className="text-emerald-400 font-bold font-mono">{formatVND(dr.rent)}đ</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Đặt cọc:</span><span className={dr.deposit > 0 ? 'text-cyan-400 font-mono' : 'text-amber-400'}>{dr.deposit > 0 ? formatVND(dr.deposit) + 'đ' : 'Không cọc'}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Thời hạn:</span><span className="text-white">{dr.contractMonths ? dr.contractMonths + ' tháng' : '—'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Kỳ thanh toán:</span><span className="text-white">{dr.payFreq && dr.payFreq > 1 ? dr.payFreq + ' tháng/lần' : 'Hàng tháng'}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Bắt đầu:</span><span className="text-white">{dr.contractStart || '—'}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Kết thúc:</span><span className="text-white">{dr.contractEnd || '—'}</span></div>
                 {cs.status !== 'none' && (
@@ -1794,10 +1849,37 @@ function BillsView({ bills, setBills, rooms, settings, setSelBill, setShowModal,
 
 // ===== NEW BILL MODAL =====
 function NewBillModal({ rooms, bills, setBills, settings, onClose, onPreview }) {
-  var _f = React.useState({ month: new Date().toISOString().slice(0, 7), room: '', elecNew: 0, waterNew: 0, internet: true, service: true, months: 1 });
+  var _f = React.useState({ month: new Date().toISOString().slice(0, 7), room: '', elecNew: 0, waterNew: 0, internet: true, service: true, months: 1, autoMonths: true });
   var form = _f[0]; var setForm = _f[1];
 
   var room = rooms.find(function(r){return r.id === form.room});
+
+  // Auto-calc months based on payFreq and previous bills
+  function calcAutoMonths(roomId, billMonth) {
+    var r = rooms.find(function(x){return x.id === roomId});
+    if (!r) return 1;
+    var freq = r.payFreq || 1;
+    if (freq <= 1) return 1;
+    // Check if room has a recent bill with rent > 0 — if last bill had rent, next should be 0, then freq again
+    var roomBills = bills.filter(function(b){return b.room === roomId && b.rent > 0}).sort(function(a,b){return b.month.localeCompare(a.month)});
+    if (roomBills.length === 0) return freq; // First bill: charge full freq
+    var lastPaidMonth = roomBills[0].month;
+    // Count months since last rent payment
+    var lp = lastPaidMonth.split('-'); var cm = billMonth.split('-');
+    var monthsSince = (parseInt(cm[0]) - parseInt(lp[0])) * 12 + (parseInt(cm[1]) - parseInt(lp[1]));
+    if (monthsSince >= freq) return freq;
+    return 0; // Not yet time to charge rent
+  }
+
+  // When room changes, recalculate auto months
+  var prevRoom = React.useRef('');
+  React.useEffect(function() {
+    if (form.room && form.room !== prevRoom.current && form.autoMonths) {
+      var auto = calcAutoMonths(form.room, form.month);
+      setForm(function(prev){return Object.assign({}, prev, {months: auto})});
+    }
+    prevRoom.current = form.room;
+  }, [form.room, form.month]);
   var getOld = function() {
     var rb = bills.filter(function(b){return b.room === form.room}).sort(function(a,b){return b.month.localeCompare(a.month)});
     return rb.length > 0 ? { elecOld: rb[0].elecNew, waterOld: rb[0].waterNew } : { elecOld: 0, waterOld: 0 };
@@ -1874,7 +1956,7 @@ function NewBillModal({ rooms, bills, setBills, settings, onClose, onPreview }) 
             <div className="flex gap-4 items-center text-sm">
               <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.internet} onChange={function(e){setForm(Object.assign({},form,{internet:e.target.checked}))}} /> <span className="text-slate-300">Internet</span></label>
               <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={form.service} onChange={function(e){setForm(Object.assign({},form,{service:e.target.checked}))}} /> <span className="text-slate-300">Dịch vụ</span></label>
-              <div><label className="text-xs text-slate-400">Số tháng phòng</label><input type="number" min={0} value={form.months} onChange={function(e){setForm(Object.assign({},form,{months:+e.target.value}))}} className="w-16 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white ml-2" /></div>
+              <div className="flex items-center gap-1"><label className="text-xs text-slate-400">Tháng phòng</label><input type="number" min={0} value={form.months} onChange={function(e){setForm(Object.assign({},form,{months:+e.target.value,autoMonths:false}))}} className="w-16 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white ml-1" />{room && room.payFreq > 1 && <span className="text-xs text-slate-600">({room.payFreq}T/lần)</span>}</div>
             </div>
             <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4 text-sm space-y-1">
               {room && room.pricing && Object.keys(room.pricing).some(function(k){return room.pricing[k] != null}) && (
@@ -3295,7 +3377,7 @@ function EditRoomModal({ room, onSave, onClose }) {
   }
 
   function handleSave() {
-    onSave(Object.assign({}, f, { people: Number(f.people), rent: Number(f.rent), deposit: Number(f.deposit), contractMonths: Number(f.contractMonths || 0) }));
+    onSave(Object.assign({}, f, { people: Number(f.people), rent: Number(f.rent), deposit: Number(f.deposit), contractMonths: Number(f.contractMonths || 0), payFreq: Number(f.payFreq || 1) }));
   }
 
   var tabs = [
@@ -3343,10 +3425,21 @@ function EditRoomModal({ room, onSave, onClose }) {
                 <div><label className="text-xs text-slate-400">Tiền phòng (đ/tháng)</label><input type="number" value={f.rent} onChange={function(e){upd('rent',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
                 <div><label className="text-xs text-slate-400">Tiền cọc</label><input type="number" value={f.deposit} onChange={function(e){upd('deposit',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div><label className="text-xs text-slate-400">Ngày bắt đầu</label><input type="date" value={f.contractStart||''} onChange={function(e){upd('contractStart',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
                 <div><label className="text-xs text-slate-400">Ngày kết thúc</label><input type="date" value={f.contractEnd||''} onChange={function(e){upd('contractEnd',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
-                <div><label className="text-xs text-slate-400">Số tháng</label><input type="number" value={f.contractMonths||''} onChange={function(e){upd('contractMonths',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="text-xs text-slate-400">Thời hạn HĐ (tháng)</label><input type="number" value={f.contractMonths||''} onChange={function(e){upd('contractMonths',e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1" /></div>
+                <div><label className="text-xs text-slate-400">Kỳ thanh toán phòng</label>
+                  <select value={f.payFreq||1} onChange={function(e){upd('payFreq',+e.target.value)}} className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white mt-1">
+                    <option value={1}>1 tháng/lần</option>
+                    <option value={2}>2 tháng/lần</option>
+                    <option value={3}>3 tháng/lần</option>
+                    <option value={6}>6 tháng/lần</option>
+                    <option value={12}>12 tháng/lần (cả năm)</option>
+                  </select>
+                </div>
               </div>
               {f.contractEnd && (function() {
                 var cs = getContractStatus(f);
